@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "MeshGenerationComponent.h"
-#include <vector>
+#include "GameObject.h"
 
 // Sets default values for this component's properties
 UMeshGenerationComponent::UMeshGenerationComponent()
@@ -19,11 +19,22 @@ void UMeshGenerationComponent::BeginPlay()
 	Super::BeginPlay();	
 }
 
-int UMeshGenerationComponent::GenerateMesh(TArray<GameObject*> objects)
+AGameObject* UMeshGenerationComponent::GenerateMesh(TArray<AGameObject*> objects)
 {
+	auto object = objects.Pop();
+
+	auto mesh = object->Mesh->GetStaticMesh();
+	(*mesh).GetRenderData()->LODResources[0].VertexBuffers.PositionVertexBuffer.VertexPosition(0);
+	FMeshDescription* meshDescription = (*mesh).GetMeshDescription(0);
 	
 
 
-	return 0;
+	AGameObject* newObject = NewObject<AGameObject>();
+	auto mesh = newObject->Mesh->GetStaticMesh();
+	
+	(*mesh).GetRenderData()->LODResources[0].VertexBuffers.PositionVertexBuffer;
+	// CreateMeshSection
+
+	return nullptr;
 }
 
