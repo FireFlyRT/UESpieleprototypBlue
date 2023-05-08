@@ -4,16 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "GameObject.generated.h"
+#include "CGameObject.generated.h"
 
 UCLASS()
-class UESPIELEPROTOTYPBLUE_API AGameObject : public AActor
+class UESPIELEPROTOTYPBLUE_API ACGameObject : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	AGameObject();
+	ACGameObject();
 
 protected:
 	// Called when the game starts or when spawned
@@ -24,21 +24,20 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class UStaticMeshComponent* Mesh;
+		class UStaticMeshComponent* Mesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FString Name;
+		FString Name;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool IsAttached;
+		bool IsAttached;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int Durability;
+		int Durability;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float Temperature;
+		float Temperature;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float Weight;
-
+		float Weight;
 };

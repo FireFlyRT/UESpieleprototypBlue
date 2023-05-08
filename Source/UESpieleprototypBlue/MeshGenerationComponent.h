@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameObject.h"
+#include "CGameObject.h"
 #include "Components/ActorComponent.h"
 #include "MeshGenerationComponent.generated.h"
 
@@ -21,5 +21,5 @@ protected:
 
 public:	
 	UFUNCTION(BlueprintCallable)
-	AGameObject* GenerateMesh(TArray<AGameObject*> objects); //TArray<GameObject*> objects
+	ACGameObject* GenerateMesh(TArray<ACGameObject*> objects); //TArray<GameObject*> objects
 };
