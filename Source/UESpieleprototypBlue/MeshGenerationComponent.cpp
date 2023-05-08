@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "MeshGenerationComponent.h"
-#include <vector>
 
 // Sets default values for this component's properties
 UMeshGenerationComponent::UMeshGenerationComponent()
@@ -21,8 +20,19 @@ void UMeshGenerationComponent::BeginPlay()
 
 int UMeshGenerationComponent::GenerateMesh(TArray<GameObject*> objects)
 {
-	
+	TArray<TArray<float>>* vertices = new TArray<TArray<float>>();
+	TArray<TArray<float>>* uvs = new TArray<TArray<float>>();
+	TArray<int>* triangles = new TArray<int>();
 
+	//
+	// for each object in objects
+	// vertices += objects->Mesh->Vertices
+	// uvs += objects->Mesh->Vertices
+	//
+
+	// Calcualte triangles
+
+	// Add all to new Mesh
 
 	return 0;
 }
