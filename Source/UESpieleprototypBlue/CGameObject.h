@@ -23,6 +23,9 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UFUNCTION(BlueprintCallable)
+	void OnHit(int demage);
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		class UStaticMeshComponent* Mesh;
 
@@ -40,4 +43,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float Weight;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		bool IsInMagicZone;
 };
