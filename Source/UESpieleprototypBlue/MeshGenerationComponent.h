@@ -21,5 +21,5 @@ protected:
 
 public:	
 	UFUNCTION(BlueprintCallable)
-	ACGameObject* GenerateMesh(TArray<ACGameObject*> objects); //TArray<GameObject*> objects
+	ACGameObject* GenerateMesh(TArray<ACGameObject*> objects);
 };
