@@ -9,7 +9,8 @@ public class UESpieleprototypBlueTarget : TargetRules
 	{
 		Type = TargetType.Game;
 		DefaultBuildSettings = BuildSettingsVersion.V2;
+        IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_2;
 
-		ExtraModuleNames.AddRange( new string[] { "UESpieleprototypBlue" } );
+        ExtraModuleNames.AddRange( new string[] { "UESpieleprototypBlue" } );
 	}
 }
