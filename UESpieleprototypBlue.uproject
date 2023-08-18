@@ -22,11 +22,11 @@
 			]
 		},
 		{
-			"Name": "GeometryScripting",
+			"Name": "Water",
 			"Enabled": true
 		},
 		{
-			"Name": "Water",
+			"Name": "GeometryScripting",
 			"Enabled": true
 		}
 	]
