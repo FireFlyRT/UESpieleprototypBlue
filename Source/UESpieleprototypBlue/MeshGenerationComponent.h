@@ -20,6 +20,6 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
-	UFUNCTION(BlueprintCallable)
-	ACGameObject* GenerateMesh(TArray<ACGameObject*> objects, ACGameObject* gameObject);
+	//UFUNCTION(BlueprintCallable)
+	//ACGameObject* GenerateMesh(TArray<ACGameObject*> objects, ACGameObject* gameObject);
 };
