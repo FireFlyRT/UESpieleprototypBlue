@@ -2,12 +2,13 @@
 
 #pragma once
 
+#include "IGameObject.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "CGameObject.generated.h"
 
 UCLASS()
-class UESPIELEPROTOTYPBLUE_API ACGameObject : public AActor
+class UESPIELEPROTOTYPBLUE_API ACGameObject : public AActor, public IIGameObject
 {
 	GENERATED_BODY()
 	
@@ -18,6 +19,15 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	virtual void NotifyActorBeginOverlap(AActor* otherActor) override;
+	virtual void NotifyActorEndOverlap(AActor* otherActor) override;
+
+	UFUNCTION(BlueprintCallable)
+	virtual void OnPickUp(USkeletalMeshComponent* skeletalMesh) override;
+	UFUNCTION(BlueprintCallable)
+	virtual void OnThrowDown(bool enablePhysics) override;
+	UFUNCTION(BlueprintCallable)
+	virtual void UpdateMeshLocation() override;
 
 public:	
 	// Called every frame
