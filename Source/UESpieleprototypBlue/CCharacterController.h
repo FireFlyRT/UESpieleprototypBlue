@@ -7,7 +7,6 @@
 #include "ICrafting.h"
 #include "IDemagable.h"
 #include "IInventory.h"
-#include "CVillager.h"
 #include "CMagicZone.h"
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
@@ -31,11 +30,10 @@ protected:
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	virtual void SetVillager(ACVillager* villager) override;
 
 	UFUNCTION(BlueprintCallable)
 	virtual void OnMove(float moveX, float moveY) override;
-	UFUNCTION(BlueprintCallable)
-	virtual void SetVillager(ACVillager* villager) override;
 	UFUNCTION(BlueprintCallable)
 	virtual void OnLook(FVector rotation) override;
 	UFUNCTION(BlueprintCallable)
@@ -47,15 +45,14 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void AcceptMagicZone() override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	ACVillager* Villager;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Enhanced Input")
+	class UInputMappingContext* InputMapping;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	//List
 	TArray<ACGameObject*> ItemsRightHand;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	//List
 	TArray<ACGameObject*> ItemsLeftHand;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	//MagicZone
 	ACMagicZone* MagicZone;
 };

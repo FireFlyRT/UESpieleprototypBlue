@@ -1,7 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "CCharacterController.h"
+#include "CVillager.h"
+#include "EnhancedInputSubsystems.h"
 
 // Sets default values for this component's properties
 UCCharacterController::UCCharacterController()
@@ -42,7 +43,6 @@ void UCCharacterController::OnMove(float moveX, float moveY)
 void UCCharacterController::SetVillager(ACVillager* villager)
 {
 	Villager = villager;
-	//AddMappingContext(Villager->GetLocalViewingPlayerController().InputLocalPlayerSubSystem);
 }
 
 void UCCharacterController::OnLook(FVector rotation)

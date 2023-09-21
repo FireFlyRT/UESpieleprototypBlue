@@ -22,8 +22,8 @@ class UESPIELEPROTOTYPBLUE_API IICrafting
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	virtual void EnterCraftMode();
-	virtual void Place();
-	virtual void CreateMagicZone(FTransform transform, FVector forwardVector);
-	virtual void AcceptMagicZone();
+	virtual void EnterCraftMode() PURE_VIRTUAL(UICrafting::EnterCraftMode);
+	virtual void Place() PURE_VIRTUAL(UICrafting::Place);
+	virtual void CreateMagicZone(FTransform transform, FVector forwardVector) PURE_VIRTUAL(UICrafting::CreateMagicZone);
+	virtual void AcceptMagicZone() PURE_VIRTUAL(UICrafting::AcceptMagicZone);
 };

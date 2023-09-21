@@ -20,6 +20,6 @@ class UESPIELEPROTOTYPBLUE_API IIInventory
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	virtual void OnPickUp(ACGameObject* gameObject);
-	virtual void OnThrowDown(ACGameObject* gameObject);
+	virtual void OnPickUp(ACGameObject* gameObject) PURE_VIRTUAL(UIInventory::OnPickUp);
+	virtual void OnThrowDown(ACGameObject* gameObject) PURE_VIRTUAL(UIInventory::OnThrowDown);
 };

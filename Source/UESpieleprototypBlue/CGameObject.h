@@ -22,11 +22,8 @@ protected:
 	virtual void NotifyActorBeginOverlap(AActor* otherActor) override;
 	virtual void NotifyActorEndOverlap(AActor* otherActor) override;
 
-	UFUNCTION(BlueprintCallable)
 	virtual void OnPickUp(USkeletalMeshComponent* skeletalMesh) override;
-	UFUNCTION(BlueprintCallable)
 	virtual void OnThrowDown(bool enablePhysics) override;
-	UFUNCTION(BlueprintCallable)
 	virtual void UpdateMeshLocation() override;
 
 public:	

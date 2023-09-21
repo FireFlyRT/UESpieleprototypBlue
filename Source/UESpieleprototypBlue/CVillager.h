@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "ICharacterController.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "CVillager.generated.h"
@@ -15,12 +16,19 @@ public:
 	// Sets default values for this character's properties
 	ACVillager();
 
+	/*UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Enhanced Input")
+	class UInputMappingContext* InputMapping;*/
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool IsShiftActive;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool IsStrgActive;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool IsPunchActive;
+
+	IICharacterController* CharacterController;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	//UActorComponent* RightPunchCollider;
 
 protected:
 	// Called when the game starts or when spawned

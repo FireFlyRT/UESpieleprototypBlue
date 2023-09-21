@@ -19,7 +19,7 @@ class UESPIELEPROTOTYPBLUE_API IIGameObject
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	virtual void OnPickUp(USkeletalMeshComponent* skeletalMesh);
-	virtual void OnThrowDown(bool enablePhysics);
-	virtual void UpdateMeshLocation();
+	virtual void OnPickUp(USkeletalMeshComponent* skeletalMesh) PURE_VIRTUAL(UIGameObject::OnPickUp);
+	virtual void OnThrowDown(bool enablePhysics) PURE_VIRTUAL(UIGameObject::OnThrowDown);
+	virtual void UpdateMeshLocation() PURE_VIRTUAL(UIGameObject::UpdateMeshLocation);
 };

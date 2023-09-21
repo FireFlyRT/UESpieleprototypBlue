@@ -48,9 +48,9 @@ void ACMagicZone::Accept()
 
 	for (int i = 0; i < Objects.Num(); i++)
 	{
-		
-		/*DynMesh.Append
-		Objects[i]->Mesh->GetStaticMesh()*/
+
+		Objects[i]->Mesh->GetStaticMesh();
+		//DynMesh.Append
 	}
 }
 
