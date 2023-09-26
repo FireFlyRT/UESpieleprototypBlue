@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "CMagicZone.h"
+#include "GeometryScript/MeshAssetFunctions.h"
 
 // Sets default values
 ACMagicZone::ACMagicZone()
@@ -36,8 +37,8 @@ void ACMagicZone::Tick(float DeltaTime)
 
 void ACMagicZone::Accept()
 {
-	//DynMesh = ConstructDynamicType<ACDynamicMesh>(); ACDynamicMesh();
-	//ResultMesh = ACDynamicMesh();
+	DynMesh = GetWorld()->SpawnActor<ACDynamicMesh>();
+	ResultMesh = GetWorld()->SpawnActor<ACDynamicMesh>();
 
 	NewTransform = FTransform(); 
 	NewTransform.SetLocation(Objects[0]->Mesh->GetComponentLocation());
@@ -49,8 +50,17 @@ void ACMagicZone::Accept()
 	for (int i = 0; i < Objects.Num(); i++)
 	{
 
-		Objects[i]->Mesh->GetStaticMesh();
-		//DynMesh.Append
+		////Objects[i]->Mesh->GetStaticMesh();
+		//UGeometryScriptLibrary_StaticMeshFunctions::CopyMeshFromStaticMesh
+		//(
+		//	Objects[i]->Mesh->GetStaticMesh(),
+		//	(UDynamicMesh*)DynMesh,
+		//	FGeometryScriptCopyMeshFromAssetOptions(),
+		//	FGeometryScriptMeshReadLOD(),
+		//	EGeometryScriptOutcomePins(),
+		//	NULL
+		//);
+		//DynMesh;
 	}
 }
 

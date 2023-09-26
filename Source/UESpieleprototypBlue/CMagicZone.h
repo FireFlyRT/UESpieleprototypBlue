@@ -2,7 +2,7 @@
 
 #pragma once
 
-//#include "CDynamicMesh.h"
+#include "CDynamicMesh.h"
 #include "CGameObject.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
@@ -30,9 +30,9 @@ public:
 	void Accept();
 
 	TArray<ACGameObject*> Objects;
-	//ACDynamicMesh ResultMesh;
+	ACDynamicMesh* ResultMesh;
 	ACGameObject* ResultObject;
-	//ACDynamicMesh DynMesh;
+	ACDynamicMesh* DynMesh;
 	FTransform NewTransform;
 	UMaterial* MainMaterial;
 };
