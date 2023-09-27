@@ -12,7 +12,7 @@ public class UESpieleprototypBlue : ModuleRules
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
-        PrivateIncludePaths.Add("P:/Program Files/Epic Games/UE_5.2/Engine/Binaries/ThirdParty/Python3/Win64/libs");
+        PrivateIncludePaths.Add("P:/SAEProjects/UESpieleprototypBlue/Source/UESpieleprototypBlue/pylibs");
 
         // Uncomment if you are using Slate UI
         // PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });

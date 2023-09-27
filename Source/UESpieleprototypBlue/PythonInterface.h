@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <Python3/Win64/include/Python.h>
+#include "Python.h"
 #include "CoreMinimal.h"
 
 class UESPIELEPROTOTYPBLUE_API PythonInterface
