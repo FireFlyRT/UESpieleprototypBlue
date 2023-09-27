@@ -1,0 +1,7 @@
+﻿  PythonInterface.cpp
+  Code wird generiert.
+C:\Users\starw\OneDrive\Desktop\SAEProjects\UESpieleprototypBlueGIT\PythonInterface\PythonInterface.cpp(34): error C4700: Die nicht initialisierte lokale Variable "pModule" wurde verwendet.
+  1 of 129 functions ( 0.8%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    1 functions had inline decision re-evaluated but remain unchanged
+LINK : fatal error LNK1257: Fehler bei Codegenerierung.

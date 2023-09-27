@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <ProjectOutputs>
+    <ProjectOutput>
+      <FullPath>C:\Users\starw\OneDrive\Desktop\SAEProjects\UESpieleprototypBlueGIT\x64\Release\PythonInterface.exe</FullPath>
+    </ProjectOutput>
+  </ProjectOutputs>
+  <ContentFiles>
+    <ContentFile>
+      <FullPath>C:\Users\starw\OneDrive\Desktop\SAEProjects\UESpieleprototypBlueGIT\PythonInterface\pylibs\python3.lib</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\Users\starw\OneDrive\Desktop\SAEProjects\UESpieleprototypBlueGIT\PythonInterface\pylibs\python39.lib</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>C:\Users\starw\OneDrive\Desktop\SAEProjects\UESpieleprototypBlueGIT\PythonInterface\pylibs\_tkinter.lib</FullPath>
+    </ContentFile>
+  </ContentFiles>
+  <SatelliteDlls />
+  <NonRecipeFileRefs />
+</Project>

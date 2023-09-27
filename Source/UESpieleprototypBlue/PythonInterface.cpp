@@ -15,15 +15,5 @@ PythonInterface::~PythonInterface()
 
 void PythonInterface::Test()
 {
-    char* name = "SOMETHING";
-    wchar_t* program = new wchar_t(*name);
-    Py_SetProgramName(program);  /* optional but recommended */
-    Py_NoSiteFlag = 1;
-    Py_InitializeEx(0);
-    PyRun_SimpleString("from time import time,ctime\n"
-        "print('Today is', ctime(time()))\n");
-    if (Py_FinalizeEx() < 0) {
-        exit(120);
-    }
-    PyMem_RawFree(program);
+    //ToDo (MAJOR): Call PythonInterface.exe to start the Interface
 }
