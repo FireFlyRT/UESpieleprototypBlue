@@ -4,6 +4,7 @@
 #include <iostream>
 #include <stdio.h>
 #include "pylibs/Python.h"
+#include "PyEnvironment.h"
 
 int main(int argc, char* argv[])
 {
@@ -18,13 +19,34 @@ int main(int argc, char* argv[])
     char path[255] = "";
     _fullpath(path, argv[0], sizeof(path));
     std::string basePath = path;
-    std::string pyPath = basePath.substr(0, basePath.find_last_of("6") - 1);
-    pyPath += "PythonInterface\\PythonScripts\\BasicDQN.py";
+    std::string pyPath = basePath.substr(0, basePath.find_last_of("6") - 1); // Get Path before x64
+    pyPath += "PythonInterface\\PythonScripts\\BasicDQN.py"; // And add Path to Py-File
+
+
+    PyEnvironment* pyEnv = new PyEnvironment();
+    PyObject_Init(pyEnv, pyEnv->ob_type);
 
     fopen_s(&nnFile, pyPath.c_str(), "r");
+    // Init Basic File
     PyRun_SimpleFile(nnFile, "BasicDQN.py");
 
+    
+
+    /*
+    * Env Observation Space =
+    *   SensorData
+    *   Audio
+    *   Inventory
+    *   BrainStorage
+    *   Stats
+    * 
+    * Daten von Unreal 1 - "named Pipe" -> n PythonInterface 1 - PyObject -> 1 Python
+    * Python - PyObject? -> PythonInterface - "named Pipe" -> Unreal
+    */
+
+    // Start with Env
     PyRun_SimpleString("program.Start()");
+    PyObject* environemt;
     
     if (Py_FinalizeEx() < 0 && nnFile != NULL) {
         fclose(nnFile);

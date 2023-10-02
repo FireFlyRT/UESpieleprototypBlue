@@ -129,6 +129,8 @@ class Program:
         args = parser.parse_args()
         self.device = torch.device("cuda" if args.cuda else "cpu")
 
+        # def SetEnv()?
+
         env = args.env # Replace with env from C++
         #net = DQN(env.observation_space.shape, env.action_space.n).to(device) # Add ObservationSpace and ActionSpace to Env
         self.net = DQN([1, 128, 128], 8).to(self.device)
@@ -187,6 +189,11 @@ class Program:
             loss_t.backward()
             self.optimizer.step()
 
+class Environment(object):
+    def __init__(self):
+        pass
+
 if __name__ == "__main__":
-    program = Program()
+    pyEnv.Bla()
+    #program = Program()
     #program.Start()
