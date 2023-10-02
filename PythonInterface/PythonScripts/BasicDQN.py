@@ -76,7 +76,7 @@ class Agent:
             _, act_v = torch.max(q_vals_v, dim = 1)
             action = int(act_v.item())
 
-            new_state, reward, is_done, _ = self.env.step(action)
+            new_state, reward, is_done, _ = self.env.step(action) # Step on Environment
             self.total_reward += reward
             new_state = new_state
 
@@ -150,21 +150,21 @@ class Program:
 
     def Start(self):
         while True:
-            frame_idx += 1
-            epsilon = max(EPSILON_FINAL, EPSILON_START - frame_idx / EPSILON_DECAY_LAST_FRAME)
+            self.frame_idx += 1
+            epsilon = max(EPSILON_FINAL, EPSILON_START - self.frame_idx / EPSILON_DECAY_LAST_FRAME)
             reward = self.agent.PlayStep(self.net, epsilon, device = self.device)
 
             if reward is not None:
                 self.total_rewards.append(reward)
-                speed = (frame_idx - ts_frame) / (time.time() - ts)
-                ts_frame = frame_idx
+                speed = (self.frame_idx - ts_frame) / (time.time() - ts)
+                ts_frame = self.frame_idx
                 ts = time.time()
                 mean_reward = np.mean(self.total_rewards[-100:])
 
-                self.writer.add_scalar("epsilon", epsilon, frame_idx)
-                self.writer.add_scalar("speed", speed, frame_idx)
-                self.writer.add_scalar("reward_100", mean_reward, frame_idx)
-                self.writer.add_scalar("reward", reward, frame_idx)
+                self.writer.add_scalar("epsilon", epsilon, self.frame_idx)
+                self.writer.add_scalar("speed", speed, self.frame_idx)
+                self.writer.add_scalar("reward_100", mean_reward, self.frame_idx)
+                self.writer.add_scalar("reward", reward, self.frame_idx)
 
                 if self.best_mean_reward is None or self.best_mean_reward < mean_reward:
                     torch.save(self.net.state_dict(), self.args.env + "-best.dat")
@@ -172,13 +172,13 @@ class Program:
                         print("Best mean Reward updatet")
                     
                     if mean_reward > self.args.reward:
-                        print("Solved in " + frame_idx + " frames")
+                        print("Solved in " + self.frame_idx + " frames")
                         break
 
                 if len(self.buffer) < REPLAY_START_SIZE:
                     continue
 
-            if frame_idx % SYNC_TARGET_FRAMES == 0:
+            if self.frame_idx % SYNC_TARGET_FRAMES == 0:
                 self.target_net.load_state_dict(self.net.state_dict())
 
             self.optimizer.zero_grad()
