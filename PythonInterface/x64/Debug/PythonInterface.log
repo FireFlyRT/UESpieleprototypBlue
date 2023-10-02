@@ -1,2 +1,2 @@
 ﻿  PythonInterface.cpp
-  PythonInterface.vcxproj -> C:\Users\starw\OneDrive\Desktop\SAEProjects\UESpieleprototypBlueGIT\x64\Debug\PythonInterface.exe
+LINK : fatal error LNK1104: Datei "python39_d.lib" kann nicht geöffnet werden.

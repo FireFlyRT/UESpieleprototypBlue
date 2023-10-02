@@ -26,7 +26,7 @@
     <Library Include="pylibs\python3.lib">
       <Filter>Ressourcendateien</Filter>
     </Library>
-    <Library Include="pylibs\python39.lib">
+    <Library Include="pylibs\python311.lib">
       <Filter>Ressourcendateien</Filter>
     </Library>
   </ItemGroup>
