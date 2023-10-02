@@ -30,4 +30,12 @@
       <Filter>Ressourcendateien</Filter>
     </Library>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="python3.dll">
+      <Filter>Ressourcendateien</Filter>
+    </None>
+    <None Include="python311.dll">
+      <Filter>Ressourcendateien</Filter>
+    </None>
+  </ItemGroup>
 </Project>
