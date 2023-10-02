@@ -127,13 +127,13 @@ class Program:
         parser.add_argument("--env", default = DEFAULT_ENV_NAME, help = "Environment")
         parser.add_argument("--reward", type = float, default = MEAN_REWARD_BOUND, help = "Mean Reward")
         args = parser.parse_args()
-        device = torch.device("cuda" if args.cuda else "cpu")
+        self.device = torch.device("cuda" if args.cuda else "cpu")
 
         env = args.env # Replace with env from C++
         #net = DQN(env.observation_space.shape, env.action_space.n).to(device) # Add ObservationSpace and ActionSpace to Env
-        self.net = DQN([1, 128, 128], 8).to(device)
+        self.net = DQN([1, 128, 128], 8).to(self.device)
         #target_net = DQN(env.observation_space.shape, env.action_space.n).to(device)
-        self.target_net = DQN([1, 128, 128], 8).to(device)
+        self.target_net = DQN([1, 128, 128], 8).to(self.device)
 
         self.writer  = SummaryWriter(comment = "-" + args.env)
         print(self.net)
