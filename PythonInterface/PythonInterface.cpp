@@ -6,6 +6,20 @@
 #include "pylibs/Python.h"
 #include "PyEnvironment.h"
 
+typedef struct {
+    PyObject_HEAD
+} BlaObject;
+
+static PyTypeObject BlaType = {
+    PyVarObject_HEAD_INIT(NULL, 0)
+    .tp_name = "OB",
+    .tp_doc = PyDoc_STR("Custom objects"),
+    .tp_basicsize = sizeof(PyTypeObject),
+    .tp_itemsize = 0,
+    .tp_flags = Py_TPFLAGS_DEFAULT,
+    .tp_new = PyType_GenericNew,
+};
+
 int main(int argc, char* argv[])
 {
     std::cout << "Initialize Python Interface!\n";
@@ -46,7 +60,6 @@ int main(int argc, char* argv[])
 
     // Start with Env
     PyRun_SimpleString("program.Start()");
-    PyObject* environemt;
     
     if (Py_FinalizeEx() < 0 && nnFile != NULL) {
         fclose(nnFile);

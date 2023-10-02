@@ -1,8 +1,3 @@
-﻿  PyEnvironment.cpp
-  PythonInterface.cpp
-P:\SAEProjects\UESpieleprototypBlue\PythonInterface\PythonInterface.cpp(49,15): warning C4101: "environemt": Unreferenzierte lokale Variable
-  Code wird generiert.
-  Previous IPDB was built with incompatible compiler, fall back to full compilation.
-  All 94 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
-  Codegenerierung ist abgeschlossen.
-  PythonInterface.vcxproj -> P:\SAEProjects\UESpieleprototypBlue\x64\Release\PythonInterface.exe
+﻿  PythonInterface.cpp
+P:\SAEProjects\UESpieleprototypBlue\PythonInterface\PythonInterface.cpp(14,5): error C7556: Designierte Initialisierer können nicht mit nicht designierten Initialisierern kombiniert werden.
+P:\SAEProjects\UESpieleprototypBlue\PythonInterface\PythonInterface.cpp(15,5): error C7555: Die Verwendung designierter Initialisierer erfordert mindestens "/std:c++20".
