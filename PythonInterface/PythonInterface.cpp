@@ -8,7 +8,6 @@
 int main(int argc, char* argv[])
 {
     std::cout << "Initialize Python Interface!\n";
-    
 
     Py_Initialize();
     std::cout << "Initialized: " << Py_IsInitialized() << std::endl;
@@ -16,7 +15,13 @@ int main(int argc, char* argv[])
     PyRun_SimpleString("print('From Python: Hello World!')");
 
     FILE* nnFile;
-    fopen_s(&nnFile, "C:/Users/starw/OneDrive/Desktop/SAEProjects/UESpieleprototypBlueGIT/PythonInterface/PythonScripts/BasicDQN.py", "r");
+    char path[255] = "";
+    _fullpath(path, argv[0], sizeof(path));
+    std::string basePath = path;
+    std::string pyPath = basePath.substr(0, basePath.find_last_of("6") - 1);
+    pyPath += "PythonInterface\\PythonScripts\\BasicDQN.py";
+
+    fopen_s(&nnFile, pyPath.c_str(), "r");
     PyRun_SimpleFile(nnFile, "BasicDQN.py");
     
     if (Py_FinalizeEx() < 0 && nnFile != NULL) {
