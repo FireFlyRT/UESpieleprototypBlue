@@ -1,2 +1,2 @@
 ﻿  PythonInterface.cpp
-LINK : fatal error LNK1104: Datei "python39_d.lib" kann nicht geöffnet werden.
+LINK : fatal error LNK1104: Datei "python311_d.lib" kann nicht geöffnet werden.

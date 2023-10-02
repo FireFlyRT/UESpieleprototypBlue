@@ -19,7 +19,7 @@ int main(int argc, char* argv[])
     fopen_s(&nnFile, "C:/Users/starw/OneDrive/Desktop/SAEProjects/UESpieleprototypBlueGIT/PythonInterface/PythonScripts/BasicDQN.py", "r");
     PyRun_SimpleFile(nnFile, "BasicDQN.py");
     
-    if (Py_FinalizeEx() < 0) {
+    if (Py_FinalizeEx() < 0 && nnFile != NULL) {
         fclose(nnFile);
         return 120;
     }

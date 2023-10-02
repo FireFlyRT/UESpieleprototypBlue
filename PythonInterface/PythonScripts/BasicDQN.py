@@ -2,7 +2,6 @@ import argparse
 import collections
 
 import numpy as np
-import tensorflow as tf
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -47,7 +46,8 @@ class DQN(nn.Module):
         )
 
     def GetConvOut(self, shape):
-        out = self.conv(torch.zeros(1, *shape))
+        tz = torch.zeros(1, *shape)
+        out = self.conv(tz)
         return int(np.prod(out.size()))
     
     def forward(self, x):
@@ -131,9 +131,9 @@ if __name__ == "__main__":
 
     env = args.env # Replace with env from C++
     #net = DQN(env.observation_space.shape, env.action_space.n).to(device) # Add ObservationSpace and ActionSpace to Env
-    net = DQN([1, 8, 8], 8).to(device)
+    net = DQN([1, 128, 128], 8).to(device)
     #target_net = DQN(env.observation_space.shape, env.action_space.n).to(device)
-    target_net = DQN([1, 8, 8], 8).to(device)
+    target_net = DQN([1, 128, 128], 8).to(device)
 
     writer  = SummaryWriter(comment = "-" + args.env)
     print(net)
