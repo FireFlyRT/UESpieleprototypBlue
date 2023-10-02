@@ -61,7 +61,7 @@ class Agent:
         self.Reset()
 
     def Reset(self):
-        self.state = self.env.reset()
+        # self.state = self.env.reset() uncomment if new env has Reset()
         self.total_reward = 0.0
 
     def PlayStep(self, net, epsilon = 0.0, device = "GPU"):
@@ -120,68 +120,73 @@ class ExperienceBuffer:
         states, actions, rewards, dones, next_states = zip(*[self.buffer[idx] for idx in indces])
         return np.array(states), np.array(actions), np.array(rewards, dtype = np.float32), np.array(dones, dtype = np.uint8), np.array(next_states)
 
+class Program:
+    def __init__(self):
+        parser = argparse.ArgumentParser()
+        parser.add_argument("--cuda", default = False, action = "store_true", help = "Enable cuda")
+        parser.add_argument("--env", default = DEFAULT_ENV_NAME, help = "Environment")
+        parser.add_argument("--reward", type = float, default = MEAN_REWARD_BOUND, help = "Mean Reward")
+        args = parser.parse_args()
+        device = torch.device("cuda" if args.cuda else "cpu")
+
+        env = args.env # Replace with env from C++
+        #net = DQN(env.observation_space.shape, env.action_space.n).to(device) # Add ObservationSpace and ActionSpace to Env
+        self.net = DQN([1, 128, 128], 8).to(device)
+        #target_net = DQN(env.observation_space.shape, env.action_space.n).to(device)
+        self.target_net = DQN([1, 128, 128], 8).to(device)
+
+        self.writer  = SummaryWriter(comment = "-" + args.env)
+        print(self.net)
+
+        buffer = ExperienceBuffer(REPLAY_SIZE)
+        self.agent = Agent(env, buffer)
+        self.epsilon = EPSILON_START
+        self.optimizer = optim.Adam(self.net.parameters(), lr = LEARNING_RATE)
+        self.total_rewards = []
+        self.frame_idx = 0
+        self.ts_frame = 0
+        self.ts = time.time()
+        self.best_mean_reward = None
+
+    def Start(self):
+        while True:
+            frame_idx += 1
+            epsilon = max(EPSILON_FINAL, EPSILON_START - frame_idx / EPSILON_DECAY_LAST_FRAME)
+            reward = self.agent.PlayStep(self.net, epsilon, device = self.device)
+
+            if reward is not None:
+                self.total_rewards.append(reward)
+                speed = (frame_idx - ts_frame) / (time.time() - ts)
+                ts_frame = frame_idx
+                ts = time.time()
+                mean_reward = np.mean(self.total_rewards[-100:])
+
+                self.writer.add_scalar("epsilon", epsilon, frame_idx)
+                self.writer.add_scalar("speed", speed, frame_idx)
+                self.writer.add_scalar("reward_100", mean_reward, frame_idx)
+                self.writer.add_scalar("reward", reward, frame_idx)
+
+                if self.best_mean_reward is None or self.best_mean_reward < mean_reward:
+                    torch.save(self.net.state_dict(), self.args.env + "-best.dat")
+                    if self.best_mean_reward is not None:
+                        print("Best mean Reward updatet")
+                    
+                    if mean_reward > self.args.reward:
+                        print("Solved in " + frame_idx + " frames")
+                        break
+
+                if len(self.buffer) < REPLAY_START_SIZE:
+                    continue
+
+            if frame_idx % SYNC_TARGET_FRAMES == 0:
+                self.target_net.load_state_dict(self.net.state_dict())
+
+            self.optimizer.zero_grad()
+            batch = self.buffer.sample(BATCH_SIZE)
+            loss_t = self.agent.CalcLoss(batch, self.net, self.target_net, device = self.device)
+            loss_t.backward()
+            self.optimizer.step()
+
 if __name__ == "__main__":
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--cuda", default = False, action = "store_true", help = "Enable cuda")
-    parser.add_argument("--env", default = DEFAULT_ENV_NAME, help = "Environment")
-    parser.add_argument("--reward", type = float, default = MEAN_REWARD_BOUND, help = "Mean Reward")
-    args = parser.parse_args()
-    device = torch.device("cuda" if args.cuda else "cpu")
-
-    env = args.env # Replace with env from C++
-    #net = DQN(env.observation_space.shape, env.action_space.n).to(device) # Add ObservationSpace and ActionSpace to Env
-    net = DQN([1, 128, 128], 8).to(device)
-    #target_net = DQN(env.observation_space.shape, env.action_space.n).to(device)
-    target_net = DQN([1, 128, 128], 8).to(device)
-
-    writer  = SummaryWriter(comment = "-" + args.env)
-    print(net)
-
-    buffer = ExperienceBuffer(REPLAY_SIZE)
-    agent = Agent(env, buffer)
-    epsilon = EPSILON_START
-    optimizer = optim.Adam(net.parameters(), lr = LEARNING_RATE)
-    total_rewards = []
-    frame_idx = 0
-    ts_frame = 0
-    ts = time.time()
-    best_mean_reward = None
-
-    while True:
-        frame_idx += 1
-        epsilon = max(EPSILON_FINAL, EPSILON_START - frame_idx / EPSILON_DECAY_LAST_FRAME)
-        reward = agent.PlayStep(net, epsilon, device = device)
-
-        if reward is not None:
-            total_rewards.append(reward)
-            speed = (frame_idx - ts_frame) / (time.time() - ts)
-            ts_frame = frame_idx
-            ts = time.time()
-            mean_reward = np.mean(total_rewards[-100:])
-
-            writer.add_scalar("epsilon", epsilon, frame_idx)
-            writer.add_scalar("speed", speed, frame_idx)
-            writer.add_scalar("reward_100", mean_reward, frame_idx)
-            writer.add_scalar("reward", reward, frame_idx)
-
-            if best_mean_reward is None or best_mean_reward < mean_reward:
-                torch.save(net.state_dict(), args.env + "-best.dat")
-                if best_mean_reward is not None:
-                    print("Best mean Reward updatet")
-                
-                if mean_reward > args.reward:
-                    print("Solved in " + frame_idx + " frames")
-                    break
-
-            if len(buffer) < REPLAY_START_SIZE:
-                continue
-
-        if frame_idx % SYNC_TARGET_FRAMES == 0:
-            target_net.load_state_dict(net.state_dict())
-
-        optimizer.zero_grad()
-        batch = buffer.sample(BATCH_SIZE)
-        loss_t = agent.CalcLoss(batch, net, target_net, device = device)
-        loss_t.backward()
-        optimizer.step()
+    program = Program()
+    #program.Start()
