@@ -6,20 +6,6 @@
 #include "pylibs/Python.h"
 #include "PyEnvironment.h"
 
-typedef struct {
-    PyObject_HEAD
-} BlaObject;
-
-static PyTypeObject BlaType = {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    .tp_name = "OB",
-    .tp_doc = PyDoc_STR("Custom objects"),
-    .tp_basicsize = sizeof(PyTypeObject),
-    .tp_itemsize = 0,
-    .tp_flags = Py_TPFLAGS_DEFAULT,
-    .tp_new = PyType_GenericNew,
-};
-
 int main(int argc, char* argv[])
 {
     std::cout << "Initialize Python Interface!\n";
@@ -35,7 +21,6 @@ int main(int argc, char* argv[])
     std::string basePath = path;
     std::string pyPath = basePath.substr(0, basePath.find_last_of("6") - 1); // Get Path before x64
     pyPath += "PythonInterface\\PythonScripts\\BasicDQN.py"; // And add Path to Py-File
-
 
     PyEnvironment* pyEnv = new PyEnvironment();
     PyObject_Init(pyEnv, pyEnv->ob_type);
