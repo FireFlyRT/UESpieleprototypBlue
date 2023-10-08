@@ -187,14 +187,9 @@ class Program:
             batch = self.buffer.sample(BATCH_SIZE)
             loss_t = self.agent.CalcLoss(batch, self.net, self.target_net, device = self.device)
             loss_t.backward()
-            self.optimizer.step()
-
-class Environment(object):
-    def __init__(self):
-        pass
-    
+            self.optimizer.step() 
 
 if __name__ == "__main__":
-    pass
     #program = Program()
     #program.Start()
+    pass

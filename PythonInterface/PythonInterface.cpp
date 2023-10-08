@@ -22,11 +22,14 @@ int main(int argc, char* argv[])
     std::string pyPath = basePath.substr(0, basePath.find_last_of("6") - 1); // Get Path before x64
     pyPath += "PythonInterface\\PythonScripts\\BasicDQN.py"; // And add Path to Py-File
 
+    // Initialise PyObject in Python
     PyEnvironment* pyEnv = new PyEnvironment();
     PyObject_Init(pyEnv, pyEnv->ob_type);
-
-    fopen_s(&nnFile, pyPath.c_str(), "r");
+    //PyRun_SimpleString("pyEnv = PyEnvironment()"); // Der Typ ist hier NICHT in Python definiert
+    PyRun_SimpleString("print(pyEnv)");                // Warum ist pyEnv nicht definiert?
+    
     // Init Basic File
+    fopen_s(&nnFile, pyPath.c_str(), "r");
     PyRun_SimpleFile(nnFile, "BasicDQN.py");
 
     
@@ -44,6 +47,7 @@ int main(int argc, char* argv[])
     */
 
     // Start with Env
+    PyRun_SimpleString("program = Program()");
     PyRun_SimpleString("program.Start()");
     
     if (Py_FinalizeEx() < 0 && nnFile != NULL) {
