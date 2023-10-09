@@ -3,16 +3,55 @@
 
 #include <iostream>
 #include <stdio.h>
+#include <future>
+#include <array>
 #include "pylibs/Python.h"
 #include "PyEnvironment.h"
 
 int main(int argc, char* argv[])
 {
+    std::array<std::future<int>*, 2> threads = std::array<std::future<int>*, 2>();
+
+    for (int i = 0; i < 2; i++)
+    {
+        std::future<int> thread = std::async(std::launch::async, TaskTest, argv);
+        threads[i] = &thread;
+    }
+    
+    bool threadsActive = true; 
+
+    while (threadsActive)
+    {
+        for (int i = 0; i < threads.size(); i++)
+        {
+            if (threads[i]->get() == 1)
+            {
+                threads[i] = nullptr;
+            }
+        }
+        for (int i = 0; i < threads.size(); i++)
+        {
+            if (threads[i] != nullptr)
+            {
+                break;
+            }
+            else if (i == threads.size())
+            {
+                threadsActive = false;
+            }
+        }
+    }
+    
+    return 0;
+}
+
+int TaskTest(char* argv[])
+{
     std::cout << "Initialize Python Interface!\n";
 
     Py_Initialize();
     std::cout << "Initialized: " << Py_IsInitialized() << std::endl;
-    
+
     PyRun_SimpleString("print('From Python: Hello World!')");
 
     FILE* nnFile;
@@ -27,12 +66,12 @@ int main(int argc, char* argv[])
     PyObject_Init(pyEnv, pyEnv->ob_type);
     //PyRun_SimpleString("pyEnv = PyEnvironment()"); // Der Typ ist hier NICHT in Python definiert
     PyRun_SimpleString("print(pyEnv)");                // Warum ist pyEnv nicht definiert?
-    
+
     // Init Basic File
     fopen_s(&nnFile, pyPath.c_str(), "r");
     PyRun_SimpleFile(nnFile, "BasicDQN.py");
 
-    
+
 
     /*
     * Env Observation Space =
@@ -41,7 +80,7 @@ int main(int argc, char* argv[])
     *   Inventory
     *   BrainStorage
     *   Stats
-    * 
+    *
     * Daten von Unreal 1 - "named Pipe" -> n PythonInterface 1 - PyObject -> 1 Python
     * Python - PyObject? -> PythonInterface - "named Pipe" -> Unreal
     */
@@ -49,10 +88,9 @@ int main(int argc, char* argv[])
     // Start with Env
     PyRun_SimpleString("program = Program()");
     PyRun_SimpleString("program.Start()");
-    
+
     if (Py_FinalizeEx() < 0 && nnFile != NULL) {
         fclose(nnFile);
         return 120;
     }
-    return 0;
 }

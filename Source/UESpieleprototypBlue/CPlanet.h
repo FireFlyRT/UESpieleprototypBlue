@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "CVillagerSpawnPoint.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "CPlanet.generated.h"
@@ -25,7 +26,7 @@ public:
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		TArray<FVector> StartSpawns;
+		TArray<ACVillagerSpawnPoint*> StartSpawns;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		FVector WorldPosition;
 

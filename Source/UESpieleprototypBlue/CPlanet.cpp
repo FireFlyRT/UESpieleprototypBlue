@@ -14,8 +14,7 @@ ACPlanet::ACPlanet()
 // Called when the game starts or when spawned
 void ACPlanet::BeginPlay()
 {
-	Super::BeginPlay();
-	
+	Super::BeginPlay();	
 }
 
 // Called every frame
