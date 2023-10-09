@@ -2,7 +2,6 @@
 
 #pragma once
 
-#include "pylibs/Python.h"
 #include "CoreMinimal.h"
 
 class UESPIELEPROTOTYPBLUE_API PythonInterface
@@ -10,6 +9,4 @@ class UESPIELEPROTOTYPBLUE_API PythonInterface
 public:
 	PythonInterface();
 	~PythonInterface();
-
-	void Test();
 };

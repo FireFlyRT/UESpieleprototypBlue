@@ -13,15 +13,12 @@ class UIDemagable : public UInterface
 	GENERATED_BODY()
 };
 
-/**
- * 
- */
 class UESPIELEPROTOTYPBLUE_API IIDemagable
 {
 	GENERATED_BODY()
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	virtual void GetDemage(int demage);
-	virtual void DoDemage(int demage);
+	virtual void GetDemage(int demage) PURE_VIRTUAL(UInterface::GetDemage);
+	virtual void DoDemage(int demage) PURE_VIRTUAL(UInterface::DoDemage);
 };

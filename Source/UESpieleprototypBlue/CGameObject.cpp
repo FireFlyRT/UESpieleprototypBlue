@@ -95,3 +95,13 @@ void ACGameObject::OnHit(int demage)
 	Durability -= demage;
 }
 
+void ACGameObject::OnUse()
+{
+	//TODO (MAJOR): Define how the Item behaves if it is used 
+}
+
+void ACGameObject::OnPlace()
+{
+	//TODO (MAJOR): Define how the Item behaves if it was placed in the world
+}
+

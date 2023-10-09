@@ -3,8 +3,6 @@
 #include "CVillager.h"
 #include "CCharacterController.h"
 
-
-
 // Sets default values
 ACVillager::ACVillager()
 {

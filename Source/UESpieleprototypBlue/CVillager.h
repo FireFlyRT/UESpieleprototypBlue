@@ -30,6 +30,21 @@ public:
 	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	//UActorComponent* RightPunchCollider;
 
+	// --- Villager Stats --- \\
+	
+	FString Name;
+	int LivePoints;
+	int Stamina;
+	int Strength;
+	// Animation[] UsableAnimations;
+	//UIInventory Inventory;
+	int Age;
+	float Height;
+	int Hunger;
+	int Thurst;
+
+	// --- Villager Stats --- \\
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -41,4 +56,5 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	
 };

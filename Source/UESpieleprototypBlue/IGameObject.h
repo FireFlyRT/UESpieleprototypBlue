@@ -22,4 +22,6 @@ public:
 	virtual void OnPickUp(USkeletalMeshComponent* skeletalMesh) PURE_VIRTUAL(UIGameObject::OnPickUp);
 	virtual void OnThrowDown(bool enablePhysics) PURE_VIRTUAL(UIGameObject::OnThrowDown);
 	virtual void UpdateMeshLocation() PURE_VIRTUAL(UIGameObject::UpdateMeshLocation);
+	virtual void OnUse() PURE_VIRTUAL(UIGameObject::OnUse);
+	virtual void OnPlace() PURE_VIRTUAL(UIGameObject::OnPlace);
 };

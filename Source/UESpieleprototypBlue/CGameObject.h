@@ -22,9 +22,12 @@ protected:
 	virtual void NotifyActorBeginOverlap(AActor* otherActor) override;
 	virtual void NotifyActorEndOverlap(AActor* otherActor) override;
 
+public:
 	virtual void OnPickUp(USkeletalMeshComponent* skeletalMesh) override;
 	virtual void OnThrowDown(bool enablePhysics) override;
 	virtual void UpdateMeshLocation() override;
+	virtual void OnUse() override;
+	virtual void OnPlace() override;
 
 public:	
 	// Called every frame
@@ -33,6 +36,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void OnHit(int demage);
 
+	
+
+	//	// --- Object Stats --- \\
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		class UStaticMeshComponent* Mesh;
 
@@ -40,7 +47,7 @@ public:
 		FString Name;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		bool IsAttached;
+		FVector Position;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		int Durability;
@@ -50,6 +57,11 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float Weight;
+
+	//	\\ --- Object Stats --- //
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		bool IsAttached;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		bool IsInMagicZone;
