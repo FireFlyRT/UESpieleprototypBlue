@@ -20,7 +20,10 @@ void ACVillagerSpawnPoint::BeginPlay()
 
 	for (int i = 0; i < StartAmount; i++)
 	{
-		GetWorld()->SpawnActor(SpawnableVillagers[rng->FRandRange(0, SpawnableVillagers.Num())]->GetClass());
+		AActor* actor = GetWorld()->SpawnActor(SpawnableVillagers[rng->FRandRange(0, SpawnableVillagers.Num())]->GetClass());
+		FVector location = GetActorLocation();
+		location += FVector(rng->FRandRange(-1000, 1000), rng->FRandRange(-1000, 1000), 0);
+		actor->SetActorLocation(location);
 	}
 }
 

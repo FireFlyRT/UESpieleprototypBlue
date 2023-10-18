@@ -27,7 +27,7 @@ public:
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<ACVillager*> SpawnableVillagers;
+	TArray<UClass*> SpawnableVillagers;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int StartAmount;
 };

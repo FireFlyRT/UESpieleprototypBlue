@@ -8,42 +8,7 @@
 #include "pylibs/Python.h"
 #include "PyEnvironment.h"
 
-int main(int argc, char* argv[])
-{
-    std::array<std::future<int>*, 2> threads = std::array<std::future<int>*, 2>();
 
-    for (int i = 0; i < 2; i++)
-    {
-        std::future<int> thread = std::async(std::launch::async, TaskTest, argv);
-        threads[i] = &thread;
-    }
-    
-    bool threadsActive = true; 
-
-    while (threadsActive)
-    {
-        for (int i = 0; i < threads.size(); i++)
-        {
-            if (threads[i]->get() == 1)
-            {
-                threads[i] = nullptr;
-            }
-        }
-        for (int i = 0; i < threads.size(); i++)
-        {
-            if (threads[i] != nullptr)
-            {
-                break;
-            }
-            else if (i == threads.size())
-            {
-                threadsActive = false;
-            }
-        }
-    }
-    
-    return 0;
-}
 
 int TaskTest(char* argv[])
 {
@@ -93,4 +58,41 @@ int TaskTest(char* argv[])
         fclose(nnFile);
         return 120;
     }
+}
+
+int main(int argc, char* argv[])
+{
+    std::array<std::future<int>*, 2> threads = std::array<std::future<int>*, 2>();
+
+    for (int i = 0; i < 2; i++)
+    {
+        std::future<int> thread = std::async(std::launch::async, TaskTest, argv);
+        threads[i] = &thread;
+    }
+    
+    bool threadsActive = true; 
+
+    while (threadsActive)
+    {
+        for (int i = 0; i < threads.size(); i++)
+        {
+            if (threads[i]->get() == 1)
+            {
+                threads[i] = nullptr;
+            }
+        }
+        for (int i = 0; i < threads.size(); i++)
+        {
+            if (threads[i] != nullptr)
+            {
+                break;
+            }
+            else if (i == threads.size())
+            {
+                threadsActive = false;
+            }
+        }
+    }
+    
+    return 0;
 }

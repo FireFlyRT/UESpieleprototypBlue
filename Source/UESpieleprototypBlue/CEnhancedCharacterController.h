@@ -6,12 +6,16 @@
 #include "CCharacterController.h"
 #include "CEnhancedCharacterController.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class UESPIELEPROTOTYPBLUE_API UCEnhancedCharacterController : public UCCharacterController
 {
 	GENERATED_BODY()
+
+public:
+	// Sets default values for this component's properties
+	UCEnhancedCharacterController();
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	ACVillager* Villager;
 	
 };
