@@ -27,7 +27,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		TArray<ACGameObject*> SpawnableObjects;
+		TArray<UClass*> SpawnableObjects;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		int MaxObjectsToSpawn;

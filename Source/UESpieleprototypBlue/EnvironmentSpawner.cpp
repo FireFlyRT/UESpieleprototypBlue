@@ -21,18 +21,18 @@ void AEnvironmentSpawner::BeginPlay()
 
 void AEnvironmentSpawner::SpawnObjects()
 {
-	for (int i = 0; i > MaxObjectsToSpawn; i++)
+	FRandomStream rng = FRandomStream();
+
+	for (int i = 0; i < MaxObjectsToSpawn; i++)
 	{
 		if (!(ObjectsSpawned >= MaxObjectsToSpawn))
 		{
 			ObjectsSpawned++;
 		}
 
-		FRandomStream rng = FRandomStream(); 
+		rng.GenerateNewSeed();
 		
-		UClass* objectClass = SpawnableObjects[rng.RandRange(0, SpawnableObjects.Num() - 1)]->GetClass();
-
-		FTransform* spawnTransform = new FTransform();
+		UClass* objectClass = SpawnableObjects[rng.RandRange(0, SpawnableObjects.Num() - 1)];
 
 		float newX, newY, newZ;
 
@@ -40,11 +40,13 @@ void AEnvironmentSpawner::SpawnObjects()
 		newY = rng.FRandRange(MinRandomPositionY, MaxRandomPositionY) + GetActorLocation().Y;
 		newZ = rng.FRandRange(MinRandomPositionZ, MaxRandomPositionZ) + GetActorLocation().Z;
 
-
 		const FVector location = FVector(newX, newY, newZ);
-		spawnTransform->SetLocation(location);
 
-		GetWorld()->SpawnActor(objectClass, spawnTransform);
+		const FTransform* transform = new FTransform(location);
+
+		const FActorSpawnParameters parameter = FActorSpawnParameters();
+
+		GetWorld()->SpawnActor(objectClass, transform, parameter);
 	}
 }
 

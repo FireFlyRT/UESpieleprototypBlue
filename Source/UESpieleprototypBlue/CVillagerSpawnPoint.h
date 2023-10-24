@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "CVillager.h"
+#include "Templates/Tuple.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "CVillagerSpawnPoint.generated.h"
@@ -22,8 +22,7 @@ protected:
 
 public:	
 	// Called every frame
-	//virtual void Tick(float DeltaTime) override;
-
+	virtual void Tick(float DeltaTime) override;
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

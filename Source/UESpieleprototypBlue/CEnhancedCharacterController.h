@@ -11,6 +11,11 @@ class UESPIELEPROTOTYPBLUE_API UCEnhancedCharacterController : public UCCharacte
 {
 	GENERATED_BODY()
 
+
+protected:
+	// Called when the game starts
+	virtual void BeginPlay() override;
+
 public:
 	// Sets default values for this component's properties
 	UCEnhancedCharacterController();

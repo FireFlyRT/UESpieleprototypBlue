@@ -10,6 +10,15 @@ UCEnhancedCharacterController::UCEnhancedCharacterController()
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
+// Called when the game starts
+void UCEnhancedCharacterController::BeginPlay()
+{
+	Super::BeginPlay();
+
+	// ...
+
+}
+
 // Called every frame
 void UCEnhancedCharacterController::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {

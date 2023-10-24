@@ -18,9 +18,11 @@ void ACVillagerSpawnPoint::BeginPlay()
 	
 	FRandomStream* rng = new FRandomStream();
 
-	for (int i = 0; i < StartAmount; i++)
+	int startAmount = 5;
+
+	for (int i = 0; i < 5; i++)
 	{
-		AActor* actor = GetWorld()->SpawnActor(SpawnableVillagers[rng->FRandRange(0, SpawnableVillagers.Num())]->GetClass());
+		AActor* actor = GetWorld()->SpawnActor(SpawnableVillagers[rng->FRandRange(0, SpawnableVillagers.Num())]);
 		FVector location = GetActorLocation();
 		location += FVector(rng->FRandRange(-1000, 1000), rng->FRandRange(-1000, 1000), 0);
 		actor->SetActorLocation(location);
@@ -28,9 +30,9 @@ void ACVillagerSpawnPoint::BeginPlay()
 }
 
 // Called every frame
-//void ACVillagerSpawnPoint::Tick(float DeltaTime)
-//{
-//	Super::Tick(DeltaTime);
-//
-//}
+void ACVillagerSpawnPoint::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+}
 
