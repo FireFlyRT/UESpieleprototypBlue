@@ -2,6 +2,40 @@
 
 
 #include "CObserverController.h"
+#include <future>
+#include <iostream>
+
+class PyRunnableAsync : public FRunnable
+{
+public:
+	PyRunnableAsync(){}
+private:
+	PythonInterface* _pyInterface;
+public:
+	inline virtual bool Init() override
+	{
+		_pyInterface = new PythonInterface();
+		return true;
+	}
+	inline virtual uint32 Run() override
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Py Interface started"));
+		while(_pyInterface->RunPipeServer());
+		return 0;
+	}
+	inline virtual void Exit() override
+	{
+		_pyInterface->StopPipeServer();
+		delete _pyInterface;
+		_pyInterface = nullptr;
+	}
+	inline virtual void Stop() override
+	{
+		_pyInterface->StopPipeServer();
+		delete _pyInterface;
+		_pyInterface = nullptr;
+	}
+};
 
 // Sets default values for this component's properties
 UCObserverController::UCObserverController()
@@ -18,9 +52,16 @@ UCObserverController::UCObserverController()
 void UCObserverController::BeginPlay()
 {
 	Super::BeginPlay();
+	UE_LOG(LogTemp, Warning, TEXT("BeginPlay"));
 
-	// ...
-	
+	PyRunnableAsync* runnable = new PyRunnableAsync();
+	std::wstring threadName(L"PyThread");
+	FRunnableThread* thread = FRunnableThread::Create(runnable, threadName.c_str());
+}
+
+void UCObserverController::UninitializeComponent()
+{
+	_pyInterface->StopPipeServer();
 }
 
 

@@ -2,10 +2,10 @@
 
 #pragma once
 
+#include "PythonInterface.h"
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "CObserverController.generated.h"
-
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class UESPIELEPROTOTYPBLUE_API UCObserverController : public UActorComponent
@@ -19,10 +19,12 @@ public:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
+	virtual void UninitializeComponent() override;
 
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-		
+private:
+	PythonInterface* _pyInterface;
 };

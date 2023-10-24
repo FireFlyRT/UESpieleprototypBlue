@@ -5,10 +5,51 @@
 #include <stdio.h>
 #include <future>
 #include <array>
+#include <Windows.h>
+#include <tchar.h>
+#include <strsafe.h>
 #include "pylibs/Python.h"
 #include "PyEnvironment.h"
 
+HANDLE _pipeHandle;
 
+void StartPipeClient()
+{
+    std::cout << "Client Started" << std::endl;
+    _pipeHandle = CreateFile(
+        TEXT("\\\\.\\pipe\\Pipe"),
+        GENERIC_READ | GENERIC_WRITE,
+        0,
+        NULL,
+        OPEN_EXISTING,
+        0,
+        NULL);
+}
+
+bool SendDataWithPipeClient(const char* data)
+{
+    DWORD written;
+
+    if (_pipeHandle != INVALID_HANDLE_VALUE)
+    {
+        WriteFile(_pipeHandle,
+            data,
+            sizeof(data),
+            &written,
+            NULL);
+
+        std::cout << "Data sended " << data << std::endl;
+        return true;
+    }
+
+    return false;
+}
+
+bool ClosePipeClient() 
+{
+    std::cout << "Client closed" << std::endl;
+    return CloseHandle(_pipeHandle);
+}
 
 int TaskTest(char* argv[])
 {
@@ -62,7 +103,7 @@ int TaskTest(char* argv[])
 
 int main(int argc, char* argv[])
 {
-    std::array<std::future<int>*, 2> threads = std::array<std::future<int>*, 2>();
+    /*std::array<std::future<int>*, 2> threads = std::array<std::future<int>*, 2>();
 
     for (int i = 0; i < 2; i++)
     {
@@ -92,7 +133,12 @@ int main(int argc, char* argv[])
                 threadsActive = false;
             }
         }
-    }
+    }*/
+
+    StartPipeClient();
+    const char* message = "Hello World!";
+    while (SendDataWithPipeClient(message) != true);
+    ClosePipeClient();
     
     return 0;
 }

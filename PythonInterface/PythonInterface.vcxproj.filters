@@ -32,6 +32,9 @@
     <Library Include="pylibs\python311.lib">
       <Filter>Ressourcendateien</Filter>
     </Library>
+    <Library Include="pylibs\python311_d.lib">
+      <Filter>Ressourcendateien</Filter>
+    </Library>
   </ItemGroup>
   <ItemGroup>
     <None Include="python3.dll">

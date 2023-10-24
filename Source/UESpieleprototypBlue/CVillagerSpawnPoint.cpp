@@ -22,6 +22,7 @@ void ACVillagerSpawnPoint::BeginPlay()
 
 	for (int i = 0; i < 5; i++)
 	{
+		rng->GenerateNewSeed();
 		AActor* actor = GetWorld()->SpawnActor(SpawnableVillagers[rng->FRandRange(0, SpawnableVillagers.Num())]);
 		FVector location = GetActorLocation();
 		location += FVector(rng->FRandRange(-1000, 1000), rng->FRandRange(-1000, 1000), 0);
