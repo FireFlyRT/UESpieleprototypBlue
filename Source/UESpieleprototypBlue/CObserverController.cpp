@@ -19,17 +19,25 @@ public:
 	}
 	inline virtual uint32 Run() override
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Py Interface started")); // DEBUG
-		while(_pyInterface->RunPipeServer());
+		for (;;)
+		{
+			_pyInterface->CreatePipeServer();
+			bool invalid = _pyInterface->RunPipeServer();
+			if (invalid)
+			{
+				break;
+			}
+		}
+		
 		return 0;
 	}
 	inline virtual void Exit() override
 	{
-		_pyInterface->StopPipeServer();
+		
 	}
 	inline virtual void Stop() override
 	{
-		_pyInterface->StopPipeServer();
+		
 	}
 };
 //
@@ -49,7 +57,6 @@ UCObserverController::UCObserverController()
 void UCObserverController::BeginPlay()
 {
 	Super::BeginPlay();
-	UE_LOG(LogTemp, Warning, TEXT("BeginPlay")); // DEBUG
 
 	// TODO (MAJOR): Needs to be in the EnhancedCharacterController
 	PyRunnableAsync* runnable = new PyRunnableAsync();
@@ -61,7 +68,12 @@ void UCObserverController::BeginPlay()
 // TODO (MAJOR): Needs to be in the EnhancedCharacterController
 void UCObserverController::UninitializeComponent()
 {
+	UE_LOG(LogTemp, Warning, TEXT("UninitializeComponent")); // DEBUG
 	_pyInterface->StopPipeServer();
+
+	Super::UninitializeComponent();
+	delete _pyInterface;
+	_pyInterface = nullptr;
 }
 
 

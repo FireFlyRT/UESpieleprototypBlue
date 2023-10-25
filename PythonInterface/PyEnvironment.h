@@ -10,5 +10,3 @@ public:
 	int* action_space = new int[1, 128, 128];
 	int observation_space = 8;
 };
-
-

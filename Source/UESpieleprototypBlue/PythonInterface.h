@@ -14,10 +14,11 @@ public:
 	PythonInterface();
 	~PythonInterface();
 
+	void CreatePipeServer();
 	bool RunPipeServer();
 	BOOL StopPipeServer();
 
 private:
-	HANDLE _pipeHandle;
+	HANDLE _pipeHandle = INVALID_HANDLE_VALUE;
 	char _buffer[1024];
 };

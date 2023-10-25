@@ -13,9 +13,13 @@
 
 HANDLE _pipeHandle;
 
-void StartPipeClient()
+bool ClosePipeClient()
 {
-    std::cout << "Client Started" << std::endl;
+    return CloseHandle(_pipeHandle);
+}
+
+bool StartPipeClient()
+{
     _pipeHandle = CreateFile(
         TEXT("\\\\.\\pipe\\Pipe"),
         GENERIC_READ | GENERIC_WRITE,
@@ -24,6 +28,21 @@ void StartPipeClient()
         OPEN_EXISTING,
         0,
         NULL);
+
+    //while (_pipeHandle != INVALID_HANDLE_VALUE)
+    //{
+    //    std::cout << "Connecting..." << std::endl;
+    //}
+
+    if (_pipeHandle == INVALID_HANDLE_VALUE)
+    {
+        std::cout << "Pipe Invalid!!!" << std::endl;
+        ClosePipeClient();
+        return false;
+    }
+
+    std::cout << "Client Started" << std::endl;
+    return true;
 }
 
 bool SendDataWithPipeClient(const char* data)
@@ -41,14 +60,14 @@ bool SendDataWithPipeClient(const char* data)
         std::cout << "Data sended " << data << std::endl;
         return true;
     }
+    /*else
+    {
+        std::cout << "Pipe Invalid!!!" << std::endl;
+        ClosePipeClient();
+        return true;
+    }*/
 
     return false;
-}
-
-bool ClosePipeClient() 
-{
-    std::cout << "Client closed" << std::endl;
-    return CloseHandle(_pipeHandle);
 }
 
 int TaskTest(char* argv[])
@@ -139,10 +158,22 @@ int main(int argc, char* argv[])
 
     while (true)
     {
-        StartPipeClient();
+        std::string input;
         const char* message = "Hello World!";
-        while (SendDataWithPipeClient(message) != true);
-        ClosePipeClient();
+        std::cin >> input;
+        if (StartPipeClient())
+        {
+            while (SendDataWithPipeClient(message) != true);
+            std::cout << "Client Closed: " << ClosePipeClient();
+        }
+        std::cin >> input;
+        if (StartPipeClient())
+        {
+            while (SendDataWithPipeClient(message) != true);
+            std::cout << "Client Closed: " << ClosePipeClient();
+        }
+
+        //_pipeHandle = nullptr;
     }
     
     
