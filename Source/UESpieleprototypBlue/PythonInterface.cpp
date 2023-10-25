@@ -13,8 +13,11 @@ PythonInterface::PythonInterface()
 		sizeof(_buffer) * 16,
 		NMPWAIT_USE_DEFAULT_WAIT,
 		NULL);
-
 	UE_LOG(LogTemp, Warning, TEXT("Server Created!!!"));
+
+	//system("..\\UESpieleprototypBlue\\x64\\Release\\PythonInterface.exe");
+	//system("..\\UESpieleprototypBlue\\x64\\Debug\\PythonInterface.exe");
+	//UE_LOG(LogTemp, Warning, TEXT("PythonInterfaceProgram open"));
 }
 
 PythonInterface::~PythonInterface()

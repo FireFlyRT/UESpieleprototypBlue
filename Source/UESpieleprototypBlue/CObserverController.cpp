@@ -2,9 +2,9 @@
 
 
 #include "CObserverController.h"
-#include <future>
 #include <iostream>
 
+// TODO (MAJOR): This needs to be transfered to another class or the final destination
 class PyRunnableAsync : public FRunnable
 {
 public:
@@ -19,23 +19,20 @@ public:
 	}
 	inline virtual uint32 Run() override
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Py Interface started"));
+		UE_LOG(LogTemp, Warning, TEXT("Py Interface started")); // DEBUG
 		while(_pyInterface->RunPipeServer());
 		return 0;
 	}
 	inline virtual void Exit() override
 	{
 		_pyInterface->StopPipeServer();
-		delete _pyInterface;
-		_pyInterface = nullptr;
 	}
 	inline virtual void Stop() override
 	{
 		_pyInterface->StopPipeServer();
-		delete _pyInterface;
-		_pyInterface = nullptr;
 	}
 };
+//
 
 // Sets default values for this component's properties
 UCObserverController::UCObserverController()
@@ -52,13 +49,16 @@ UCObserverController::UCObserverController()
 void UCObserverController::BeginPlay()
 {
 	Super::BeginPlay();
-	UE_LOG(LogTemp, Warning, TEXT("BeginPlay"));
+	UE_LOG(LogTemp, Warning, TEXT("BeginPlay")); // DEBUG
 
+	// TODO (MAJOR): Needs to be in the EnhancedCharacterController
 	PyRunnableAsync* runnable = new PyRunnableAsync();
 	std::wstring threadName(L"PyThread");
 	FRunnableThread* thread = FRunnableThread::Create(runnable, threadName.c_str());
+	//
 }
 
+// TODO (MAJOR): Needs to be in the EnhancedCharacterController
 void UCObserverController::UninitializeComponent()
 {
 	_pyInterface->StopPipeServer();

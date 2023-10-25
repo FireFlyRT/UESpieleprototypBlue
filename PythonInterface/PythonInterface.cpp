@@ -99,6 +99,8 @@ int TaskTest(char* argv[])
         fclose(nnFile);
         return 120;
     }
+
+    return 0;
 }
 
 int main(int argc, char* argv[])
@@ -135,10 +137,14 @@ int main(int argc, char* argv[])
         }
     }*/
 
-    StartPipeClient();
-    const char* message = "Hello World!";
-    while (SendDataWithPipeClient(message) != true);
-    ClosePipeClient();
+    while (true)
+    {
+        StartPipeClient();
+        const char* message = "Hello World!";
+        while (SendDataWithPipeClient(message) != true);
+        ClosePipeClient();
+    }
+    
     
     return 0;
 }
