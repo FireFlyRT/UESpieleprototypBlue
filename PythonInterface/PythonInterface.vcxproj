@@ -141,8 +141,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CrypticHelper.cpp" />
+    <ClCompile Include="NeuralNetworkData.cpp" />
     <ClCompile Include="PyEnvironment.cpp" />
     <ClCompile Include="PythonInterface.cpp" />
+    <ClCompile Include="SensorData.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="pylibs\python3.lib">
@@ -185,7 +188,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CrypticHelper.h" />
+    <ClInclude Include="NeuralNetworkData.h" />
     <ClInclude Include="PyEnvironment.h" />
+    <ClInclude Include="SensorData.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

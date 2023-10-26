@@ -21,6 +21,15 @@
     <ClCompile Include="PyEnvironment.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="CrypticHelper.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="SensorData.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="NeuralNetworkData.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Library Include="pylibs\_tkinter.lib">
@@ -46,6 +55,15 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PyEnvironment.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="CrypticHelper.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="SensorData.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="NeuralNetworkData.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

@@ -20,5 +20,5 @@ public:
 
 private:
 	HANDLE _pipeHandle = INVALID_HANDLE_VALUE;
-	char _buffer[1024];
+	TCHAR* _buffer;
 };

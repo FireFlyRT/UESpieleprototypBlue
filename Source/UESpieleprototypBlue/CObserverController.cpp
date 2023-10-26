@@ -4,6 +4,8 @@
 #include "CObserverController.h"
 #include <iostream>
 
+FRunnableThread* _thread;
+
 // TODO (MAJOR): This needs to be transfered to another class or the final destination
 class PyRunnableAsync : public FRunnable
 {
@@ -11,6 +13,7 @@ public:
 	PyRunnableAsync(){}
 private:
 	PythonInterface* _pyInterface;
+	FString _threadId;
 public:
 	inline virtual bool Init() override
 	{
@@ -33,11 +36,11 @@ public:
 	}
 	inline virtual void Exit() override
 	{
-		
+		_pyInterface->StopPipeServer();
 	}
 	inline virtual void Stop() override
 	{
-		
+		_pyInterface->StopPipeServer();
 	}
 };
 //
@@ -61,17 +64,17 @@ void UCObserverController::BeginPlay()
 	// TODO (MAJOR): Needs to be in the EnhancedCharacterController
 	PyRunnableAsync* runnable = new PyRunnableAsync();
 	std::wstring threadName(L"PyThread");
-	FRunnableThread* thread = FRunnableThread::Create(runnable, threadName.c_str());
+	_thread = FRunnableThread::Create(runnable, threadName.c_str());
 	//
 }
 
 // TODO (MAJOR): Needs to be in the EnhancedCharacterController
-void UCObserverController::UninitializeComponent()
+void UCObserverController::OnComponentDestroyed(bool bDestroyingHierarchy)
 {
-	UE_LOG(LogTemp, Warning, TEXT("UninitializeComponent")); // DEBUG
-	_pyInterface->StopPipeServer();
+	Super::OnComponentDestroyed(bDestroyingHierarchy);
+	UE_LOG(LogTemp, Warning, TEXT("OnComponentDestroyed ")); // DEBUG
+	//_thread->Kill(); // Freezes the Game???
 
-	Super::UninitializeComponent();
 	delete _pyInterface;
 	_pyInterface = nullptr;
 }

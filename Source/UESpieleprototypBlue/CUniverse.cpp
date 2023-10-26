@@ -2,6 +2,7 @@
 
 
 #include "CUniverse.h"
+#include "MainNamedPipeAsync.h"
 
 // Sets default values
 ACUniverse::ACUniverse()
@@ -15,8 +16,16 @@ ACUniverse::ACUniverse()
 void ACUniverse::BeginPlay()
 {
 	Super::BeginPlay();
-	
 
+	MainNamedPipeAsync* runnable = new MainNamedPipeAsync();
+	/*_thread =*/ FRunnableThread::Create(runnable, L"MainConnectionPipeThread");
+	
+	for (int i = 0; i < Planets.Num(); i++)
+	{
+		FString planetID = FString();
+		planetID.AppendInt(i);
+		Planets[i]->SpawnVillagers(planetID);
+	}
 }
 
 // Called every frame

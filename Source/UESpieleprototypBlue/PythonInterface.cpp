@@ -2,6 +2,7 @@
 
 #include "PythonInterface.h"
 
+#define BUFFER_SIZE 512
 
 // TODO (MAJOR): Copy .dll's in Build Folder!!!
 PythonInterface::PythonInterface()
@@ -16,15 +17,16 @@ PythonInterface::~PythonInterface()
 {
 }
 
+// TODO (MAJOR): Pipe needs to be closed when Application closes
 void PythonInterface::CreatePipeServer()
 {
 	_pipeHandle = CreateNamedPipe(
-		TEXT("\\\\.\\pipe\\Pipe"),
+		TEXT("\\\\.\\pipe\\MainPipe"),
 		PIPE_ACCESS_DUPLEX,
 		PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT, // | FILE_FLAG_FIRST_PIPE_INSTANCE is not needed but forces CreateNamedPipe(..) to fail if the pipe already exists
 		PIPE_UNLIMITED_INSTANCES,
-		sizeof(_buffer) * 16,
-		sizeof(_buffer) * 16,
+		BUFFER_SIZE,
+		BUFFER_SIZE,
 		NMPWAIT_USE_DEFAULT_WAIT,
 		NULL);
 	UE_LOG(LogTemp, Warning, TEXT("Server Created!!!"));
@@ -39,30 +41,37 @@ bool PythonInterface::RunPipeServer()
 
 	while (1)
 	{
-		if (_pipeHandle != INVALID_HANDLE_VALUE)
-		{
-			if (ConnectNamedPipe(_pipeHandle, NULL) != FALSE) // wait for someone to connect to the pipe
-			{
-				UE_LOG(LogTemp, Warning, TEXT("Connection esteblished with client"));
-				while (ReadFile(_pipeHandle, _buffer, sizeof(_buffer) - 1, &read, NULL) != FALSE)
-				{
-					//TODO (MAJOR): Do smth with the data in buffer
-					UE_LOG(LogTemp, Warning, TEXT("DATA WAS READED!!! %s"), _buffer);
-				}
-
-				return false;
-			}
-			else
-			{
-				StopPipeServer();
-				return false;
-			}
-		}
-		else
+		if (_pipeHandle == INVALID_HANDLE_VALUE)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Pipe invalid before Connecting"));
 			return true;
 		}
+
+		if (ConnectNamedPipe(_pipeHandle, NULL) == FALSE) // if noone connects to the pipe, stop and try again
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Client disconnected!"));
+			StopPipeServer();
+			return false;
+		}
+
+		UE_LOG(LogTemp, Warning, TEXT("Connection esteblished with client"));
+		while (1)
+		{
+			bool success = ReadFile(_pipeHandle, _buffer, BUFFER_SIZE * sizeof(TCHAR), &read, NULL);
+			UE_LOG(LogTemp, Warning, TEXT("Reading Data..."));
+			if (!success)
+			{
+				UE_LOG(LogTemp, Error, TEXT("Reading Data failed"));
+				break;
+			}
+		}
+		UE_LOG(LogTemp, Warning, TEXT("DATA WAS READED!!! -> %s"), _buffer);
+
+		//UE_LOG(LogTemp, Warning, TEXT("Last Error: %s"), GetLastError());
+
+		//TODO (MAJOR): Do smth with the data in buffer
+
+		return false;
 	}
 	
 }
@@ -74,5 +83,7 @@ bool PythonInterface::RunPipeServer()
 BOOL PythonInterface::StopPipeServer()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Server Stoped"));
-	return DisconnectNamedPipe(_pipeHandle) && CloseHandle(_pipeHandle);
+	FlushFileBuffers(_pipeHandle);
+	DisconnectNamedPipe(_pipeHandle);
+	return CloseHandle(_pipeHandle);
 }

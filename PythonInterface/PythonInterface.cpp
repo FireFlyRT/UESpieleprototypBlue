@@ -10,6 +10,8 @@
 #include <strsafe.h>
 #include "pylibs/Python.h"
 #include "PyEnvironment.h"
+#include "CrypticHelper.h"
+#include "SensorData.h"
 
 HANDLE _pipeHandle;
 
@@ -159,19 +161,15 @@ int main(int argc, char* argv[])
     while (true)
     {
         std::string input;
-        const char* message = "Hello World!";
-        std::cin >> input;
+        const char* message = "00,000,100,050,030,024,189,043,042,1.0000000;0.3821341;1.0421621,010205";
         if (StartPipeClient())
         {
             while (SendDataWithPipeClient(message) != true);
-            std::cout << "Client Closed: " << ClosePipeClient();
+            std::cout << "Client Closed: " << ClosePipeClient() << std::endl;;
         }
+
+        SensorData* data = CrypticHelper::DecryptValue(message);
         std::cin >> input;
-        if (StartPipeClient())
-        {
-            while (SendDataWithPipeClient(message) != true);
-            std::cout << "Client Closed: " << ClosePipeClient();
-        }
 
         //_pipeHandle = nullptr;
     }

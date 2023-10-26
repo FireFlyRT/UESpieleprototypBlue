@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CPlanet.h"
+#include "PythonInterface.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "CUniverse.generated.h"
@@ -33,4 +34,6 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		FDateTime DateTime;
+private:
+	PythonInterface* _pyInterface;
 };
