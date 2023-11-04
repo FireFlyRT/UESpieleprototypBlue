@@ -8,6 +8,7 @@
 #include <Windows.h>
 #include <tchar.h>
 #include <strsafe.h>
+#include <sstream>
 #include "pylibs/Python.h"
 #include "PyEnvironment.h"
 #include "CrypticHelper.h"
@@ -31,11 +32,6 @@ bool StartPipeClient()
         0,
         NULL);
 
-    //while (_pipeHandle != INVALID_HANDLE_VALUE)
-    //{
-    //    std::cout << "Connecting..." << std::endl;
-    //}
-
     if (_pipeHandle == INVALID_HANDLE_VALUE)
     {
         std::cout << "Pipe Invalid!!!" << std::endl;
@@ -53,34 +49,35 @@ bool SendDataWithPipeClient(const char* data)
 
     if (_pipeHandle != INVALID_HANDLE_VALUE)
     {
-        WriteFile(_pipeHandle,
-            data,
-            sizeof(data),
-            &written,
-            NULL);
+        while(WriteFile(_pipeHandle, data, sizeof(data), &written, NULL) != FALSE);
 
-        std::cout << "Data sended " << data << std::endl;
+        std::cout << "Data sended " << written << std::endl;
         return true;
     }
-    /*else
-    {
-        std::cout << "Pipe Invalid!!!" << std::endl;
-        ClosePipeClient();
-        return true;
-    }*/
 
     return false;
 }
 
+std::string ReceiveDataFromPipeServer()
+{
+    DWORD read;
+    char buffer[1028];
+
+    if (_pipeHandle != INVALID_HANDLE_VALUE)
+    {
+        while(ReadFile(_pipeHandle, buffer, sizeof(buffer), &read, NULL) != FALSE);
+        std::cout << "Data readed " << read << std::endl;
+        std::ostringstream stream;
+        stream << read;
+        std::string result = stream.str();
+        return result;
+    }
+
+    return NULL;
+}
+
 int TaskTest(char* argv[])
 {
-    std::cout << "Initialize Python Interface!\n";
-
-    Py_Initialize();
-    std::cout << "Initialized: " << Py_IsInitialized() << std::endl;
-
-    PyRun_SimpleString("print('From Python: Hello World!')");
-
     FILE* nnFile;
     char path[255] = "";
     _fullpath(path, argv[0], sizeof(path));
@@ -88,17 +85,15 @@ int TaskTest(char* argv[])
     std::string pyPath = basePath.substr(0, basePath.find_last_of("6") - 1); // Get Path before x64
     pyPath += "PythonInterface\\PythonScripts\\BasicDQN.py"; // And add Path to Py-File
 
+    // Init Basic File
+    fopen_s(&nnFile, pyPath.c_str(), "r");
+    PyRun_SimpleFile(nnFile, "BasicDQN.py");
+
     // Initialise PyObject in Python
     PyEnvironment* pyEnv = new PyEnvironment();
     PyObject_Init(pyEnv, pyEnv->ob_type);
     //PyRun_SimpleString("pyEnv = PyEnvironment()"); // Der Typ ist hier NICHT in Python definiert
     PyRun_SimpleString("print(pyEnv)");                // Warum ist pyEnv nicht definiert?
-
-    // Init Basic File
-    fopen_s(&nnFile, pyPath.c_str(), "r");
-    PyRun_SimpleFile(nnFile, "BasicDQN.py");
-
-
 
     /*
     * Env Observation Space =
@@ -126,6 +121,13 @@ int TaskTest(char* argv[])
 
 int main(int argc, char* argv[])
 {
+    std::cout << "Initialize Python Interface!\n";
+
+    Py_Initialize();
+    std::cout << "Initialized: " << Py_IsInitialized() << std::endl;
+
+    PyRun_SimpleString("print('From Python: Hello World!')");
+
     /*std::array<std::future<int>*, 2> threads = std::array<std::future<int>*, 2>();
 
     for (int i = 0; i < 2; i++)
@@ -160,18 +162,35 @@ int main(int argc, char* argv[])
 
     while (true)
     {
-        std::string input;
-        const char* message = "00,000,100,050,030,024,189,043,042,1.0000000;0.3821341;1.0421621,010205";
         if (StartPipeClient())
         {
-            while (SendDataWithPipeClient(message) != true);
-            std::cout << "Client Closed: " << ClosePipeClient() << std::endl;;
+            SensorData* sensorData = new SensorData();
+            StatData* statData = new StatData();
+            RewardData* rewardData = new RewardData();
+            // Get new Environment Data with old Reward data
+            std::string data = ReceiveDataFromPipeServer();
+            if (!CrypticHelper::DecryptValue(data, sensorData, statData, rewardData))
+            {
+                std::cout << "CrypticHelper failed to Decrypt message!";
+                return -1;
+            }
+            // Get Reward from Data
+            // Save new Environment Data
+            // Save old Reward Data for old Environment Data
+
+            // Input in Network to get Output
+            NeuralNetworkData* nnData = NULL;
+
+            std::string result = CrypticHelper::EncryptValue(nnData);
+
+            while (SendDataWithPipeClient(result.c_str()) != true);
+
+            // Repeat
         }
 
-        SensorData* data = CrypticHelper::DecryptValue(message);
-        std::cin >> input;
-
-        //_pipeHandle = nullptr;
+        // Look for best NN 
+        // Save best NN
+        // Load it for next Iteration
     }
     
     

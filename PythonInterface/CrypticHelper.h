@@ -2,11 +2,13 @@
 #include <string>
 #include "SensorData.h"
 #include "NeuralNetworkData.h"
+#include "StatData.h"
+#include "RewardData.h"
 
 class CrypticHelper
 {
 public:
-	static SensorData* DecryptValue(std::string value);
+	static bool DecryptValue(std::string value, SensorData* sensorData, StatData* statData, RewardData* rewardData);
 	static std::string EncryptValue(NeuralNetworkData* data);
 };
 

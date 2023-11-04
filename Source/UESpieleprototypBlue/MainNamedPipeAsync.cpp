@@ -45,7 +45,7 @@ uint32 MainNamedPipeAsync::Run()
 			UE_LOG(LogTemp, Warning, TEXT("Connection esteblished with a client"));
 
 			FString pipeName = TEXT("BLA");
-			VillagerNamedPipeAsync* runnable = new VillagerNamedPipeAsync();
+			VillagerNamedPipeAsync* runnable = new VillagerNamedPipeAsync(pipeName);
 			std::wstring threadName(L"PyThread");
 			HANDLE thread = FRunnableThread::Create(runnable, threadName.c_str());
 			if (thread == NULL)
@@ -68,6 +68,8 @@ uint32 MainNamedPipeAsync::Run()
 		
 		while (1)
 		{
+			DWORD read;
+
 			bool success = ReadFile(_pipeHandle, _buffer, BUFFER_SIZE * sizeof(TCHAR), &read, NULL);
 			UE_LOG(LogTemp, Warning, TEXT("Reading Data..."));
 			if (!success)

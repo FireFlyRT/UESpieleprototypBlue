@@ -11,7 +11,7 @@
 class UESPIELEPROTOTYPBLUE_API VillagerNamedPipeAsync : public FRunnable
 {
 public:
-	VillagerNamedPipeAsync();
+	VillagerNamedPipeAsync(FString pipeName);
 	~VillagerNamedPipeAsync();
 
 public:
@@ -19,4 +19,7 @@ public:
 	virtual uint32 Run() override;
 	virtual void Exit() override;
 	virtual void Stop() override;
+
+private:
+	FString _pipeName;
 };

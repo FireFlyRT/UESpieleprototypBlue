@@ -24,7 +24,7 @@ public:
 	{
 		for (;;)
 		{
-			_pyInterface->CreatePipeServer();
+			//_pyInterface->CreatePipeServer();
 			bool invalid = _pyInterface->RunPipeServer();
 			if (invalid)
 			{

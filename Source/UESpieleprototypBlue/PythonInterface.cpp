@@ -18,10 +18,12 @@ PythonInterface::~PythonInterface()
 }
 
 // TODO (MAJOR): Pipe needs to be closed when Application closes
-void PythonInterface::CreatePipeServer()
+void PythonInterface::CreatePipeServer(FString pipeName)
 {
+	TCHAR* namePrefix = TEXT("\\\\.\\pipe\\");
+	TCHAR name = *namePrefix + *pipeName.GetCharArray().GetData();
 	_pipeHandle = CreateNamedPipe(
-		TEXT("\\\\.\\pipe\\MainPipe"),
+		(LPCWSTR)name, // Get Name from MainPipe
 		PIPE_ACCESS_DUPLEX,
 		PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT, // | FILE_FLAG_FIRST_PIPE_INSTANCE is not needed but forces CreateNamedPipe(..) to fail if the pipe already exists
 		PIPE_UNLIMITED_INSTANCES,
@@ -33,11 +35,12 @@ void PythonInterface::CreatePipeServer()
 }
 
 /// <summary>
-/// Starts a named Pipe Server
+/// Starts the named Pipe Server
 /// </summary>
 bool PythonInterface::RunPipeServer()
 {
 	DWORD read;
+	DWORD written;
 
 	while (1)
 	{
@@ -55,7 +58,24 @@ bool PythonInterface::RunPipeServer()
 		}
 
 		UE_LOG(LogTemp, Warning, TEXT("Connection esteblished with client"));
-		while (1)
+		// Write data to namedPipe
+		// SensorData, StatData, RewardData
+		while (true)
+		{
+			//char* data = GET_DATA_FROM_UNREAL();
+			const char* data = "00,000,100,050,030,024,189,043,042,1.0000000;0.3821341;1.0421621,010205,00,000,100,050,030,024,189,043,042,1.0000000;0.3821341;1.0421621,1.2458"; // TEMP TEST
+			bool success = WriteFile(_pipeHandle, data, sizeof(data), &written, NULL);
+			UE_LOG(LogTemp, Warning, TEXT("Writing Data..."));
+			if (!success)
+			{
+				UE_LOG(LogTemp, Error, TEXT("Writing Data failed"));
+				break;
+			}
+		}
+
+		// Read data from namedPipe
+		// Action, ...
+		while (true)
 		{
 			bool success = ReadFile(_pipeHandle, _buffer, BUFFER_SIZE * sizeof(TCHAR), &read, NULL);
 			UE_LOG(LogTemp, Warning, TEXT("Reading Data..."));
@@ -65,11 +85,13 @@ bool PythonInterface::RunPipeServer()
 				break;
 			}
 		}
-		UE_LOG(LogTemp, Warning, TEXT("DATA WAS READED!!! -> %s"), _buffer);
+		UE_LOG(LogTemp, Warning, TEXT("DATA WAS READED!!! -> %s"), read);
 
 		//UE_LOG(LogTemp, Warning, TEXT("Last Error: %s"), GetLastError());
 
-		//TODO (MAJOR): Do smth with the data in buffer
+		//TODO (MAJOR): Do smth with the readed data in buffer
+
+		// Data to EnhancedCharacterController
 
 		return false;
 	}

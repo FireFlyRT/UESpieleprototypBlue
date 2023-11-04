@@ -14,7 +14,7 @@ public:
 	PythonInterface();
 	~PythonInterface();
 
-	void CreatePipeServer();
+	void CreatePipeServer(FString pipeName);
 	bool RunPipeServer();
 	BOOL StopPipeServer();
 

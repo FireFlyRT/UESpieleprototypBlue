@@ -9,7 +9,7 @@ import time
 
 from tensorboardX import SummaryWriter
 
-DEFAULT_ENV_NAME = "PongNoFrameskip-v4"
+DEFAULT_ENV_NAME = "Ahricination"
 MEAN_REWARD_BOUND = 19.5
 
 GAMMA = 0.99
