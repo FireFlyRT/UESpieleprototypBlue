@@ -1,6 +1,14 @@
-#include "PyEnvironment.h"
-
 #define PY_SSIZE_T_CLEAN
+
+#include "pylibs/Python.h"
+
+typedef struct
+{
+    PyObject_HEAD
+
+    int* action_space;
+    int observation_space;
+} PyEnvironment;
 
 static PyTypeObject PyEnvironmentType = {
     .ob_base = PyVarObject_HEAD_INIT(NULL, 0)

@@ -38,28 +38,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Library Include="pylibs\_tkinter.lib">
-      <Filter>Ressourcendateien</Filter>
-    </Library>
-    <Library Include="pylibs\python3.lib">
-      <Filter>Ressourcendateien</Filter>
-    </Library>
-    <Library Include="pylibs\python311.lib">
-      <Filter>Ressourcendateien</Filter>
-    </Library>
-    <Library Include="pylibs\python311_d.lib">
-      <Filter>Ressourcendateien</Filter>
-    </Library>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="python3.dll">
-      <Filter>Ressourcendateien</Filter>
-    </None>
-    <None Include="python311.dll">
-      <Filter>Ressourcendateien</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="PyEnvironment.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
@@ -78,5 +56,36 @@
     <ClInclude Include="RewardData.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="PythonScripts\BasicDQN.py">
+      <Filter>Ressourcendateien</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="pylibs\_tkinter.lib">
+      <Filter>Ressourcendateien</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="python3.dll">
+      <Filter>Ressourcendateien</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="pylibs\python3.lib">
+      <Filter>Ressourcendateien</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="python311.dll">
+      <Filter>Ressourcendateien</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="pylibs\python311.lib">
+      <Filter>Ressourcendateien</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="pylibs\python311_d.lib">
+      <Filter>Ressourcendateien</Filter>
+    </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="pyProject.toml">
+      <Filter>Quelldateien</Filter>
+    </None>
+    <None Include="setup.py">
+      <Filter>Quelldateien</Filter>
+    </None>
   </ItemGroup>
 </Project>

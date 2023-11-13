@@ -35,11 +35,11 @@ bool CrypticHelper::DecryptValue(std::string value, SensorData* sensorData, Stat
     statData->Height = std::stoi(value.substr(94, 96));
     statData->Hunger = std::stoi(value.substr(98, 100));
     statData->Thurst = std::stoi(value.substr(102, 104));
-    int accidentalX = std::stoi(value.substr(106, 106));
+    accidentalX = std::stoi(value.substr(106, 106));
     statData->PositionX = std::stoi(value.substr(108, 114));
-    int accidentalY = std::stoi(value.substr(116, 116));
+    accidentalY = std::stoi(value.substr(116, 116));
     statData->PositionY = std::stoi(value.substr(118, 124));
-    int accidentalZ = std::stoi(value.substr(126, 126));
+    accidentalZ = std::stoi(value.substr(126, 126));
     statData->PositionZ = std::stoi(value.substr(128, 134));
     // sensorData->Inventory = value.substr(0, 1);
 

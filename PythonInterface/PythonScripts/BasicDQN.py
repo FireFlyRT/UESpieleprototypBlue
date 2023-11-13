@@ -1,6 +1,9 @@
 import argparse
 import collections
 
+#From external Source
+import externalTypes
+
 import numpy as np
 import torch
 import torch.nn as nn
@@ -190,6 +193,7 @@ class Program:
             self.optimizer.step() 
 
 if __name__ == "__main__":
+    #env = externalTypes.PyEnvironment()
     #program = Program()
     #program.Start()
     pass

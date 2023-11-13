@@ -91,7 +91,7 @@ int TaskTest(char* argv[])
 
     // Initialise PyObject in Python
     PyEnvironment* pyEnv = new PyEnvironment();
-    PyObject_Init(pyEnv, pyEnv->ob_type);
+    //PyObject_Init(pyEnv, pyEnv->ob_type);
     //PyRun_SimpleString("pyEnv = PyEnvironment()"); // Der Typ ist hier NICHT in Python definiert
     PyRun_SimpleString("print(pyEnv)");                // Warum ist pyEnv nicht definiert?
 

@@ -1,0 +1,10 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "externalTypes"
+version = "1"
+
+[tool.setuptools.packages.find]
+exclude = ['x64', 'runs', 'pylibs', 'PythonScripts']
