@@ -2,6 +2,7 @@
 
 
 #include "CEnhancedCharacterController.h"
+#include "VillagerNamedPipeAsync.h"
 
 UCEnhancedCharacterController::UCEnhancedCharacterController()
 {
@@ -15,7 +16,11 @@ void UCEnhancedCharacterController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
+	FString pipeName = "Villager";
+	pipeName.Append(VillagerID);
+	wchar_t* threadName = pipeName.GetCharArray().GetData();
+	VillagerNamedPipeAsync* runnable = new VillagerNamedPipeAsync(pipeName);
+	/*_thread =*/ FRunnableThread::Create(runnable, threadName);
 
 }
 
@@ -26,3 +31,12 @@ void UCEnhancedCharacterController::TickComponent(float DeltaTime, ELevelTick Ti
 
 	// ...
 }
+
+// VON INTERFACE ZU CHARACTER
+// Input von VillagerPipe
+// Daten kommen von PyInterface 
+//  
+// Über Pointer Variable hier her?
+// Mit bool Pointer in Update/Tick?
+// 
+// 

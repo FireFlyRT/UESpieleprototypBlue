@@ -36,7 +36,7 @@ void ACVillagerSpawnPoint::SpawnVillager(FString tribeID)
 		AActor* actor = GetWorld()->SpawnActor(SpawnableVillagers[rng->FRandRange(0, SpawnableVillagers.Num())]);
 
 		UCEnhancedCharacterController* enhController = actor->GetComponentByClass<UCEnhancedCharacterController>();
-		// enhController->SetupAIFunctions(tribeID); Name?
+		enhController->VillagerID = tribeID;
 
 		FVector location = GetActorLocation();
 		location += FVector(rng->FRandRange(-1000, 1000), rng->FRandRange(-1000, 1000), 0);

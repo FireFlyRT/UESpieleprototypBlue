@@ -22,5 +22,6 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	ACVillager* Villager;
+	FString VillagerID;
 	
 };
