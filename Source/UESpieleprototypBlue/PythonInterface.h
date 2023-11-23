@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "NeuralNetworkData.h"
 #include <Windows.h>
 #include <stdio.h>
 #include <tchar.h>
@@ -14,11 +15,13 @@ public:
 	PythonInterface();
 	~PythonInterface();
 
-	void CreatePipeServer(FString pipeName);
+	void CreatePipeServer(FString pipeName, NeuralNetworkData* nnData, bool* isNnDataUpdated);
 	bool RunPipeServer();
 	BOOL StopPipeServer();
 
 private:
 	HANDLE _pipeHandle = INVALID_HANDLE_VALUE;
 	TCHAR* _buffer;
+	NeuralNetworkData* _nnData;
+	bool* _isNnDataUpdated;
 };

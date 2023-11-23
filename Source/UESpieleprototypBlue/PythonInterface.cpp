@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "PythonInterface.h"
+#include "CrypticHelper.h"
 
 #define BUFFER_SIZE 512
 
@@ -18,10 +19,13 @@ PythonInterface::~PythonInterface()
 }
 
 // TODO (MAJOR): Pipe needs to be closed when Application closes
-void PythonInterface::CreatePipeServer(FString pipeName)
+void PythonInterface::CreatePipeServer(FString pipeName, NeuralNetworkData* nnData, bool* isNnDataUpdated)
 {
+	_nnData = nnData;
+	_isNnDataUpdated = isNnDataUpdated;
+
 	TCHAR* namePrefix = TEXT("\\\\.\\pipe\\");
-	TCHAR name = *namePrefix + *pipeName.GetCharArray().GetData();
+	TCHAR* name = namePrefix + *pipeName.GetCharArray().GetData();
 	_pipeHandle = CreateNamedPipe(
 		(LPCWSTR)name, // Get Name from MainPipe
 		PIPE_ACCESS_DUPLEX,
@@ -89,9 +93,14 @@ bool PythonInterface::RunPipeServer()
 
 		//UE_LOG(LogTemp, Warning, TEXT("Last Error: %s"), GetLastError());
 
-		//TODO (MAJOR): Do smth with the readed data in buffer
-
-		// Data to EnhancedCharacterController
+		std::wstring w = _buffer;
+		std::string data = std::string(w.begin(), w.end());
+		*_nnData = CrypticHelper::DecryptValue(data);
+		if (_nnData->Null != 0)
+		{
+			*_isNnDataUpdated = true;
+		}
+		// Data per Pointer to EnhancedCharacterController
 
 		return false;
 	}

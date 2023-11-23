@@ -44,11 +44,11 @@ uint32 MainNamedPipeAsync::Run()
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Connection esteblished with a client"));
 
-			FString pipeName = TEXT("BLA");
+			/*FString pipeName = TEXT("BLA");
 			VillagerNamedPipeAsync* runnable = new VillagerNamedPipeAsync(pipeName);
 			std::wstring threadName(L"PyThread");
-			HANDLE thread = FRunnableThread::Create(runnable, threadName.c_str());
-			if (thread == NULL)
+			HANDLE thread = FRunnableThread::Create(runnable, threadName.c_str());*/
+			/*if (thread == NULL)
 			{
 				UE_LOG(LogTemp, Warning, TEXT("Thread creation failed!!!"));
 				return -1;
@@ -56,7 +56,7 @@ uint32 MainNamedPipeAsync::Run()
 			else
 			{
 				CloseHandle(thread);
-			}
+			}*/
 		}
 		else
 		{

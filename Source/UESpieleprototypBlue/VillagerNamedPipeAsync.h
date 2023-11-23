@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "NeuralNetworkData.h"
 #include "PythonInterface.h"
 #include "CoreMinimal.h"
 
@@ -11,7 +12,7 @@
 class UESPIELEPROTOTYPBLUE_API VillagerNamedPipeAsync : public FRunnable
 {
 public:
-	VillagerNamedPipeAsync(FString pipeName);
+	VillagerNamedPipeAsync(FString pipeName, NeuralNetworkData* nnData, bool* isNnDataUpdated);
 	~VillagerNamedPipeAsync();
 
 public:
@@ -22,4 +23,6 @@ public:
 
 private:
 	FString _pipeName;
+	NeuralNetworkData* _nnData;
+	bool* _isNnDataUpdated;
 };

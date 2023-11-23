@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "NeuralNetworkData.h"
 #include "CoreMinimal.h"
 #include "CCharacterController.h"
 #include "CEnhancedCharacterController.generated.h"
@@ -23,5 +24,9 @@ public:
 
 	ACVillager* Villager;
 	FString VillagerID;
+
+private:
+	NeuralNetworkData* _nnData;
+	bool* _isNnDataUpdated = new bool(false);
 	
 };

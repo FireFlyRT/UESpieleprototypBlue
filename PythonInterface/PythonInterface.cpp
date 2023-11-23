@@ -21,10 +21,25 @@ bool ClosePipeClient()
     return CloseHandle(_pipeHandle);
 }
 
+bool SendDataWithPipeClient(const char* data)
+{
+    DWORD written;
+
+    if (_pipeHandle != INVALID_HANDLE_VALUE)
+    {
+        while (WriteFile(_pipeHandle, data, sizeof(data), &written, NULL) != FALSE);
+
+        std::cout << "Data sended " << written << std::endl;
+        return true;
+    }
+
+    return false;
+}
+
 bool StartPipeClient()
 {
     _pipeHandle = CreateFile(
-        TEXT("\\\\.\\pipe\\Pipe"),
+        TEXT("\\\\.\\pipe\\MainPipe"),
         GENERIC_READ | GENERIC_WRITE,
         0,
         NULL,
@@ -39,23 +54,13 @@ bool StartPipeClient()
         return false;
     }
 
-    std::cout << "Client Started" << std::endl;
-    return true;
-}
-
-bool SendDataWithPipeClient(const char* data)
-{
-    DWORD written;
-
-    if (_pipeHandle != INVALID_HANDLE_VALUE)
+    if (ConnectNamedPipe(_pipeHandle, NULL) != FALSE)
     {
-        while(WriteFile(_pipeHandle, data, sizeof(data), &written, NULL) != FALSE);
-
-        std::cout << "Data sended " << written << std::endl;
-        return true;
+        SendDataWithPipeClient("Empty");
     }
 
-    return false;
+    std::cout << "Client Started" << std::endl;
+    return true;
 }
 
 std::string ReceiveDataFromPipeServer()
@@ -179,7 +184,16 @@ int main(int argc, char* argv[])
             // Save old Reward Data for old Environment Data
 
             // Input in Network to get Output
-            NeuralNetworkData* nnData = NULL;
+            //NeuralNetworkData* nnData = NULL;
+
+            //For Debuging
+            NeuralNetworkData* nnData = new NeuralNetworkData();
+            nnData->Action = 2;
+            nnData->MovementX = 100.0f;
+            nnData->MovementY = 23.5f;
+            nnData->RotationX = 0.0f;
+            nnData->RotationY = 0.0f;
+            //
 
             std::string result = CrypticHelper::EncryptValue(nnData);
 

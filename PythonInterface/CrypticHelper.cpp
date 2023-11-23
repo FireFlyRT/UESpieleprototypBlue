@@ -57,5 +57,53 @@ bool CrypticHelper::DecryptValue(std::string value, SensorData* sensorData, Stat
 
 std::string CrypticHelper::EncryptValue(NeuralNetworkData* data)
 {
-    return std::string();
+    std::string values = std::string();
+    int accidental = data->MovementX > 0 ? 1 : 0;
+    values.append(std::to_string(accidental));
+    values.append(".");
+    values.append(std::to_string(abs(data->MovementX)));
+    values.append(",");
+
+    accidental = data->MovementY > 0 ? 1 : 0;
+    values.append(std::to_string(accidental));
+    values.append(".");
+    values.append(SymbolNumberAdjustment(abs(data->MovementY), 3));
+    values.append(",");
+
+    accidental = data->RotationX > 0 ? 1 : 0;
+    values.append(std::to_string(accidental));
+    values.append(".");
+    values.append(SymbolNumberAdjustment(abs(data->RotationX), 3));
+    values.append(",");
+
+    accidental = data->RotationY > 0 ? 1 : 0;
+    values.append(std::to_string(accidental));
+    values.append(".");
+    values.append(SymbolNumberAdjustment(abs(data->RotationY), 3));
+    values.append(",");
+
+    values.append(SymbolNumberAdjustment(data->Action, 3));
+
+    return values;
+}
+
+std::string SymbolNumberAdjustment(int value, int symbolNum)
+{
+    std::string s = std::string(std::to_string(value));
+    if (s.length() != symbolNum)
+    {
+        int lengthDif = symbolNum - s.length();
+        std::string result = std::string();
+
+        for (int i = 1; i < lengthDif; i++)
+        {
+            result.append("0");
+        }
+
+        result.append(std::to_string(value));
+
+        return result;
+    }
+
+    return s;
 }
