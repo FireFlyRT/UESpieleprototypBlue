@@ -48,7 +48,6 @@ bool StartPipeClient()
         NULL);
 
     if (_pipeHandle == INVALID_HANDLE_VALUE)
-        ehbfuiewhriewhi
     {
         std::cout << "Pipe Invalid!!!" << std::endl;
         ClosePipeClient();
