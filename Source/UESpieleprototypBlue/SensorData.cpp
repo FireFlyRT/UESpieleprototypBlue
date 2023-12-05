@@ -5,7 +5,7 @@
 
 SensorData::SensorData()
 {
-	
+	IsUpdated = false;
 }
 
 SensorData::~SensorData()

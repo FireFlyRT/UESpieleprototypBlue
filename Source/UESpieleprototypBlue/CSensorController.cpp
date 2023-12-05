@@ -29,6 +29,57 @@ void UCSensorController::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// ...
+	TArray<TArray<FHitResult>> allHitResults;
+
+	FVector traceStart = GetOwner()->GetActorLocation();
+	FCollisionQueryParams quaryParams;
+	quaryParams.AddIgnoredActor(GetOwner());
+
+	for (int i = 1; i < 2; i++)
+	{
+		FVector traceEnd = GetOwner()->GetActorForwardVector();
+		traceEnd.X += 1.0f / i;
+		traceEnd.Normalize();
+		traceEnd += GetOwner()->GetActorLocation();
+		traceEnd *= 1000.0f;
+		TArray<FHitResult> hitResults;
+		GetWorld()->LineTraceMultiByChannel(hitResults, traceStart, traceEnd, TraceChannelProperty, quaryParams);
+		allHitResults.Add(hitResults);
+
+		// Recursion to create traces on both sides of the excisting traces
+
+		traceEnd = GetOwner()->GetActorLocation() + -GetOwner()->GetActorForwardVector();
+		GetWorld()->LineTraceMultiByChannel(hitResults, traceStart, traceEnd, TraceChannelProperty, quaryParams);
+		allHitResults.Add(hitResults);
+		
+		traceEnd = GetOwner()->GetActorLocation() + GetOwner()->GetActorRightVector();
+		GetWorld()->LineTraceMultiByChannel(hitResults, traceStart, traceEnd, TraceChannelProperty, quaryParams);
+		allHitResults.Add(hitResults);
+		
+		traceEnd = GetOwner()->GetActorLocation() + -GetOwner()->GetActorRightVector();
+		GetWorld()->LineTraceMultiByChannel(hitResults, traceStart, traceEnd, TraceChannelProperty, quaryParams);
+		allHitResults.Add(hitResults);
+	}
+
+	for (int i = 0; i < allHitResults.Num(); i++)
+	{
+		for (int j = 0; j < allHitResults[i].Num(); i++)
+		{
+			if (allHitResults[i][j].bBlockingHit && IsValid(allHitResults[i][j].GetActor()))
+			{
+				// Get all Data from Actor
+			}
+		}
+	}
+}
+
+SensorData* UCSensorController::GetSensorData()
+{
+	// Read all Data from Sensors
+
+	// Get Count for all Classes
+	// Get Data from closest
+
+	return _sensorData;
 }
 

@@ -1,9 +1,6 @@
 import argparse
 import collections
 
-#From external Source
-import externalTypes
-
 import numpy as np
 import torch
 import torch.nn as nn
@@ -190,10 +187,4 @@ class Program:
             batch = self.buffer.sample(BATCH_SIZE)
             loss_t = self.agent.CalcLoss(batch, self.net, self.target_net, device = self.device)
             loss_t.backward()
-            self.optimizer.step() 
-
-if __name__ == "__main__":
-    #env = externalTypes.PyEnvironment()
-    #program = Program()
-    #program.Start()
-    pass
+            self.optimizer.step()

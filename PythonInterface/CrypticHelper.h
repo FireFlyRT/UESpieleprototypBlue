@@ -10,5 +10,6 @@ class CrypticHelper
 public:
 	static bool DecryptValue(std::string value, SensorData* sensorData, StatData* statData, RewardData* rewardData);
 	static std::string EncryptValue(NeuralNetworkData* data);
+	static std::string SymbolNumberAdjustment(int value, int symbolNum);
 };
 

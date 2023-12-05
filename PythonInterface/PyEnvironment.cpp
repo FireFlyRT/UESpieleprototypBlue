@@ -2,41 +2,75 @@
 
 #define PY_SSIZE_T_CLEAN
 
-static PyTypeObject PyEnvironmentType = {
-    .ob_base = PyVarObject_HEAD_INIT(NULL, 0)
-    .tp_name = "externalTypes.PyEnvironment",
-    .tp_basicsize = sizeof(PyEnvironment),
-    .tp_itemsize = 0,
-    .tp_flags = Py_TPFLAGS_DEFAULT,
-    .tp_doc = PyDoc_STR("PyEnvironments"),
-    .tp_new = PyType_GenericNew,
-};
-
-static PyModuleDef externalTypes = {
-    .m_base = PyModuleDef_HEAD_INIT,
-    .m_name = "externalTypes",
-    .m_doc = "All external Types from C++",
-    .m_size = -1,
-};
-
-PyMODINIT_FUNC
-PyInit_externalTypes(void)
+PyObject* PyEnvironment::PyEnvironment_nums(PyEnv* self, PyObject* args)
 {
-    PyObject* m;
-    if (PyType_Ready(&PyEnvironmentType) < 0)
-        return NULL;
+	if (!PyArg_ParseTuple(args, ":nums"))
+	{
+		return NULL;
+	}
+	return PyLong_FromLong(self->nums);
+}
 
-    m = PyModule_Create(&externalTypes);
-    if (m == NULL)
-        return NULL;
+int PyEnvironment::GetNumargs()
+{
+	return Cnumargs;
+}
 
-    Py_INCREF(&PyEnvironmentType);
-    if (PyModule_AddObject(m, "PyEnvironment", (PyObject*)&PyEnvironmentType) < 0)
-    {
-        Py_DECREF(&PyEnvironmentType);
-        Py_DECREF(m);
-        return NULL;
-    }
+PyObject* PyEnvironment::PyEnvironment_getNumargs(PyEnv* self, void* closure)
+{
+	return Py_NewRef(self->numargs);
+}
 
-    return m;
+int PyEnvironment::PyEnvironment_setNumargs(PyEnv* self, PyObject* value, void* closure)
+{
+	// Check if value is valid
+
+	Py_SETREF(self->numargs, Py_NewRef(value));
+	// TODO (Major): Set the Value for C++ to use it
+	SetNumargs(self);
+	return 0;
+}
+
+void PyEnvironment::SetNumargs(PyEnv* self)
+{
+	printf("Setting numargs!");
+	Cnumargs = (int)PyFloat_AsDouble(self->numargs);
+}
+
+// GetSet dont need to be implemented by PyMethodDef
+// For Costume Types add to .tp_getset
+static PyGetSetDef PyEnvironment_getsetters[] =
+{
+	{
+		"numargs", 
+		(getter)PyEnvironment::PyEnvironment_getNumargs,
+		(setter)PyEnvironment::PyEnvironment_setNumargs,
+		"Variable numargs",
+		NULL
+	},
+	{
+		NULL // Sentinal
+	}
+};
+
+static PyMethodDef PyEnvironmentMethods[] =
+{
+	{
+		"nums", (PyCFunction)PyEnvironment::PyEnvironment_nums, METH_VARARGS,
+		"Return the number of arguments received by the process."
+	},
+	{
+		NULL, NULL, 0, NULL
+	}
+};
+
+static PyModuleDef PyEnvironmentModule =
+{
+	PyModuleDef_HEAD_INIT, "PyEnvironment", NULL, -1, PyEnvironmentMethods,
+	NULL, NULL, NULL, NULL
+};
+
+PyObject* PyEnvironment::PyInit_PyEnvironment()
+{
+	return PyModule_Create(&PyEnvironmentModule);
 }

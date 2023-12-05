@@ -13,8 +13,13 @@ CrypticHelper::~CrypticHelper()
 
 NeuralNetworkData CrypticHelper::DecryptValue(std::string value)
 {
-	try 
+	if (value.size() < 26)
 	{
+		return NeuralNetworkData(NULL);
+	}
+
+	/*try 
+	{*/
 		NeuralNetworkData nnData = NeuralNetworkData();
 		int accidentalX = std::stoi(value.substr(0, 0));
 		int moveSpeedX = std::stoi(value.substr(2, 4));
@@ -35,12 +40,12 @@ NeuralNetworkData CrypticHelper::DecryptValue(std::string value)
 		int action = std::stoi(value.substr(24, 26));
 
 		return nnData;
-	}
-	catch (_exception ex)
+	/*}
+	catch (const std::exception& ex)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("NeuralNetwork Data Failed!!!"));
 		return NeuralNetworkData(NULL);
-	}
+	}*/
 }
 
 std::string CrypticHelper::EncryptValue()

@@ -3,11 +3,15 @@
 #pragma once
 
 #include "NeuralNetworkData.h"
+#include "CSensorController.h"
+#include "VillagerNamedPipeAsync.h"
+#include "CVillager.h"
+#include "SensorData.h"
 #include "CoreMinimal.h"
 #include "CCharacterController.h"
 #include "CEnhancedCharacterController.generated.h"
 
-UCLASS()
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class UESPIELEPROTOTYPBLUE_API UCEnhancedCharacterController : public UCCharacterController
 {
 	GENERATED_BODY()
@@ -21,12 +25,10 @@ public:
 	// Sets default values for this component's properties
 	UCEnhancedCharacterController();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	void SetVillagerId(FString* villagerId);
 
+public:
 	ACVillager* Villager;
-	FString VillagerID;
-
-private:
-	NeuralNetworkData* _nnData;
-	bool* _isNnDataUpdated = new bool(false);
-	
+	NeuralNetworkData NnData = NeuralNetworkData();
+	SensorData SensData = SensorData();
 };

@@ -87,7 +87,7 @@ std::string CrypticHelper::EncryptValue(NeuralNetworkData* data)
     return values;
 }
 
-std::string SymbolNumberAdjustment(int value, int symbolNum)
+std::string CrypticHelper::SymbolNumberAdjustment(int value, int symbolNum)
 {
     std::string s = std::string(std::to_string(value));
     if (s.length() != symbolNum)

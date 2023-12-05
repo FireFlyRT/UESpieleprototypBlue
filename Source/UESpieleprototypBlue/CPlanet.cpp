@@ -24,11 +24,11 @@ void ACPlanet::Tick(float DeltaTime)
 
 }
 
-void ACPlanet::SpawnVillagers(FString planetID)
+void ACPlanet::SpawnVillagers(FString* planetID)
 {
 	for (int i = 0; i < StartSpawns.Num() - 1; i++)
 	{
-		planetID.AppendInt(i);
+		planetID->AppendInt(i);
 		StartSpawns[i]->SpawnVillager(planetID);
 	}
 }

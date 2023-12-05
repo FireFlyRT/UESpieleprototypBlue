@@ -147,6 +147,7 @@
       <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdcpp20</LanguageStandard>
       <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdcpp20</LanguageStandard>
     </ClCompile>
+    <ClCompile Include="PythonCommands.cpp" />
     <ClCompile Include="PythonInterface.cpp" />
     <ClCompile Include="RewardData.cpp" />
     <ClCompile Include="SensorData.cpp" />
@@ -207,6 +208,7 @@
     <ClInclude Include="CrypticHelper.h" />
     <ClInclude Include="NeuralNetworkData.h" />
     <ClInclude Include="PyEnvironment.h" />
+    <ClInclude Include="PythonCommands.h" />
     <ClInclude Include="RewardData.h" />
     <ClInclude Include="SensorData.h" />
     <ClInclude Include="StatData.h" />
@@ -214,6 +216,14 @@
   <ItemGroup>
     <None Include="pyProject.toml" />
     <None Include="setup.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="pylibs\python3_d.lib">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+    </Library>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -2,26 +2,30 @@
 
 
 #include "CEnhancedCharacterController.h"
-#include "VillagerNamedPipeAsync.h"
-#include "NeuralNetworkData.h"
 
 UCEnhancedCharacterController::UCEnhancedCharacterController()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = true; 
+	
+	
 }
 
 // Called when the game starts
 void UCEnhancedCharacterController::BeginPlay()
 {
 	Super::BeginPlay();
+}
 
-	FString pipeName = "Villager";
-	pipeName.Append(VillagerID);
-	wchar_t* threadName = pipeName.GetCharArray().GetData();
-	VillagerNamedPipeAsync* runnable = new VillagerNamedPipeAsync(pipeName, _nnData, _isNnDataUpdated);
-	/*_thread =*/ FRunnableThread::Create(runnable, threadName);
+void UCEnhancedCharacterController::SetVillagerId(FString* villagerId)
+{
+	FString* pipeName = new FString(TEXT("Villager"));
+	*pipeName = pipeName->Append(*villagerId);
+	const TCHAR* threadName = **pipeName;
+
+	VillagerNamedPipeAsync* runnable = new VillagerNamedPipeAsync(pipeName, &NnData, &SensData); // Access violation???
+	FRunnableThread::Create(runnable, threadName);
 }
 
 // Called every frame
@@ -29,22 +33,59 @@ void UCEnhancedCharacterController::TickComponent(float DeltaTime, ELevelTick Ti
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (*_isNnDataUpdated)
+	if (NnData.IsUpdated && Villager != nullptr)
 	{
-		*_isNnDataUpdated = false;
-		OnMove(_nnData->Movement.X, _nnData->Movement.Y);
-		// Send Data to Character for Move / Action / etc.
+		NnData.IsUpdated = false;
+		OnMove(NnData.Movement.X, NnData.Movement.Y);
+		OnLook(NnData.Rotation);
+		switch (NnData.Action)
+		{
+			case 1:
+			{
+				// OnPunch
+				break;
+			}
+			case 2:
+			{
+				// Jump
+				Villager->Jump();
+				break;
+			}
+			case 3:
+			{
+				// OnPickUp();
+				break;
+			}
+			case 4:
+			{
+				// OnThrowDown();
+				break;
+			}
+			case 5:
+			{
+				// OnPlaceObject
+				break;
+			}
+			case 6:
+			{
+				CreateMagicZone(Villager->GetTransform(), Villager->GetActorForwardVector());
+				break;
+			}
+			case 7:
+			{
+				AcceptMagicZone();
+				break;
+			}
+		}
+		// Action == ?
+		//		ObjectRotation
+
+		// Get new SensorData
+		UCSensorController* sensorController = Villager->GetComponentByClass<UCSensorController>();
+		SensData = *sensorController->GetSensorData();
+		//if (SensData != NULL)
+		//{
+			SensData.IsUpdated = true;
+		//}
 	}
-
-	// Collect SensorData
-	// Per Pointer to the Interface?
 }
-
-// VON INTERFACE ZU CHARACTER
-// Input von VillagerPipe
-// Daten kommen von PyInterface 
-//  
-// Über Pointer Variable hier her
-// Mit bool Pointer in Update/Tick
-// 
-// 

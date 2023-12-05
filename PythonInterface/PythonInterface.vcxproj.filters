@@ -36,6 +36,9 @@
     <ClCompile Include="RewardData.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="PythonCommands.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PyEnvironment.h">
@@ -54,6 +57,9 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="RewardData.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="PythonCommands.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>
@@ -87,5 +93,10 @@
     <None Include="setup.py">
       <Filter>Quelldateien</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="pylibs\python3_d.lib">
+      <Filter>Ressourcendateien</Filter>
+    </Library>
   </ItemGroup>
 </Project>

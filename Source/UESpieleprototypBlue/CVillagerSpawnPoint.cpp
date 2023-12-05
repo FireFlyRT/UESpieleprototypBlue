@@ -25,18 +25,19 @@ void ACVillagerSpawnPoint::Tick(float DeltaTime)
 
 }
 
-void ACVillagerSpawnPoint::SpawnVillager(FString tribeID)
+void ACVillagerSpawnPoint::SpawnVillager(FString* tribeId)
 {
 	FRandomStream* rng = new FRandomStream();
 
 	for (int i = 0; i < StartAmount; i++)
 	{
-		tribeID.AppendInt(i); // VillagerID
+		FString villagerId = *tribeId;
+		villagerId.AppendInt(i + 1); // VillagerId
 		rng->GenerateNewSeed();
 		AActor* actor = GetWorld()->SpawnActor(SpawnableVillagers[rng->FRandRange(0, SpawnableVillagers.Num())]);
 
 		UCEnhancedCharacterController* enhController = actor->GetComponentByClass<UCEnhancedCharacterController>();
-		enhController->VillagerID = tribeID;
+		enhController->SetVillagerId(&villagerId);
 
 		FVector location = GetActorLocation();
 		location += FVector(rng->FRandRange(-1000, 1000), rng->FRandRange(-1000, 1000), 0);

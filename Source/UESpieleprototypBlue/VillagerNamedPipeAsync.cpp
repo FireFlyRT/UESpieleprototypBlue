@@ -3,11 +3,11 @@
 
 #include "VillagerNamedPipeAsync.h"
 
-VillagerNamedPipeAsync::VillagerNamedPipeAsync(FString pipeName, NeuralNetworkData* nnData, bool* isNnDataUpdated)
+VillagerNamedPipeAsync::VillagerNamedPipeAsync(FString* pipeName, NeuralNetworkData* nnData, SensorData* sensorData)
 {
 	_pipeName = pipeName;
 	_nnData = nnData;
-	_isNnDataUpdated = isNnDataUpdated;
+	_sensorData = sensorData;
 }
 
 VillagerNamedPipeAsync::~VillagerNamedPipeAsync()
@@ -22,7 +22,7 @@ bool VillagerNamedPipeAsync::Init()
 uint32 VillagerNamedPipeAsync::Run()
 {
 	PythonInterface* pyInterface = new PythonInterface();
-	pyInterface->CreatePipeServer(_pipeName, _nnData, _isNnDataUpdated);
+	pyInterface->CreatePipeServer(_pipeName, _nnData, _sensorData);
 	pyInterface->RunPipeServer();
 
 	return 1;

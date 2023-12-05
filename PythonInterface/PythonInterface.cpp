@@ -13,6 +13,7 @@
 #include "PyEnvironment.h"
 #include "CrypticHelper.h"
 #include "SensorData.h"
+#include "PythonCommands.h"
 
 HANDLE _pipeHandle;
 
@@ -38,28 +39,6 @@ bool SendDataWithPipeClient(const char* data)
 
 bool StartPipeClient()
 {
-    _pipeHandle = CreateFile(
-        TEXT("\\\\.\\pipe\\MainPipe"),
-        GENERIC_READ | GENERIC_WRITE,
-        0,
-        NULL,
-        OPEN_EXISTING,
-        0,
-        NULL);
-
-    if (_pipeHandle == INVALID_HANDLE_VALUE)
-    {
-        std::cout << "Pipe Invalid!!!" << std::endl;
-        ClosePipeClient();
-        return false;
-    }
-
-    if (ConnectNamedPipe(_pipeHandle, NULL) != FALSE)
-    {
-        SendDataWithPipeClient("Empty");
-    }
-
-    std::cout << "Client Started" << std::endl;
     return true;
 }
 
@@ -81,43 +60,24 @@ std::string ReceiveDataFromPipeServer()
     return NULL;
 }
 
-int TaskTest(char* argv[])
+int RunPythonFile(char* argv[], bool basicFile = false)
 {
-    FILE* nnFile;
+    FILE* nnFile = nullptr;
     char path[255] = "";
-    _fullpath(path, argv[0], sizeof(path));
+    char* _ = _fullpath(path, argv[0], sizeof(path));
     std::string basePath = path;
     std::string pyPath = basePath.substr(0, basePath.find_last_of("6") - 1); // Get Path before x64
     pyPath += "PythonInterface\\PythonScripts\\BasicDQN.py"; // And add Path to Py-File
 
-    // Init Basic File
-    fopen_s(&nnFile, pyPath.c_str(), "r");
-    PyRun_SimpleFile(nnFile, "BasicDQN.py");
-
-    // Initialise PyObject in Python
-    PyEnvironment* pyEnv = new PyEnvironment();
-    //PyObject_Init(pyEnv, pyEnv->ob_type);
-    //PyRun_SimpleString("pyEnv = PyEnvironment()"); // Der Typ ist hier NICHT in Python definiert
-    PyRun_SimpleString("print(pyEnv)");                // Warum ist pyEnv nicht definiert?
-
-    /*
-    * Env Observation Space =
-    *   SensorData
-    *   Audio
-    *   Inventory
-    *   BrainStorage
-    *   Stats
-    *
-    * Daten von Unreal 1 - "named Pipe" -> n PythonInterface 1 - PyObject -> 1 Python
-    * Python - PyObject? -> PythonInterface - "named Pipe" -> Unreal
-    */
-
-    // Start with Env
-    PyRun_SimpleString("program = Program()");
-    PyRun_SimpleString("program.Start()");
-
-    if (Py_FinalizeEx() < 0 && nnFile != NULL) {
+    if (basicFile && nnFile != nullptr)
+    {
+        // Init Basic File
+        fopen_s(&nnFile, pyPath.c_str(), "r");
+        PyRun_SimpleFile(nnFile, "BasicDQN.py");
         fclose(nnFile);
+    }
+
+    if (Py_FinalizeEx() < 0 && nnFile != nullptr) {
         return 120;
     }
 
@@ -125,88 +85,172 @@ int TaskTest(char* argv[])
 }
 
 int main(int argc, char* argv[])
-{
-    std::cout << "Initialize Python Interface!\n";
+{    
+    // TODO (Major): Workflow from PyInterface (multiline)
+    // On Start:
+    //  - Initialise all C++ Modules for Python
+    //  - Initialise Python Environment
+    //  - Run *DQN.py File
+    //  - Configure DQN for right usage
+    // 
+    //  - Connect to MainPipe
+    //  - Wait for new ID
+    // 
+    // On ID Received:
+    //  - Connect to VillagerPipe using the ID
+    //  - Wait for Sensor-/Reward-Data
+    // 
+    // On Data Received:
+    //  - Parse Data with CrypticHelper (String to Objects)
+    //  - Save Objects for later use (Learning)
+    //  - Create Data in Python
+    //  - Insert Data in Neural Network
+    //  - Send Output back to C++  (HOW?!?!?!?)
+    //  - Create NeuralNetworkData out of the Output 
+    //  - Parse NeuralNetworkData with CrypticHelper  (Object to String)
+    //  - Send Parsed String to Unreal Application
+    //  - Wait for new Sensor-/Reward-Data
+    // 
+    // On Learning enabled:
+    //  - Get saved Environments and Rewards
+    //  - Input every Tuple of it
+    //  - Update after each Tuple
+    //  
+    //  - When learning finished
+    //  - Save DQN
+    //  - Send wake message to Unreal
+    // 
+    // On Death:
+    //  - Save the DQN for comparison?
+    //  - Compare the DQN with best dead DQN?
+    //  - if best: Save DQN as best, delete other OR delete DQN (Score?)?
+    //  - Disconnect NamedPipe
+    //  - Finalise Python
+    //  - Close Interface Application
+    //
 
+    // On Start:
+    std::cout << "Initialize Python Interface!\n"; 
+
+    // Initialise C++ Modules in Python
+    const char* pyEnvModule = "PyEnvironment";
+    const char* pyRewModule = "RewardData";
+    const char* pySensModule = "SensorData";
+    const char* pyStatModule = "StatData";
+    const char* pyNNModule = "NeuralNetworkData";
+    PyImport_AppendInittab(pyEnvModule, &PyEnvironment::PyInit_PyEnvironment);
+    PyImport_AppendInittab(pyRewModule, &RewardData::PyInit_PyRewardData);
+    PyImport_AppendInittab(pySensModule, &SensorData::PyInit_PySensorData);
+    PyImport_AppendInittab(pyStatModule, &StatData::PyInit_PyStatData);
+    PyImport_AppendInittab(pyNNModule, &NeuralNetworkData::PyInit_PyNeuralNetworkData);
+
+    // Initialise Python Environment
     Py_Initialize();
     std::cout << "Initialized: " << Py_IsInitialized() << std::endl;
 
-    PyRun_SimpleString("print('From Python: Hello World!')");
+    // Run *DQN.py File
+    RunPythonFile(argv, true);
+    // Configure DQN for right usage
+    PythonCommands::ImportModule(pyEnvModule);
+    PythonCommands::ImportModule(pyRewModule);
+    PythonCommands::ImportModule(pySensModule);
+    PythonCommands::ImportModule(pyStatModule);
+    PythonCommands::ImportModule(pyNNModule);
+    PyRun_SimpleString("print('From Python: Hello World!')"); 
 
-    /*std::array<std::future<int>*, 2> threads = std::array<std::future<int>*, 2>();
-
-    for (int i = 0; i < 2; i++)
+    // Connect to MainPipe
+    bool isConnected = false;
+    while (!isConnected)
     {
-        std::future<int> thread = std::async(std::launch::async, TaskTest, argv);
-        threads[i] = &thread;
+        _pipeHandle = CreateFile(
+            TEXT("\\\\.\\pipe\\MainPipe"),
+            GENERIC_READ | GENERIC_WRITE,
+            0,
+            NULL,
+            OPEN_EXISTING,
+            0,
+            NULL);
+
+        if (_pipeHandle == INVALID_HANDLE_VALUE)
+        {
+            std::cout << "MainPipe Invalid!!!" << std::endl;
+            ClosePipeClient();
+            continue;
+        }
+
+        if (ConnectNamedPipe(_pipeHandle, NULL) != FALSE)
+        {
+            SendDataWithPipeClient("Empty"); 
+            // Maybe with random unic uint ID
+            // Or Connect to One VillagerPipe befor the next one
+            //  - Save IDs in Queue/List
+            //  - create InterfaceProgram and conntect to VPipe befor creating next one
+        }
+
+        std::cout << "Connected to MainPipe" << std::endl;
+
+        //Wait for new ID
+        std::string villagerID = ReceiveDataFromPipeServer();
+        std::string newHandle = "\\\\.\\pipe\\";
+        newHandle.append(villagerID);
+
+        std::cout << "New Handle Address: " << newHandle << std::endl;
+
+        // On ID Received:
+        // Connect to VillagerPipe using the ID
+        _pipeHandle = CreateFile(
+            (LPCWSTR)newHandle.c_str(),
+            GENERIC_READ | GENERIC_WRITE,
+            0,
+            NULL,
+            OPEN_EXISTING,
+            0,
+            NULL);
+
+        if (_pipeHandle == INVALID_HANDLE_VALUE)
+        {
+            std::cout << "VillagerPipe Invalid!!!" << std::endl;
+            ClosePipeClient();
+            continue;
+        }
+        else
+        {
+            isConnected = true;
+        }
     }
     
-    bool threadsActive = true; 
-
-    while (threadsActive)
-    {
-        for (int i = 0; i < threads.size(); i++)
-        {
-            if (threads[i]->get() == 1)
-            {
-                threads[i] = nullptr;
-            }
-        }
-        for (int i = 0; i < threads.size(); i++)
-        {
-            if (threads[i] != nullptr)
-            {
-                break;
-            }
-            else if (i == threads.size())
-            {
-                threadsActive = false;
-            }
-        }
-    }*/
-
     while (true)
     {
-        if (StartPipeClient())
-        {
-            SensorData* sensorData = new SensorData();
-            StatData* statData = new StatData();
-            RewardData* rewardData = new RewardData();
-            // Get new Environment Data with old Reward data
-            std::string data = ReceiveDataFromPipeServer();
-            if (!CrypticHelper::DecryptValue(data, sensorData, statData, rewardData))
-            {
-                std::cout << "CrypticHelper failed to Decrypt message!";
-                return -1;
-            }
-            // Get Reward from Data
-            // Save new Environment Data
-            // Save old Reward Data for old Environment Data
-
-            // Input in Network to get Output
-            //NeuralNetworkData* nnData = NULL;
-
-            //For Debuging
-            NeuralNetworkData* nnData = new NeuralNetworkData();
-            nnData->Action = 2;
-            nnData->MovementX = 100.0f;
-            nnData->MovementY = 23.5f;
-            nnData->RotationX = 0.0f;
-            nnData->RotationY = 0.0f;
-            //
-
-            std::string result = CrypticHelper::EncryptValue(nnData);
-
-            while (SendDataWithPipeClient(result.c_str()) != true);
-
-            // Repeat
-        }
-
-        // Look for best NN 
-        // Save best NN
-        // Load it for next Iteration
-    }
+        // Wait for Sensor-/Reward-Data
+        std::string sArData = ReceiveDataFromPipeServer();
     
+        // On Data Received:
+        // Parse Data with CrypticHelper (String to Objects)
+        SensorData* sensorData = new SensorData();
+        StatData* statData = new StatData();
+        RewardData* rewardData = new RewardData();
+        if (CrypticHelper::DecryptValue(sArData, sensorData, statData, rewardData))
+        {
+            // Save Objects for later use (Learning)
+            // Create Data in Python
+            // Insert Data in Neural Network
+            // TODO (Major): Send Output back to C++  (HOW?!?!?!?)
+            std::string command = "PyEnvironment.numargs = ";
+            command.append(std::to_string(12));
+            PyRun_SimpleString(command.c_str());
+            PyRun_SimpleString("print(PyEnvironment.numargs)");
+            
+            std::cout << "From C++: " << PyEnvironment::GetNumargs() << std::endl;
+            std::string output;
+            // TODO (Major): Create NeuralNetworkData out of the Output 
+            NeuralNetworkData* nnData = new NeuralNetworkData();
+            // Parse NeuralNetworkData with CrypticHelper  (Object to String)
+            std::string nnValues = CrypticHelper::EncryptValue(nnData);
+            // Send Parsed String to Unreal Application
+            SendDataWithPipeClient(nnValues.c_str());
+            // Wait for new Sensor-/Reward-Data
+        }
+    }    
     
     return 0;
 }

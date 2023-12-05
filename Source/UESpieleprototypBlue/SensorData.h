@@ -14,6 +14,7 @@ public:
 	~SensorData();
 
 public:
+	bool IsUpdated;
 	int ClassCategory;
 	int TribeID;
 	int LivePoints;

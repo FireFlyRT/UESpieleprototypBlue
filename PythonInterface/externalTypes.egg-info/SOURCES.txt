@@ -1,6 +1,8 @@
 PyEnvironment.cpp
+PyEnvironment.h
 costum.c
 pyproject.toml
+python3.dll
 setup.py
 externalTypes.egg-info/PKG-INFO
 externalTypes.egg-info/SOURCES.txt
