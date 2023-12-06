@@ -25,9 +25,11 @@ public:
 	// Sets default values for this component's properties
 	UCEnhancedCharacterController();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	virtual void DestroyComponent(bool bPromoteChildren) override;
 	void SetVillagerId(FString* villagerId);
 
 public:
+	FRunnableThread* _thread;
 	ACVillager* Villager;
 	NeuralNetworkData NnData = NeuralNetworkData();
 	SensorData SensData = SensorData();

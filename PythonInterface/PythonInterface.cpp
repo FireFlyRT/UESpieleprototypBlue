@@ -221,6 +221,12 @@ int main(int argc, char* argv[])
     
     while (true)
     {
+        if (ConnectNamedPipe(_pipeHandle, NULL) == FALSE)
+        {
+            std::cout << "VillagerPipe Closed!" << std::endl;
+            break;
+        }
+
         // Wait for Sensor-/Reward-Data
         std::string sArData = ReceiveDataFromPipeServer();
     

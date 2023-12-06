@@ -15,7 +15,7 @@ public:
 	CrypticHelper();
 	~CrypticHelper();
 
-	static NeuralNetworkData DecryptValue(std::string value);
+	static NeuralNetworkData* DecryptValue(std::string value);
 	static std::string EncryptValue();
 };
  

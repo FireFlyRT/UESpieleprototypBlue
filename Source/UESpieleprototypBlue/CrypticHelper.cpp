@@ -11,16 +11,16 @@ CrypticHelper::~CrypticHelper()
 {
 }
 
-NeuralNetworkData CrypticHelper::DecryptValue(std::string value)
+NeuralNetworkData* CrypticHelper::DecryptValue(std::string value)
 {
 	if (value.size() < 26)
 	{
-		return NeuralNetworkData(NULL);
+		return new NeuralNetworkData(NULL);
 	}
 
 	/*try 
 	{*/
-		NeuralNetworkData nnData = NeuralNetworkData();
+		NeuralNetworkData* nnData = new NeuralNetworkData();
 		int accidentalX = std::stoi(value.substr(0, 0));
 		int moveSpeedX = std::stoi(value.substr(2, 4));
 		int accidentalY = std::stoi(value.substr(6, 6));
@@ -38,6 +38,10 @@ NeuralNetworkData CrypticHelper::DecryptValue(std::string value)
 		if (accidentalY == 0) rotateSpeedY *= -1;
 
 		int action = std::stoi(value.substr(24, 26));
+
+		nnData->Movement = FVector(moveSpeedX, moveSpeedY, 0);
+		nnData->Rotation = FVector(rotateSpeedX, rotateSpeedY, 0);
+		nnData->Action = action;
 
 		return nnData;
 	/*}

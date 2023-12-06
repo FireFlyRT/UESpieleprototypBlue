@@ -8,8 +8,6 @@ UCEnhancedCharacterController::UCEnhancedCharacterController()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true; 
-	
-	
 }
 
 // Called when the game starts
@@ -24,8 +22,11 @@ void UCEnhancedCharacterController::SetVillagerId(FString* villagerId)
 	*pipeName = pipeName->Append(*villagerId);
 	const TCHAR* threadName = **pipeName;
 
-	VillagerNamedPipeAsync* runnable = new VillagerNamedPipeAsync(pipeName, &NnData, &SensData); // Access violation???
-	FRunnableThread::Create(runnable, threadName);
+	VillagerNamedPipeAsync* runnable = new VillagerNamedPipeAsync(pipeName, &NnData, &SensData);
+	if (runnable != nullptr && threadName != NULL)
+	{
+		_thread = FRunnableThread::Create(runnable, threadName);
+	}
 }
 
 // Called every frame
@@ -83,9 +84,18 @@ void UCEnhancedCharacterController::TickComponent(float DeltaTime, ELevelTick Ti
 		// Get new SensorData
 		UCSensorController* sensorController = Villager->GetComponentByClass<UCSensorController>();
 		SensData = *sensorController->GetSensorData();
-		//if (SensData != NULL)
-		//{
+		if (&SensData != NULL)
+		{
 			SensData.IsUpdated = true;
-		//}
+		}
 	}
+}
+
+void UCEnhancedCharacterController::DestroyComponent(bool bPromoteChildren)
+{
+	if (_thread != nullptr)
+	{
+		_thread->Kill();
+	}
+	Super::DestroyComponent(bPromoteChildren);
 }

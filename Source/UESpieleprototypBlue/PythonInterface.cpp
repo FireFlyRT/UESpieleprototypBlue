@@ -91,10 +91,10 @@ bool PythonInterface::RunPipeServer()
 			std::string data1 = CrypticHelper::EncryptValue(/*_sensorData*/);
 			const char* data = "00,000,100,050,030,024,189,043,042,1.0000000;0.3821341;1.0421621,010205,00,000,100,050,030,024,189,043,042,1.0000000;0.3821341;1.0421621,1.2458"; // TEMP TEST
 			bool success = WriteFile(*_pipeHandle, data, sizeof(data), &written, NULL);
-			UE_LOG(LogTemp, Warning, TEXT("Writing Data..."));
+			//UE_LOG(LogTemp, Warning, TEXT("Writing Data..."));
 			if (!success)
 			{
-				UE_LOG(LogTemp, Error, TEXT("Writing Data failed"));
+				//UE_LOG(LogTemp, Error, TEXT("Writing Data failed"));
 				break;
 			}
 		}
@@ -107,22 +107,27 @@ bool PythonInterface::RunPipeServer()
 			UE_LOG(LogTemp, Warning, TEXT("Reading Data..."));
 			if (!success)
 			{
-				UE_LOG(LogTemp, Error, TEXT("Reading Data failed"));
+				//UE_LOG(LogTemp, Error, TEXT("Reading Data failed"));
 				break;
 			}
 		}
-		UE_LOG(LogTemp, Warning, TEXT("DATA WAS READED!!! -> %s"), read);
+		//UE_LOG(LogTemp, Warning, TEXT("DATA WAS READED!!! -> %s"), read);
 
 		//UE_LOG(LogTemp, Warning, TEXT("Last Error: %s"), GetLastError());
 		
 		// Data per Pointer to EnhancedCharacterController
-		*_nnData = CrypticHelper::DecryptValue(std::to_string(read));
+		_nnData = CrypticHelper::DecryptValue(std::to_string(read));
 		if (_nnData->Null != NULL)
 		{
 			_nnData->IsUpdated = true;
 		}
+
+		// TEST BREAK
+		// TODO (Major): Loop verhindert beenden des Programms!!!
+		break;
 	}
 	
+	return true;
 }
 
 /// <summary>

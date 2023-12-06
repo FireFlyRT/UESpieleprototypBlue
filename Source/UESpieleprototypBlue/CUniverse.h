@@ -24,6 +24,7 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	virtual void BeginDestroy() override;
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -34,6 +35,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		FDateTime DateTime;
-private:
+
+	FRunnableThread* _thread = nullptr;
 	PythonInterface* _pyInterface;
 };

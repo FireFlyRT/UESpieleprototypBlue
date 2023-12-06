@@ -18,7 +18,10 @@ void ACUniverse::BeginPlay()
 	Super::BeginPlay();
 
 	MainNamedPipeAsync* runnable = new MainNamedPipeAsync();
-	/*_thread =*/ FRunnableThread::Create(runnable, L"MainConnectionPipeThread");
+	if (runnable != nullptr)
+	{
+		_thread = FRunnableThread::Create(runnable, L"MainConnectionPipeThread");
+	}
 	
 	for (int i = 0; i < Planets.Num(); i++)
 	{
@@ -33,5 +36,14 @@ void ACUniverse::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void ACUniverse::BeginDestroy()
+{
+	if (_thread != nullptr)
+	{
+		_thread->Kill();
+	}
+	Super::BeginDestroy();
 }
 
