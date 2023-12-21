@@ -1,6 +1,12 @@
 #include "PyEnvironment.h"
+#include <string>
 
 #define PY_SSIZE_T_CLEAN
+
+PyMODINIT_FUNC PyInit_PyEnv() 
+{
+
+}
 
 PyObject* PyEnvironment::PyEnvironment_nums(PyEnv* self, PyObject* args)
 {
@@ -24,7 +30,7 @@ PyObject* PyEnvironment::PyEnvironment_getNumargs(PyEnv* self, void* closure)
 int PyEnvironment::PyEnvironment_setNumargs(PyEnv* self, PyObject* value, void* closure)
 {
 	// Check if value is valid
-
+	printf("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH");
 	Py_SETREF(self->numargs, Py_NewRef(value));
 	// TODO (Major): Set the Value for C++ to use it
 	SetNumargs(self);
