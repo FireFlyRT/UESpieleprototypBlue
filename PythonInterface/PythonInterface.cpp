@@ -133,29 +133,16 @@ int main(int argc, char* argv[])
     //std::cout << "Initialize Python Interface!\n"; 
     //
     //// Initialise C++ Modules in Python
-    const char* pyEnvModule = "PyEnvironment";
-    //const char* pyRewModule = "RewardData";
-    //const char* pySensModule = "SensorData";
-    //const char* pyStatModule = "StatData";
-    //const char* pyNNModule = "NeuralNetworkData";
-    PyImport_AppendInittab(pyEnvModule, &PyEnvironment::PyInit_PyEnvironment);
-    //PyImport_AppendInittab(pyRewModule, &RewardData::PyInit_PyRewardData);
-    //PyImport_AppendInittab(pySensModule, &SensorData::PyInit_PySensorData);
-    //PyImport_AppendInittab(pyStatModule, &StatData::PyInit_PyStatData);
-    //PyImport_AppendInittab(pyNNModule, &NeuralNetworkData::PyInit_PyNeuralNetworkData);
+    const char* pyModule = "pyModule";
     //
     //// Initialise Python Environment
     Py_Initialize();
-    //std::cout << "Initialized: " << Py_IsInitialized() << std::endl;
+    std::cout << "Initialized: " << Py_IsInitialized() << std::endl;
     //
     //// Run *DQN.py File
     //RunPythonFile(argv, true);
     //// Configure DQN for right usage
-    PythonCommands::ImportModule(pyEnvModule);
-    //PythonCommands::ImportModule(pyRewModule);
-    //PythonCommands::ImportModule(pySensModule);
-    //PythonCommands::ImportModule(pyStatModule);
-    //PythonCommands::ImportModule(pyNNModule);
+    PythonCommands::ImportModule(pyModule);
     //PyRun_SimpleString("print('From Python: Hello World!')"); 
 
     // Connect to MainPipe
@@ -294,12 +281,13 @@ int main(int argc, char* argv[])
 
             // Insert Data in Neural Network
             // TODO (Major): Send Output back to C++  (HOW?!?!?!?)
-            std::string command = "PyEnvironment.numargs = ";
-            command.append(std::to_string(12));
+            std::string command = "env = pyModule.PyEnvironment() ";
             PyRun_SimpleString(command.c_str());
-            PyRun_SimpleString("print(PyEnvironment.numargs)");
+            command = "env.number = ";
+            command.append(std::to_string(12));
+            PyRun_SimpleString("print(env.number)");
             
-            std::cout << "From C++: " << PyEnvironment::GetNumargs() << std::endl;
+            std::cout << "From C++: " << "" << std::endl;
         //    std::string output;
         //    // TODO (Major): Create NeuralNetworkData out of the Output 
         //    NeuralNetworkData* nnData = new NeuralNetworkData();

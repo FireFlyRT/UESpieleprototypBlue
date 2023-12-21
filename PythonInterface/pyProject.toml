@@ -3,7 +3,7 @@ requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "externalTypes"
+name = "pyModule"
 version = "1"
 
 [tool.setuptools.packages.find]

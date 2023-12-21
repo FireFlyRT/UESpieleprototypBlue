@@ -15,8 +15,8 @@ typedef struct
 	//	 BrainStorage
 	//	 Stats
 
-	PyObject* numargs;
-	int nums;
+	PyObject* ActionSpace;
+	int number;
 
 } PyEnv;
 
@@ -24,30 +24,14 @@ class PyEnvironment
 {
 public:
 	inline static int Cnumargs = 1;
-	inline static PyTypeObject PyEnvObject =
-	{
-		.ob_base = PyVarObject_HEAD_INIT(NULL, 0)
-		.tp_name = "pyModule.PyEnv",
-		.tp_basicsize = sizeof(PyEnv),
-		.tp_itemsize = 0,
-		.tp_flags = Py_TPFLAGS_DEFAULT,
-		.tp_doc = PyDoc_STR("Environment"),
-		.tp_new = PyType_GenericNew,
-	};
-	inline static PyModuleDef PyModule =
-	{
-		.m_base = PyModuleDef_HEAD_INIT,
-		.m_name = "pyModule",
-		.m_doc = "Py Module for C++",
-		.m_size = -1,
-	};
 
 public:
-	
-	static PyObject* PyInit_PyEnvironment();
-	static PyObject* PyEnvironment_nums(PyEnv* self, PyObject* args);
-	static PyObject* PyEnvironment_getNumargs(PyEnv* self, void* closure);
-	static int PyEnvironment_setNumargs(PyEnv* self, PyObject* value, void* closure);
-	static int GetNumargs();
-	static void SetNumargs(PyEnv* self);
+	static void PyEnv_dealloc(PyEnv* self);
+	static PyObject* PyEnv_new(PyTypeObject* type, PyObject* args, PyObject* kwds);
+	static int PyEnv_init(PyEnv* self, PyObject* args, PyObject* kwds);
+	static PyObject* PyEnv_ActionSpace(PyEnv* self, PyObject* Py_UNUSED(ignored));
+
+	// Getter/Setter for Members
+	static PyObject* PyEnv_getActionSpace(PyEnv* self, void* closure);
+	static int PyEnv_setActionSpace(PyEnv* self, PyObject* value, void* closure);
 };
