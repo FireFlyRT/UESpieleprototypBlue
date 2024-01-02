@@ -116,7 +116,7 @@ static PyModuleDef PyNeuralNetworkDataModule =
 	NULL, NULL, NULL, NULL
 };
 
-PyObject* NeuralNetworkData::PyInit_PyNeuralNetworkData()
-{
-	return PyModule_Create(&PyNeuralNetworkDataModule);
-}
+//PyObject* NeuralNetworkData::PyInit_PyNeuralNetworkData()
+//{
+//	return PyModule_Create(&PyNeuralNetworkDataModule);
+//}

@@ -37,7 +37,7 @@ public:
 	// Inventory
 
 public:
-	static PyObject* PyInit_PyStatData();
+	//static PyObject* PyInit_PyStatData();
 	// ClassCategory
 	static PyObject* PyStatData_getClassCategory(PyStat* self, void* closure);
 	static int PyStatData_setClassCategory(PyStat* self, PyObject* value, void* closure);

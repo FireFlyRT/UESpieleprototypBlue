@@ -113,6 +113,7 @@
       <AdditionalIncludeDirectories>$(MSBuildProjectDirectory)\pylibs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <CompileAs>Default</CompileAs>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -131,6 +132,7 @@
       <AdditionalIncludeDirectories>$(MSBuildProjectDirectory)\pylibs;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <CompileAs>Default</CompileAs>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -141,6 +143,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CPyEnvironment.c" />
+    <ClCompile Include="CPyModule.c" />
+    <ClCompile Include="CPyNeuralNetworkData.c" />
+    <ClCompile Include="CPyRewardData.c" />
+    <ClCompile Include="CPySensorData.c" />
+    <ClCompile Include="CPyStatData.c" />
     <ClCompile Include="CrypticHelper.cpp" />
     <ClCompile Include="NeuralNetworkData.cpp" />
     <ClCompile Include="PyEnvironment.cpp">
@@ -215,6 +223,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="pyProject.toml" />
+    <None Include="PythonScripts\RainbowDQN.py" />
     <None Include="setup.py" />
   </ItemGroup>
   <ItemGroup>

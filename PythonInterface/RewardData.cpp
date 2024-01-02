@@ -48,7 +48,7 @@ static PyModuleDef PyRewardDataModule =
 	NULL, NULL, NULL, NULL
 };
 
-PyObject* RewardData::PyInit_PyRewardData()
-{
-	return PyModule_Create(&PyRewardDataModule);
-}
+//PyObject* RewardData::PyInit_PyRewardData()
+//{
+//	return PyModule_Create(&PyRewardDataModule);
+//}

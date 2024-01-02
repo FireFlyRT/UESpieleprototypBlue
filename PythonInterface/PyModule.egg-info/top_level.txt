@@ -1,3 +1,4 @@
+PythonScripts
 build
 pyModule
 pylibs

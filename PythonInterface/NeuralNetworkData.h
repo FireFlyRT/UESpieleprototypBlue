@@ -22,7 +22,7 @@ public:
 	float RotationY;
 
 public:
-	static PyObject* PyInit_PyNeuralNetworkData();
+	//static PyObject* PyInit_PyNeuralNetworkData();
 	// Action
 	static PyObject* PyNeuralNetworkData_getAction(PyNN* self, void* closure);
 	static int PyNeuralNetworkData_setAction(PyNN* self, PyObject* value, void* closure);

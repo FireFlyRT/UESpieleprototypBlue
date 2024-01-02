@@ -245,7 +245,7 @@ static PyModuleDef PyStatDataModule =
 	NULL, NULL, NULL, NULL
 };
 
-PyObject* StatData::PyInit_PyStatData()
-{
-	return PyModule_Create(&PyStatDataModule);
-}
+//PyObject* StatData::PyInit_PyStatData()
+//{
+//	return PyModule_Create(&PyStatDataModule);
+//}

@@ -262,8 +262,8 @@ static PyModuleDef PySensorDataModule =
 	PyModuleDef_HEAD_INIT, "PySensorData", NULL, -1, PySensorDataMethods,
 	NULL, NULL, NULL, NULL
 };
-
-PyObject* SensorData::PyInit_PySensorData()
-{
-	return PyModule_Create(&PySensorDataModule);
-}
+//
+//PyObject* SensorData::PyInit_PySensorData()
+//{
+//	return PyModule_Create(&PySensorDataModule);
+//}

@@ -39,6 +39,24 @@
     <ClCompile Include="PythonCommands.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="CPyEnvironment.c">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="CPyNeuralNetworkData.c">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="CPyRewardData.c">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="CPySensorData.c">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="CPyStatData.c">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="CPyModule.c">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PyEnvironment.h">
@@ -92,6 +110,9 @@
     </None>
     <None Include="setup.py">
       <Filter>Quelldateien</Filter>
+    </None>
+    <None Include="PythonScripts\RainbowDQN.py">
+      <Filter>Ressourcendateien</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

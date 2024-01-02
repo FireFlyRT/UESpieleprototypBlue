@@ -39,34 +39,34 @@ static PyTypeObject PyEnvObject =
 	.tp_new = PyEnvironment::PyEnv_new,
 };
 
-static PyModuleDef PyModule =
-{
-	.m_base = PyModuleDef_HEAD_INIT,
-	.m_name = "pyModule",
-	.m_doc = "Py Module for C++",
-	.m_size = -1,
-};
-
-PyMODINIT_FUNC PyInit_PyEnv() 
-{
-	PyObject* obj;
-	if (PyType_Ready(&PyEnvObject) < 0) 
-		return NULL;
-
-	obj = PyModule_Create(&PyModule);
-	if (obj == NULL)
-		return NULL;
-
-	Py_INCREF(&PyEnvObject);
-	if (PyModule_AddObject(obj, "PyEnv", (PyObject*)&PyEnvObject) < 0)
-	{
-		Py_DECREF(&PyEnvObject);
-		Py_DECREF(obj);
-		return NULL;
-	}
-
-	return obj;
-}
+//static PyModuleDef PyModule =
+//{
+//	.m_base = PyModuleDef_HEAD_INIT,
+//	.m_name = "pyModule",
+//	.m_doc = "Py Module for C++",
+//	.m_size = -1,
+//};
+//
+//PyMODINIT_FUNC CPyInit_pyModule() 
+//{
+//	PyObject* obj;
+//	if (PyType_Ready(&PyEnvObject) < 0) 
+//		return NULL;
+//
+//	obj = PyModule_Create(&PyModule);
+//	if (obj == NULL)
+//		return NULL;
+//
+//	Py_INCREF(&PyEnvObject);
+//	if (PyModule_AddObject(obj, "PyEnv", (PyObject*)&PyEnvObject) < 0)
+//	{
+//		Py_DECREF(&PyEnvObject);
+//		Py_DECREF(obj);
+//		return NULL;
+//	}
+//
+//	return obj;
+//}
 
 void PyEnvironment::PyEnv_dealloc(PyEnv* self)
 {

@@ -39,7 +39,7 @@ public:
 	// Inventory Array
 
 public:
-	static PyObject* PyInit_PySensorData();
+	//static PyObject* PyInit_PySensorData();
 	// ClassCategory
 	static PyObject* PySensorData_getClassCategory(PySensor* self, void* closure);
 	static int PySensorData_setClassCategory(PySensor* self, PyObject* value, void* closure);

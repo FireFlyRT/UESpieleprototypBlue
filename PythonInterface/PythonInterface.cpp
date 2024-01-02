@@ -10,79 +10,79 @@
 #include <strsafe.h>
 #include <sstream>
 #include "pylibs/Python.h"
-#include "PyEnvironment.h"
 #include "CrypticHelper.h"
 #include "SensorData.h"
 #include "PythonCommands.h"
+#include "CPyEnvironment.c"
 
-HANDLE _pipeHandle;
-
-bool ClosePipeClient()
-{
-    return CloseHandle(_pipeHandle);
-}
-
-bool SendDataWithPipeClient(const char* data)
-{
-    DWORD written;
-
-    if (_pipeHandle != INVALID_HANDLE_VALUE)
-    {
-        while (WriteFile(_pipeHandle, data, sizeof(data), &written, NULL) != FALSE);
-
-        std::cout << "Data sended " << written << std::endl;
-        return true;
-    }
-
-    return false;
-}
-
-bool StartPipeClient()
-{
-    return true;
-}
-
-std::string ReceiveDataFromPipeServer()
-{
-    DWORD read;
-    char buffer[1028];
-
-    if (_pipeHandle != INVALID_HANDLE_VALUE)
-    {
-        while(ReadFile(_pipeHandle, buffer, sizeof(buffer), &read, NULL) != FALSE);
-        std::cout << "Data readed " << read << std::endl;
-        std::ostringstream stream;
-        stream << read;
-        std::string result = stream.str();
-        return result;
-    }
-
-    return NULL;
-}
-
-int RunPythonFile(char* argv[], bool basicFile = false)
-{
-    FILE* nnFile = nullptr;
-    char path[255] = "";
-    char* _ = _fullpath(path, argv[0], sizeof(path));
-    std::string basePath = path;
-    std::string pyPath = basePath.substr(0, basePath.find_last_of("6") - 1); // Get Path before x64
-    pyPath += "PythonInterface\\PythonScripts\\BasicDQN.py"; // And add Path to Py-File
-
-    if (basicFile && nnFile != nullptr)
-    {
-        // Init Basic File
-        fopen_s(&nnFile, pyPath.c_str(), "r");
-        PyRun_SimpleFile(nnFile, "BasicDQN.py");
-        fclose(nnFile);
-    }
-
-    if (Py_FinalizeEx() < 0 && nnFile != nullptr) {
-        return 120;
-    }
-
-    return 0;
-}
+//HANDLE _pipeHandle;
+//
+//bool ClosePipeClient()
+//{
+//    return CloseHandle(_pipeHandle);
+//}
+//
+//bool SendDataWithPipeClient(const char* data)
+//{
+//    DWORD written;
+//
+//    if (_pipeHandle != INVALID_HANDLE_VALUE)
+//    {
+//        while (WriteFile(_pipeHandle, data, sizeof(data), &written, NULL) != FALSE);
+//
+//        std::cout << "Data sended " << written << std::endl;
+//        return true;
+//    }
+//
+//    return false;
+//}
+//
+//bool StartPipeClient()
+//{
+//    return true;
+//}
+//
+//std::string ReceiveDataFromPipeServer()
+//{
+//    DWORD read;
+//    char buffer[1028];
+//
+//    if (_pipeHandle != INVALID_HANDLE_VALUE)
+//    {
+//        while(ReadFile(_pipeHandle, buffer, sizeof(buffer), &read, NULL) != FALSE);
+//        std::cout << "Data readed " << read << std::endl;
+//        std::ostringstream stream;
+//        stream << read;
+//        std::string result = stream.str();
+//        return result;
+//    }
+//
+//    return NULL;
+//}
+//
+//int RunPythonFile(char* argv[], bool basicFile = false)
+//{
+//    FILE* nnFile = nullptr;
+//    char path[255] = "";
+//    char* _ = _fullpath(path, argv[0], sizeof(path));
+//    std::string basePath = path;
+//    std::string pyPath = basePath.substr(0, basePath.find_last_of("6") - 1); // Get Path before x64
+//    pyPath += "PythonInterface\\PythonScripts\\BasicDQN.py"; // And add Path to Py-File
+//
+//    if (basicFile && nnFile != nullptr)
+//    {
+//        // Init Basic File
+//        fopen_s(&nnFile, pyPath.c_str(), "r");
+//        PyRun_SimpleFile(nnFile, "BasicDQN.py");
+//        fclose(nnFile);
+//    }
+//
+//    if (Py_FinalizeEx() < 0 && nnFile != nullptr) {
+//        return 120;
+//    }
+//
+//    return 0;
+//}
 
 int main(int argc, char* argv[])
 {    
@@ -132,12 +132,19 @@ int main(int argc, char* argv[])
     // On Start:
     //std::cout << "Initialize Python Interface!\n"; 
     //
-    //// Initialise C++ Modules in Python
+    //// C++ Values for Python
     const char* pyModule = "pyModule";
+    const char* pyEnv = "CPyEnv";
+    const char* pyRewData = "CPyRew";
+    const char* pyNNData = "CPyNNData";
+    const char* pySensData = "CPySensData";
+    const char* pyStatData = "CPyStatData";
     //
     //// Initialise Python Environment
     Py_Initialize();
     std::cout << "Initialized: " << Py_IsInitialized() << std::endl;
+    PyRun_SimpleString("import platform");
+    PyRun_SimpleString("print(platform.python_version())");
     //
     //// Run *DQN.py File
     //RunPythonFile(argv, true);
@@ -227,67 +234,19 @@ int main(int argc, char* argv[])
         //    std::string command = std::string();
         //    // Save Objects for later use (Learning) TODO
         //    // Create Data in Python
-        //    command = "SensorData.ClassCategory = ";
-        //    command.append(std::to_string(sensorData->ClassCategory));
-        //    PyRun_SimpleString(command.c_str());
-        //
-        //    command = "SensorData.TribeID = ";
-        //    command.append(std::to_string(sensorData->TribeID));
-        //    PyRun_SimpleString(command.c_str());
-        //
-        //    command = "SensorData.LivePoints = ";
-        //    command.append(std::to_string(sensorData->LivePoints));
-        //    PyRun_SimpleString(command.c_str());
-        //
-        //    command = "SensorData.Stamina = ";
-        //    command.append(std::to_string(sensorData->Stamina));
-        //    PyRun_SimpleString(command.c_str());
-        //
-        //    command = "SensorData.Strength = ";
-        //    command.append(std::to_string(sensorData->Strength));
-        //    PyRun_SimpleString(command.c_str());
-        //
-        //    command = "SensorData.Age = ";
-        //    command.append(std::to_string(sensorData->Age));
-        //    PyRun_SimpleString(command.c_str());
-        //
-        //    command = "SensorData.Height = ";
-        //    command.append(std::to_string(sensorData->Height));
-        //    PyRun_SimpleString(command.c_str());
-        //
-        //    command = "SensorData.Hunger = ";
-        //    command.append(std::to_string(sensorData->Hunger));
-        //    PyRun_SimpleString(command.c_str());
-        //
-        //    command = "SensorData.Thurst = ";
-        //    command.append(std::to_string(sensorData->Thurst));
-        //    PyRun_SimpleString(command.c_str());
-        //
-        //    command = "SensorData.PositionX = ";
-        //    command.append(std::to_string(sensorData->PositionX));
-        //    PyRun_SimpleString(command.c_str());
-        //
-        //    command = "SensorData.PositionY = ";
-        //    command.append(std::to_string(sensorData->PositionY));
-        //    PyRun_SimpleString(command.c_str());
-        //
-        //    command = "SensorData.PositionZ = ";
-        //    command.append(std::to_string(sensorData->PositionZ));
-        //    PyRun_SimpleString(command.c_str());
-        //
-        //    command = "SensorData.Distance = ";
-        //    command.append(std::to_string(sensorData->Distance));
-        //    PyRun_SimpleString(command.c_str());
+    PythonCommands::CreateVarFromCClass("env", pyEnv);
+    PythonCommands::CreateVarFromCClass("nnData", pyNNData);
+    PythonCommands::CreateVarFromCClass("rewData", pyRewData);
+    PythonCommands::CreateVarFromCClass("sensData", pySensData);
+    PythonCommands::CreateVarFromCClass("statData", pyStatData);
+
+    PythonCommands::SetVarFromClass("env", "ActionSpace", "16");
 
             // Insert Data in Neural Network
             // TODO (Major): Send Output back to C++  (HOW?!?!?!?)
-            std::string command = "env = pyModule.PyEnvironment() ";
-            PyRun_SimpleString(command.c_str());
-            command = "env.number = ";
-            command.append(std::to_string(12));
-            PyRun_SimpleString("print(env.number)");
+            PyRun_SimpleString("print(env.ActionSpace)");
             
-            std::cout << "From C++: " << "" << std::endl;
+            //std::cout << "From C++: " << PyBytes_AsString((PyObject*)&PyEnvObject) << std::endl;
         //    std::string output;
         //    // TODO (Major): Create NeuralNetworkData out of the Output 
         //    NeuralNetworkData* nnData = new NeuralNetworkData();

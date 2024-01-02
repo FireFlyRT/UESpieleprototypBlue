@@ -7,3 +7,30 @@ void PythonCommands::ImportModule(const char* moduleName)
     command.append(moduleName);
     PyRun_SimpleString(command.c_str());
 }
+
+void PythonCommands::CreateVarFromCClass(const char* varName, const char* className)
+{
+    std::string command = varName;
+    command.append(" = pyModule.");
+    command.append(className);
+    command.append("()");
+    PyRun_SimpleString(command.c_str());
+}
+
+void PythonCommands::SetVarFromClass(const char* classVarName, const char* varName, const char* value)
+{
+    std::string command = classVarName;
+    command.append(".");
+    command.append(varName);
+    command.append(" = ");
+    command.append(value);
+    PyRun_SimpleString(command.c_str());
+}
+
+void PythonCommands::SetVar(const char* varName, const char* value)
+{
+    std::string command = varName;
+    command.append(" = ");
+    command.append(value);
+    PyRun_SimpleString(command.c_str());
+}
