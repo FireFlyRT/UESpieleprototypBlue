@@ -1,8 +1,9 @@
+#pragma once
 #define PY_SSIZE_T_CLEAN
 
-#include "pylibs/Python.h"
+#include "include/Python.h"
 #include "stddef.h"
-#include "pylibs/structmember.h"
+#include "include/structmember.h"
 
 
 typedef struct
@@ -16,23 +17,6 @@ typedef struct
 	PyObject* RotationY;
 
 } CPyNNData;
-
-//static PyMemberDef PyNNData_members[] =
-//{
-//	{"number", T_INT, offsetof(CPyNNData, number), 0, "A Test Number"},
-//	{NULL},
-//};
-
-static PyObject* PyNNData_Action(CPyNNData* self, PyObject* Py_UNUSED)
-{
-	if (self->Action == NULL)
-	{
-		PyErr_SetString(PyExc_AttributeError, "Action");
-		return NULL;
-	}
-
-	return PyUnicode_FromFormat("%S", self->Action);
-}
 
 static PyObject* PyNNData_getAction(CPyNNData* self, void* closure)
 {
@@ -55,17 +39,6 @@ static int PyNNData_setAction(CPyNNData* self, PyObject* value, void* closure)
 	return 0;
 }
 
-static PyObject* PyNNData_MovementX(CPyNNData* self, PyObject* Py_UNUSED)
-{
-	if (self->MovementX == NULL)
-	{
-		PyErr_SetString(PyExc_AttributeError, "MovementX");
-		return NULL;
-	}
-
-	return PyUnicode_FromFormat("%S", self->MovementX);
-}
-
 static PyObject* PyNNData_getMovementX(CPyNNData* self, void* closure)
 {
 	return Py_NewRef(self->MovementX);
@@ -80,22 +53,11 @@ static int PyNNData_setMovementX(CPyNNData* self, PyObject* value, void* closure
 	}
 	if (!PyUnicode_Check(value))
 	{
-		PyErr_SetString(PyExc_TypeError, "The las attribute value must be a string");
+		PyErr_SetString(PyExc_TypeError, "The last attribute value must be a string");
 		return -1;
 	}
 	Py_SETREF(self->MovementX, Py_NewRef(value));
 	return 0;
-}
-
-static PyObject* PyNNData_MovementY(CPyNNData* self, PyObject* Py_UNUSED)
-{
-	if (self->MovementY == NULL)
-	{
-		PyErr_SetString(PyExc_AttributeError, "MovementY");
-		return NULL;
-	}
-
-	return PyUnicode_FromFormat("%S", self->MovementY);
 }
 
 static PyObject* PyNNData_getMovementY(CPyNNData* self, void* closure)
@@ -112,22 +74,11 @@ static int PyNNData_setMovementY(CPyNNData* self, PyObject* value, void* closure
 	}
 	if (!PyUnicode_Check(value))
 	{
-		PyErr_SetString(PyExc_TypeError, "The las attribute value must be a string");
+		PyErr_SetString(PyExc_TypeError, "The last attribute value must be a string");
 		return -1;
 	}
 	Py_SETREF(self->MovementY, Py_NewRef(value));
 	return 0;
-}
-
-static PyObject* PyNNData_RotationX(CPyNNData* self, PyObject* Py_UNUSED)
-{
-	if (self->RotationX == NULL)
-	{
-		PyErr_SetString(PyExc_AttributeError, "RotationX");
-		return NULL;
-	}
-
-	return PyUnicode_FromFormat("%S", self->RotationX);
 }
 
 static PyObject* PyNNData_getRotationX(CPyNNData* self, void* closure)
@@ -151,17 +102,6 @@ static int PyNNData_setRotationX(CPyNNData* self, PyObject* value, void* closure
 	return 0;
 }
 
-static PyObject* PyNNData_RotationY(CPyNNData* self, PyObject* Py_UNUSED)
-{
-	if (self->RotationY == NULL)
-	{
-		PyErr_SetString(PyExc_AttributeError, "RotationY");
-		return NULL;
-	}
-
-	return PyUnicode_FromFormat("%S", self->RotationY);
-}
-
 static PyObject* PyNNData_getRotationY(CPyNNData* self, void* closure)
 {
 	return Py_NewRef(self->RotationY);
@@ -176,7 +116,7 @@ static int PyNNData_setRotationY(CPyNNData* self, PyObject* value, void* closure
 	}
 	if (!PyUnicode_Check(value))
 	{
-		PyErr_SetString(PyExc_TypeError, "The las attribute value must be a string");
+		PyErr_SetString(PyExc_TypeError, "The last attribute value must be a string");
 		return -1;
 	}
 	Py_SETREF(self->RotationY, Py_NewRef(value));
@@ -185,11 +125,6 @@ static int PyNNData_setRotationY(CPyNNData* self, PyObject* value, void* closure
 
 static PyMethodDef PyNNData_methods[] =
 {
-	{"Action", (PyCFunction)PyNNData_Action, METH_NOARGS, "Return the Action"},
-	{"MovementX", (PyCFunction)PyNNData_MovementX, METH_NOARGS, "Return the MovementX"},
-	{"MovementY", (PyCFunction)PyNNData_MovementY, METH_NOARGS, "Return the MovementY"},
-	{"RotationX", (PyCFunction)PyNNData_RotationX, METH_NOARGS, "Return the RotationX"},
-	{"RotationY", (PyCFunction)PyNNData_RotationY, METH_NOARGS, "Return the RotationY"},
 	{NULL}
 };
 
@@ -219,31 +154,31 @@ static PyObject* PyNNData_new(PyTypeObject* type, PyObject* args, PyObject* kwds
 	self = (CPyNNData*)type->tp_alloc(type, 0);
 	if (self != NULL)
 	{
-		self->Action = PyUnicode_FromString("");
+		self->Action = PyLong_FromLong(0);
 		if (self->Action == NULL)
 		{
 			Py_DECREF(self);
 			return NULL;
 		}
-		self->MovementX = PyUnicode_FromString("");
+		self->MovementX = PyFloat_FromDouble(0.0);
 		if (self->MovementX == NULL)
 		{
 			Py_DECREF(self);
 			return NULL;
 		}
-		self->MovementY = PyUnicode_FromString("");
+		self->MovementY = PyFloat_FromDouble(0.0);
 		if (self->MovementY == NULL)
 		{
 			Py_DECREF(self);
 			return NULL;
 		}
-		self->RotationX = PyUnicode_FromString("");
+		self->RotationX = PyFloat_FromDouble(0.0);
 		if (self->RotationX == NULL)
 		{
 			Py_DECREF(self);
 			return NULL;
 		}
-		self->RotationY = PyUnicode_FromString("");
+		self->RotationY = PyFloat_FromDouble(0.0);
 		if (self->RotationY == NULL)
 		{
 			Py_DECREF(self);
@@ -289,7 +224,6 @@ static PyTypeObject PyNNDataObject =
 	.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
 	.tp_doc = PyDoc_STR("Neural Network"),
 	.tp_methods = PyNNData_methods,
-	//.tp_members = PyNNData_members,
 	.tp_getset = PyNNData_getsetters,
 	.tp_init = (initproc)PyNNData_init,
 	.tp_new = PyNNData_new,

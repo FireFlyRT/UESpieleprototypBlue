@@ -1,9 +1,11 @@
+#pragma once
 #define PY_SSIZE_T_CLEAN
 
-#include "pylibs/Python.h"
+#include "include/Python.h"
 #include "stddef.h"
-#include "pylibs/structmember.h"
+#include "include/structmember.h"
 
+static PyObject* PyEnv_callback;
 
 typedef struct
 {
@@ -30,17 +32,6 @@ static PyMemberDef PyEnv_members[] =
 	{NULL},
 };
 
-static PyObject* PyEnv_ActionSpace(CPyEnv* self, PyObject* Py_UNUSED)
-{
-	if (self->ActionSpace == NULL)
-	{
-		PyErr_SetString(PyExc_AttributeError, "ActionSpace");
-		return NULL;
-	}
-
-	return PyUnicode_FromFormat("%S", self->ActionSpace);
-}
-
 static PyObject* PyEnv_getActionSpace(CPyEnv* self, void* closure)
 {
 	return Py_NewRef(self->ActionSpace);
@@ -53,19 +44,49 @@ static int PyEnv_setActionSpace(CPyEnv* self, PyObject* value, void* closure)
 		PyErr_SetString(PyExc_TypeError, "Cannot delete the last attribute");
 		return -1;
 	}
-	if (!PyUnicode_Check(value))
+	if (!PyNumber_Check(value))
 	{
-		PyErr_SetString(PyExc_TypeError, "The las attribute value must be a string");
+		PyErr_SetString(PyExc_TypeError, "The las attribute value must be a number");
 		return -1;
 	}
 	Py_SETREF(self->ActionSpace, Py_NewRef(value));
 	return 0;
 }
 
+static PyObject* PyEnv_set_callback(PyObject* a, PyObject* args)
+{
+	//PyErr_SetString(PyExc_TypeError, "Called Set Callback");
+	PyRun_SimpleString("print('Hello')");
+	PyObject* result = NULL;
+	PyObject* obj;
+
+	if (PyArg_ParseTuple(args, "O:set_callback", &obj))
+	{
+		if (!PyCallable_Check(obj))
+		{
+			PyErr_SetString(PyExc_TypeError, "Parameter must be callable");
+			return NULL;
+		}
+		Py_XINCREF(obj);
+		Py_XDECREF(PyEnv_callback);
+		PyEnv_callback = obj;
+	
+		Py_INCREF(result);
+		result = obj;
+		Py_XDECREF(obj);
+	}
+	return result;
+}
+
+static PyObject* PyEnv_set_call(PyObject* a, PyObject* args, PyObject* kwgs)
+{
+	return PyEnv_set_callback(a, args);
+}
+
 static PyMethodDef PyEnv_methods[] =
 {
-	{"ActionSpace", (PyCFunction)PyEnv_ActionSpace, METH_NOARGS, "Return the Action Space"},
-	{NULL}
+	{"set_callback", PyEnv_set_callback, METH_VARARGS, "Return the Result as PyObject*"},
+	{NULL, NULL, 0, NULL}
 };
 
 static PyGetSetDef PyEnv_getsetters[] =
@@ -87,7 +108,7 @@ static PyObject* PyEnv_new(PyTypeObject* type, PyObject* args, PyObject* kwds)
 	if (self != NULL)
 	{
 		// TODO: Actionspace as Array
-		self->ActionSpace = PyUnicode_FromString("");
+		self->ActionSpace = PyLong_FromLong(0);
 		if (self->ActionSpace == NULL)
 		{
 			Py_DECREF(self);
@@ -119,6 +140,7 @@ static PyTypeObject PyEnvObject =
 	.tp_basicsize = sizeof(CPyEnv),
 	.tp_itemsize = 0,
 	.tp_dealloc = (destructor)PyEnv_dealloc,
+	.tp_call = (ternaryfunc)PyEnv_set_call,
 	.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
 	.tp_doc = PyDoc_STR("Environment"),
 	.tp_methods = PyEnv_methods,

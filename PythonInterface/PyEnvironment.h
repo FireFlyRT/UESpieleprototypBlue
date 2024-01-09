@@ -1,5 +1,5 @@
 #pragma once
-#include "pylibs/Python.h"
+#include "include/Python.h"
 
 typedef struct 
 {

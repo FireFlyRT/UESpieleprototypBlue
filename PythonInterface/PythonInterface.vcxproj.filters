@@ -85,22 +85,10 @@
     <CopyFileToFolders Include="PythonScripts\BasicDQN.py">
       <Filter>Ressourcendateien</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="pylibs\_tkinter.lib">
-      <Filter>Ressourcendateien</Filter>
-    </CopyFileToFolders>
     <CopyFileToFolders Include="python3.dll">
       <Filter>Ressourcendateien</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="pylibs\python3.lib">
-      <Filter>Ressourcendateien</Filter>
-    </CopyFileToFolders>
     <CopyFileToFolders Include="python311.dll">
-      <Filter>Ressourcendateien</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="pylibs\python311.lib">
-      <Filter>Ressourcendateien</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="pylibs\python311_d.lib">
       <Filter>Ressourcendateien</Filter>
     </CopyFileToFolders>
   </ItemGroup>
@@ -116,7 +104,13 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Library Include="pylibs\python3_d.lib">
+    <Library Include="libs\_tkinter.lib">
+      <Filter>Ressourcendateien</Filter>
+    </Library>
+    <Library Include="libs\python3.lib">
+      <Filter>Ressourcendateien</Filter>
+    </Library>
+    <Library Include="libs\python311.lib">
       <Filter>Ressourcendateien</Filter>
     </Library>
   </ItemGroup>

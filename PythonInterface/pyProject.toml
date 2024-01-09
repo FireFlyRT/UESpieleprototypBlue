@@ -7,4 +7,4 @@ name = "pyModule"
 version = "1"
 
 [tool.setuptools.packages.find]
-exclude = []
+exclude = ['x64', 'runs', 'PythonScripts']

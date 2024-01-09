@@ -1,5 +1,6 @@
 #include "PythonCommands.h"
 #include <string>
+#include "CPyEnvironment.c"
 
 void PythonCommands::ImportModule(const char* moduleName)
 {
@@ -8,13 +9,14 @@ void PythonCommands::ImportModule(const char* moduleName)
     PyRun_SimpleString(command.c_str());
 }
 
-void PythonCommands::CreateVarFromCClass(const char* varName, const char* className)
+PyObject* PythonCommands::CreateVarFromCClass(PyObject* pyObj, const char* varName, const char* className)
 {
     std::string command = varName;
     command.append(" = pyModule.");
     command.append(className);
     command.append("()");
     PyRun_SimpleString(command.c_str());
+    return PyObject_Init(pyObj, &PyEnvObject);
 }
 
 void PythonCommands::SetVarFromClass(const char* classVarName, const char* varName, const char* value)

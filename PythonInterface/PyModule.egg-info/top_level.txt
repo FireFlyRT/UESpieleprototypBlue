@@ -1,6 +1,12 @@
-PythonScripts
+DLLs
+Doc
+Lib
+Scripts
+Tools
 build
+include
+libs
 pyModule
-pylibs
-runs
+share
+tcl
 x64

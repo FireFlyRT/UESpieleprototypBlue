@@ -1,4 +1,5 @@
 // Exe is in ..\UESpieleprototypBlue\x64\Release\PythonInterface.exe
+#pragma once
 #define PY_SSIZE_T_CLEAN
 
 #include <iostream>
@@ -9,9 +10,7 @@
 #include <tchar.h>
 #include <strsafe.h>
 #include <sstream>
-#include "pylibs/Python.h"
 #include "CrypticHelper.h"
-#include "SensorData.h"
 #include "PythonCommands.h"
 #include "CPyEnvironment.c"
 
@@ -234,19 +233,52 @@ int main(int argc, char* argv[])
         //    std::string command = std::string();
         //    // Save Objects for later use (Learning) TODO
         //    // Create Data in Python
-    PythonCommands::CreateVarFromCClass("env", pyEnv);
-    PythonCommands::CreateVarFromCClass("nnData", pyNNData);
-    PythonCommands::CreateVarFromCClass("rewData", pyRewData);
-    PythonCommands::CreateVarFromCClass("sensData", pySensData);
-    PythonCommands::CreateVarFromCClass("statData", pyStatData);
 
-    PythonCommands::SetVarFromClass("env", "ActionSpace", "16");
+            PyObject* pyObj = new PyObject();
+            Py_XNewRef(pyObj);
+
+            pyObj = PythonCommands::CreateVarFromCClass(pyObj, "env", pyEnv);
+            //PythonCommands::CreateVarFromCClass("nnData", pyNNData);
+            //PythonCommands::CreateVarFromCClass("rewData", pyRewData);
+            //PythonCommands::CreateVarFromCClass("sensData", pySensData);
+            //PythonCommands::CreateVarFromCClass("statData", pyStatData);
+
+            // Init Environment
+            PythonCommands::SetVarFromClass("env", "ActionSpace", "16");
+
+            //PythonCommands::SetVarFromClass("nnData", "Action", "16");
 
             // Insert Data in Neural Network
             // TODO (Major): Send Output back to C++  (HOW?!?!?!?)
             PyRun_SimpleString("print(env.ActionSpace)");
+            PyEnv_callback = (PyObject*)((PyFunctionObject*)&PyEnv_set_callback);
+            PyObject* args = Py_BuildValue("O", pyObj);
+            //PyObject* result = PyObject_CallNoArgs(pyObj);
+            PyObject* result = PyObject_CallObject(pyObj, args);
+            Py_DECREF(args);
+            if (pyObj != nullptr)
+            {
+                std::cout << "From C++: " << (((CPyEnv*)pyObj)->ActionSpace) << std::endl;
+                //Py_DECREF(pyObj);
+            }
+            else
+                std::cout << "From C++: " << "pyObj == nullptr" << std::endl;
+            if (PyEnv_callback != nullptr)
+            {
+                std::cout << "From C++: " << (CPyEnv*)PyEnv_callback << std::endl;
+                //std::cout << "From C++: " << PyLong_AsLong(((CPyEnv*)PyEnv_callback)->ActionSpace) << std::endl;
+                //Py_DECREF(PyEnv_callback);
+            }
+            else
+                std::cout << "From C++: " << "PyEnv_callback == nullptr" << std::endl;
+            if (result != nullptr)
+            {
+                std::cout << "From C++: " << result << std::endl;
+                Py_DECREF(result);
+            }
+            else
+                std::cout << "From C++: " << "result == nullptr" << std::endl;
             
-            //std::cout << "From C++: " << PyBytes_AsString((PyObject*)&PyEnvObject) << std::endl;
         //    std::string output;
         //    // TODO (Major): Create NeuralNetworkData out of the Output 
         //    NeuralNetworkData* nnData = new NeuralNetworkData();

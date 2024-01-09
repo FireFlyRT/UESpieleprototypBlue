@@ -1,6 +1,6 @@
+#pragma once
 #define PY_SSIZE_T_CLEAN
 
-#include "pylibs/Python.h"
 #include "CPyEnvironment.c"
 #include "CPyNeuralNetworkData.c"
 #include "CPyRewardData.c"

@@ -1,8 +1,9 @@
+#pragma once
 #define PY_SSIZE_T_CLEAN
 
-#include "pylibs/Python.h"
+#include "include/Python.h"
 #include "stddef.h"
-#include "pylibs/structmember.h"
+#include "include/structmember.h"
 
 
 typedef struct

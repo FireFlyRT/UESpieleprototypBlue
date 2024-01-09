@@ -1,7 +1,7 @@
 #include "PyEnvironment.h"
 #include <string> 
 #include <stddef.h>
-#include "structmember.h"
+#include "include/structmember.h"
 
 #define PY_SSIZE_T_CLEAN
 
