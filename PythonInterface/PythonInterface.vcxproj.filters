@@ -102,6 +102,18 @@
     <None Include="PythonScripts\RainbowDQN.py">
       <Filter>Ressourcendateien</Filter>
     </None>
+    <None Include="python.exe">
+      <Filter>Ressourcendateien</Filter>
+    </None>
+    <None Include="pythonw.exe">
+      <Filter>Ressourcendateien</Filter>
+    </None>
+    <None Include="vcruntime140.dll">
+      <Filter>Ressourcendateien</Filter>
+    </None>
+    <None Include="vcruntime140_1.dll">
+      <Filter>Ressourcendateien</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Library Include="libs\_tkinter.lib">
@@ -113,5 +125,13 @@
     <Library Include="libs\python311.lib">
       <Filter>Ressourcendateien</Filter>
     </Library>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="LICENSE.txt">
+      <Filter>Ressourcendateien</Filter>
+    </Text>
+    <Text Include="NEWS.txt">
+      <Filter>Ressourcendateien</Filter>
+    </Text>
   </ItemGroup>
 </Project>

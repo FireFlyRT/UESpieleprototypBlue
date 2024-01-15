@@ -195,13 +195,17 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="pyProject.toml" />
+    <None Include="python.exe" />
     <None Include="PythonScripts\RainbowDQN.py">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
     </None>
+    <None Include="pythonw.exe" />
     <None Include="setup.py" />
+    <None Include="vcruntime140.dll" />
+    <None Include="vcruntime140_1.dll" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="libs\python3.lib">
@@ -222,6 +226,10 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
     </Library>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="LICENSE.txt" />
+    <Text Include="NEWS.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

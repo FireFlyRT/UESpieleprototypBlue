@@ -148,7 +148,7 @@ int main(int argc, char* argv[])
     //// Run *DQN.py File
     //RunPythonFile(argv, true);
     //// Configure DQN for right usage
-    PythonCommands::ImportModule(pyModule);
+    PyObject* module = PythonCommands::ImportModule(pyModule);
     //PyRun_SimpleString("print('From Python: Hello World!')"); 
 
     // Connect to MainPipe
@@ -234,50 +234,80 @@ int main(int argc, char* argv[])
         //    // Save Objects for later use (Learning) TODO
         //    // Create Data in Python
 
-            PyObject* pyObj = new PyObject();
-            Py_XNewRef(pyObj);
-
-            pyObj = PythonCommands::CreateVarFromCClass(pyObj, "env", pyEnv);
+            PyObject* pyObjType = PythonCommands::CreateVarFromCClass(module, "CPyEnv");
+            PyObject* pyObjInstance = PyObject_CallObject(pyObjType, NULL);
+            PyObject* setActionSpace = PyObject_GetAttrString(pyObjInstance, (char*)"ActionSpace");
+            if (PyCallable_Check(pyObjInstance))
+            {
+                std::cout << "From C++: " << "setActionSpace: is callable" << std::endl;
+                PyObject* something = PyObject_CallObject(setActionSpace, Py_BuildValue("|Oi0", pyObjInstance, PyLong_FromLong(16), NULL));
+                if (setActionSpace != nullptr)
+                {
+                    std::cout << "From C++: " << "pyObjInstance.ActionSpace: " << PyLong_AsLong(((CPyEnv*)pyObjInstance)->ActionSpace) << std::endl;
+                    std::cout << "From C++: " << "setActionSpace: " << PyLong_AsLong(setActionSpace) << std::endl;
+                    Py_DECREF(pyObjInstance);
+                }
+                else
+                    std::cout << "From C++: " << "pyObjInstance == nullptr" << std::endl;
+            }
+                
             //PythonCommands::CreateVarFromCClass("nnData", pyNNData);
             //PythonCommands::CreateVarFromCClass("rewData", pyRewData);
             //PythonCommands::CreateVarFromCClass("sensData", pySensData);
             //PythonCommands::CreateVarFromCClass("statData", pyStatData);
 
             // Init Environment
-            PythonCommands::SetVarFromClass("env", "ActionSpace", "16");
+            //PythonCommands::SetVarFromClass("env", "ActionSpace", "16");
 
             //PythonCommands::SetVarFromClass("nnData", "Action", "16");
 
             // Insert Data in Neural Network
             // TODO (Major): Send Output back to C++  (HOW?!?!?!?)
-            PyRun_SimpleString("print(env.ActionSpace)");
-            PyEnv_callback = (PyObject*)((PyFunctionObject*)&PyEnv_set_callback);
-            PyObject* args = Py_BuildValue("O", pyObj);
-            //PyObject* result = PyObject_CallNoArgs(pyObj);
-            PyObject* result = PyObject_CallObject(pyObj, args);
-            Py_DECREF(args);
-            if (pyObj != nullptr)
+
+            PyGILState_STATE state = PyGILState_Ensure(); // Sicherstellen, dass GarbageCycling in Python nichts wegwirft
+            PyObject* callbackMethod = PyObject_GetAttrString(pyObjInstance, (char*)"set_callback"); // Pointer für die PythonMethode holen
+            int test = PyCallable_Check(callbackMethod); // Check, ob die Methode aufgerufen werden kann
+            Py_XINCREF(callbackMethod);
+            std::cout << "TEST: " << test << std::endl; // Output des Checks; hier positiv!
+            //PyObject* callbackArgs = Py_BuildValue("(OU)", pyObjInstance, pyObjType);
+            PyObject* args = PyTuple_New(1);
+            Py_XINCREF(args);
+            PyTuple_SetItem(args, 0, pyObjType);
+            //PyTuple_SetItem(args, 1, pyObjInstance);
+            PyObject* tupleArgs = PyTuple_New(1); // Erzeugung von 2 Tupel, da jeder Eintrag im Tupel als ein Argument für die Call Methode zählt 
+            Py_XINCREF(tupleArgs);
+            PyTuple_SetItem(tupleArgs, 0, pyObjInstance);
+            //PyTuple_SetItem(tupleArgs, 1, args);
+            //PyEnv_callback = PyLong_FromLong(1);
+            PyObject* result = PyObject_CallObject(callbackMethod, args); // Call Methode, die die PythonMethode aufrufen sollte
+            Py_XINCREF(result);
+            //PyObject* result = PyObject_CallNoArgs(callbackMethod);
+            Py_XDECREF(callbackMethod);
+            Py_XDECREF(args);
+            Py_XDECREF(tupleArgs);
+            if (pyObjType != nullptr) // Pointer ist vorhanden
             {
-                std::cout << "From C++: " << (((CPyEnv*)pyObj)->ActionSpace) << std::endl;
-                //Py_DECREF(pyObj);
+                std::cout << "From C++: " << "pyObjType: " << pyObjType << std::endl; 
+                Py_XDECREF(pyObjType);
             }
             else
-                std::cout << "From C++: " << "pyObj == nullptr" << std::endl;
-            if (PyEnv_callback != nullptr)
+                std::cout << "From C++: " << "pyObjType == nullptr" << std::endl;
+            if (PyEnv_callback != nullptr) // nullptr
             {
-                std::cout << "From C++: " << (CPyEnv*)PyEnv_callback << std::endl;
+                std::cout << "From C++: PyEnv_callback: " << PyLong_AsLong(PyEnv_callback) << std::endl;
                 //std::cout << "From C++: " << PyLong_AsLong(((CPyEnv*)PyEnv_callback)->ActionSpace) << std::endl;
-                //Py_DECREF(PyEnv_callback);
+                Py_XDECREF(PyEnv_callback);
             }
             else
                 std::cout << "From C++: " << "PyEnv_callback == nullptr" << std::endl;
-            if (result != nullptr)
+            if (result != nullptr) // nullptr
             {
-                std::cout << "From C++: " << result << std::endl;
+                std::cout << "From C++: " << PyLong_AsLong(result) << std::endl;
                 Py_DECREF(result);
             }
             else
                 std::cout << "From C++: " << "result == nullptr" << std::endl;
+            PyGILState_Release(state);
             
         //    std::string output;
         //    // TODO (Major): Create NeuralNetworkData out of the Output 

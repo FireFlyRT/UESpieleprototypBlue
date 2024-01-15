@@ -2,21 +2,18 @@
 #include <string>
 #include "CPyEnvironment.c"
 
-void PythonCommands::ImportModule(const char* moduleName)
+PyObject* PythonCommands::ImportModule(const char* moduleName)
 {
-    std::string command = "import ";
+    PyObject* module = PyUnicode_FromString(moduleName);
+    return PyImport_Import(module);
+    /*std::string command = "import ";
     command.append(moduleName);
-    PyRun_SimpleString(command.c_str());
+    PyRun_SimpleString(command.c_str());*/
 }
 
-PyObject* PythonCommands::CreateVarFromCClass(PyObject* pyObj, const char* varName, const char* className)
+PyObject* PythonCommands::CreateVarFromCClass(PyObject* module, const char* pyObjName)
 {
-    std::string command = varName;
-    command.append(" = pyModule.");
-    command.append(className);
-    command.append("()");
-    PyRun_SimpleString(command.c_str());
-    return PyObject_Init(pyObj, &PyEnvObject);
+    return PyObject_GetAttrString(module, pyObjName);
 }
 
 void PythonCommands::SetVarFromClass(const char* classVarName, const char* varName, const char* value)
