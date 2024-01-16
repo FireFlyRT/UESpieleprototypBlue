@@ -6,9 +6,6 @@ PyObject* PythonCommands::ImportModule(const char* moduleName)
 {
     PyObject* module = PyUnicode_FromString(moduleName);
     return PyImport_Import(module);
-    /*std::string command = "import ";
-    command.append(moduleName);
-    PyRun_SimpleString(command.c_str());*/
 }
 
 PyObject* PythonCommands::CreateVarFromCClass(PyObject* module, const char* pyObjName)
