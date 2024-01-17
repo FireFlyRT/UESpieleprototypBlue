@@ -194,7 +194,7 @@
     <ClInclude Include="StatData.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="pyProject.toml" />
+    <None Include="packages.config" />
     <None Include="python.exe" />
     <None Include="PythonScripts\RainbowDQN.py">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
@@ -203,7 +203,6 @@
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
     </None>
     <None Include="pythonw.exe" />
-    <None Include="setup.py" />
     <None Include="vcruntime140.dll" />
     <None Include="vcruntime140_1.dll" />
   </ItemGroup>
@@ -233,5 +232,12 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="packages\nlohmann.json.3.11.2\build\native\nlohmann.json.targets" Condition="Exists('packages\nlohmann.json.3.11.2\build\native\nlohmann.json.targets')" />
   </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>Dieses Projekt verweist auf mindestens ein NuGet-Paket, das auf diesem Computer fehlt. Verwenden Sie die Wiederherstellung von NuGet-Paketen, um die fehlenden Dateien herunterzuladen. Weitere Informationen finden Sie unter "http://go.microsoft.com/fwlink/?LinkID=322105". Die fehlende Datei ist "{0}".</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('packages\nlohmann.json.3.11.2\build\native\nlohmann.json.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\nlohmann.json.3.11.2\build\native\nlohmann.json.targets'))" />
+  </Target>
 </Project>

@@ -13,71 +13,75 @@
 #include "CrypticHelper.h"
 #include "PythonCommands.h"
 #include "CPyEnvironment.c"
+#include "filesystem"
 
-//HANDLE _pipeHandle;
-//
-//bool ClosePipeClient()
-//{
-//    return CloseHandle(_pipeHandle);
-//}
-//
-//bool SendDataWithPipeClient(const char* data)
-//{
-//    DWORD written;
-//
-//    if (_pipeHandle != INVALID_HANDLE_VALUE)
-//    {
-//        while (WriteFile(_pipeHandle, data, sizeof(data), &written, NULL) != FALSE);
-//
-//        std::cout << "Data sended " << written << std::endl;
-//        return true;
-//    }
-//
-//    return false;
-//}
-//
-//bool StartPipeClient()
-//{
-//    return true;
-//}
-//
-//std::string ReceiveDataFromPipeServer()
-//{
-//    DWORD read;
-//    char buffer[1028];
-//
-//    if (_pipeHandle != INVALID_HANDLE_VALUE)
-//    {
-//        while(ReadFile(_pipeHandle, buffer, sizeof(buffer), &read, NULL) != FALSE);
-//        std::cout << "Data readed " << read << std::endl;
-//        std::ostringstream stream;
-//        stream << read;
-//        std::string result = stream.str();
-//        return result;
-//    }
-//
-//    return NULL;
-//}
-//
-int RunPythonFile(char* argv[], bool basicFile = false)
+HANDLE _pipeHandle;
+
+bool ClosePipeClient()
 {
-    FILE* nnFile = nullptr;
+    return CloseHandle(_pipeHandle);
+}
+
+bool SendDataWithPipeClient(const char* data)
+{
+    DWORD written;
+
+    if (_pipeHandle != INVALID_HANDLE_VALUE)
+    {
+        while (WriteFile(_pipeHandle, data, sizeof(data), &written, NULL) != FALSE);
+
+        std::cout << "Data sended " << written << std::endl;
+        return true;
+    }
+
+    return false;
+}
+
+bool StartPipeClient()
+{
+    return true;
+}
+
+std::string ReceiveDataFromPipeServer()
+{
+    DWORD read;
+    char buffer[1028];
+
+    if (_pipeHandle != INVALID_HANDLE_VALUE)
+    {
+        while(ReadFile(_pipeHandle, buffer, sizeof(buffer), &read, NULL) != FALSE);
+        std::cout << "Data readed " << read << std::endl;
+        std::ostringstream stream;
+        stream << read;
+        std::string result = stream.str();
+        return result;
+    }
+
+    return NULL;
+}
+
+
+std::string GetProjectPath(char* argv[])
+{
     char path[255] = "";
     char* _ = _fullpath(path, argv[0], sizeof(path));
     std::string basePath = path;
     std::string pyPath = basePath.substr(0, basePath.find_last_of("6") - 1); // Get Path before x64
-    pyPath += "PythonInterface\\PythonScripts\\BasicDQN.py"; // And add Path to Py-File
+    return pyPath;
+}
 
-    if (basicFile && nnFile != nullptr)
+int RunPythonFile(char* argv[], bool useBasicFile = false)
+{
+    FILE* nnFile = nullptr;
+    std::string pyPath = GetProjectPath(argv); // Get Path before x64
+    pyPath += "PythonScripts\\BasicDQN.py"; // And add Path to Py-File
+    fopen_s(&nnFile, pyPath.c_str(), "r");
+
+    if (/*useBasicFile && */nnFile != nullptr)
     {
         // Init Basic File
-        fopen_s(&nnFile, pyPath.c_str(), "r");
         PyRun_SimpleFile(nnFile, "BasicDQN.py");
         fclose(nnFile);
-    }
-
-    if (Py_FinalizeEx() < 0 && nnFile != nullptr) {
-        return 120;
     }
 
     return 0;
@@ -132,24 +136,30 @@ int main(int argc, char* argv[])
     //std::cout << "Initialize Python Interface!\n"; 
     //
     //// C++ Values for Python
-    const char* pyModule = "pyModule";
-    const char* pyEnv = "CPyEnv";
-    const char* pyRewData = "CPyRew";
-    const char* pyNNData = "CPyNNData";
-    const char* pySensData = "CPySensData";
-    const char* pyStatData = "CPyStatData";
+    //const char* pyModule = "pyModule";
+    //const char* pyEnv = "CPyEnv";
+    //const char* pyRewData = "CPyRew";
+    //const char* pyNNData = "CPyNNData";
+    //const char* pySensData = "CPySensData";
+    //const char* pyStatData = "CPyStatData";
     //
     // Initialise Python Environment
     Py_Initialize();
     std::cout << "Initialized: " << Py_IsInitialized() << std::endl;
     PyRun_SimpleString("import platform");
     PyRun_SimpleString("print(platform.python_version())");
-    PyObject* module = PythonCommands::ImportModule(pyModule);
+    //PyObject* module = PythonCommands::ImportModule(pyModule);
+
+    // Add Folder Structure
+    std::string projPath = GetProjectPath(argv);
+    std::string jsonPath = projPath;
+    jsonPath.append("/JSONData");
+    if (!std::filesystem::exists(jsonPath.c_str()))
+        std::filesystem::create_directories(jsonPath.c_str());
 
     //// Run *DQN.py File
     RunPythonFile(argv, true);
     //// Configure DQN for right usage
-    //PyRun_SimpleString("print('From Python: Hello World!')"); 
 
     // Connect to MainPipe
     //bool isConnected = false;
@@ -221,107 +231,40 @@ int main(int argc, char* argv[])
         //}
 
         // Wait for Sensor-/Reward-Data
-        //std::string sArData = ReceiveDataFromPipeServer();
+        std::string sArData = ReceiveDataFromPipeServer();
     
         // On Data Received:
         // Parse Data with CrypticHelper (String to Objects)
-        //SensorData* sensorData = new SensorData();
-        //StatData* statData = new StatData();
-        //RewardData* rewardData = new RewardData();
-        //if (CrypticHelper::DecryptValue(sArData, sensorData, statData, rewardData))
-        //{
-        //    std::string command = std::string();
-        //    // Save Objects for later use (Learning) TODO
-        //    // Create Data in Python
+        SensorData* sensorData = new SensorData();
+        StatData* statData = new StatData();
+        RewardData* rewardData = new RewardData();
+        if (CrypticHelper::DecryptValue(sArData, sensorData, statData, rewardData))
+        {
+            std::string command = std::string();
+            // Save Objects for later use (Learning) TODO
+            // Create Data in Python
 
-            //PyObject* pyObjType = PythonCommands::CreateVarFromCClass(module, "CPyEnv");
-            //PyObject* pyObjInstance = PyObject_CallObject(pyObjType, NULL);
-            //PyObject* setActionSpace = PyObject_GetAttrString(pyObjInstance, (char*)"ActionSpace");
-            //if (PyCallable_Check(pyObjInstance))
-            //{
-            //    std::cout << "From C++: " << "setActionSpace: is callable" << std::endl;
-            //    PyObject* something = PyObject_CallObject(setActionSpace, Py_BuildValue("|Oi0", pyObjInstance, PyLong_FromLong(16), NULL));
-            //    if (setActionSpace != nullptr)
-            //    {
-            //        std::cout << "From C++: " << "pyObjInstance.ActionSpace: " << PyLong_AsLong(((CPyEnv*)pyObjInstance)->ActionSpace) << std::endl;
-            //        std::cout << "From C++: " << "setActionSpace: " << PyLong_AsLong(setActionSpace) << std::endl;
-            //        Py_DECREF(pyObjInstance);
-            //    }
-            //    else
-            //        std::cout << "From C++: " << "pyObjInstance == nullptr" << std::endl;
-            //}
-            // STUFF IN JSON PROBIEREN???
-            // ISSUE SCHREIBEN
-            // ALLES AUF C++ UMSCHREIBEN
-                
-            //PythonCommands::CreateVarFromCClass("nnData", pyNNData);
-            //PythonCommands::CreateVarFromCClass("rewData", pyRewData);
-            //PythonCommands::CreateVarFromCClass("sensData", pySensData);
-            //PythonCommands::CreateVarFromCClass("statData", pyStatData);
+            
 
             // Init Environment
-            //PythonCommands::SetVarFromClass("env", "ActionSpace", "16");
-
-            //PythonCommands::SetVarFromClass("nnData", "Action", "16");
+            
 
             // Insert Data in Neural Network
-            // TODO (Major): Send Output back to C++  (HOW?!?!?!?)
 
-            //PyGILState_STATE state = PyGILState_Ensure(); // Sicherstellen, dass GarbageCycling in Python nichts wegwirft
-            //PyObject* callbackMethod = PyObject_GetAttrString(pyObjInstance, (char*)"set_callback"); // Pointer für die PythonMethode holen
-            //int test = PyCallable_Check(callbackMethod); // Check, ob die Methode aufgerufen werden kann
-            //Py_XINCREF(callbackMethod);
-            //std::cout << "TEST: " << test << std::endl; // Output des Checks; hier positiv!
-            ////PyObject* callbackArgs = Py_BuildValue("(OU)", pyObjInstance, pyObjType);
-            //PyObject* args = PyTuple_New(1);
-            //Py_XINCREF(args);
-            //PyTuple_SetItem(args, 0, pyObjType);
-            ////PyTuple_SetItem(args, 1, pyObjInstance);
-            //PyObject* tupleArgs = PyTuple_New(1); // Erzeugung von 2 Tupel, da jeder Eintrag im Tupel als ein Argument für die Call Methode zählt 
-            //Py_XINCREF(tupleArgs);
-            //PyTuple_SetItem(tupleArgs, 0, pyObjInstance);
-            ////PyTuple_SetItem(tupleArgs, 1, args);
-            ////PyEnv_callback = PyLong_FromLong(1);
-            //PyObject* result = PyObject_CallObject(callbackMethod, args); // Call Methode, die die PythonMethode aufrufen sollte
-            //Py_XINCREF(result);
-            ////PyObject* result = PyObject_CallNoArgs(callbackMethod);
-            //Py_XDECREF(callbackMethod);
-            //Py_XDECREF(args);
-            //Py_XDECREF(tupleArgs);
-            //if (pyObjType != nullptr) // Pointer ist vorhanden
-            //{
-            //    std::cout << "From C++: " << "pyObjType: " << pyObjType << std::endl; 
-            //    Py_XDECREF(pyObjType);
-            //}
-            //else
-            //    std::cout << "From C++: " << "pyObjType == nullptr" << std::endl;
-            //if (PyEnv_callback != nullptr) // nullptr
-            //{
-            //    std::cout << "From C++: PyEnv_callback: " << PyLong_AsLong(PyEnv_callback) << std::endl;
-            //    //std::cout << "From C++: " << PyLong_AsLong(((CPyEnv*)PyEnv_callback)->ActionSpace) << std::endl;
-            //    Py_XDECREF(PyEnv_callback);
-            //}
-            //else
-            //    std::cout << "From C++: " << "PyEnv_callback == nullptr" << std::endl;
-            //if (result != nullptr) // nullptr
-            //{
-            //    std::cout << "From C++: " << PyLong_AsLong(result) << std::endl;
-            //    Py_DECREF(result);
-            //}
-            //else
-            //    std::cout << "From C++: " << "result == nullptr" << std::endl;
-            //PyGILState_Release(state);
-            
-        //    std::string output;
-        //    // TODO (Major): Create NeuralNetworkData out of the Output 
-        //    NeuralNetworkData* nnData = new NeuralNetworkData();
-        //    // Parse NeuralNetworkData with CrypticHelper  (Object to String)
-        //    std::string nnValues = CrypticHelper::EncryptValue(nnData);
-        //    // Send Parsed String to Unreal Application
-        //    SendDataWithPipeClient(nnValues.c_str());
-        //    // Wait for new Sensor-/Reward-Data
-        //}
-    //}    
+            // Send Output back to C++
+
+            // Create NeuralNetworkData out of the Output 
+            NeuralNetworkData* nnData = new NeuralNetworkData();
+            nnData->GetNeuralNetworkDataFromJSON(jsonPath, "2189712", "2");
+            std::cout << nnData->MovementX << std::endl;
+        
+            // Parse NeuralNetworkData with CrypticHelper  (Object to String)
+            std::string nnValues = CrypticHelper::EncryptValue(nnData);
+            // Send Parsed String to Unreal Application
+            SendDataWithPipeClient(nnValues.c_str());
+            // Wait for new Sensor-/Reward-Data
+    /*    }
+    }    */
     
     return 0;
 }

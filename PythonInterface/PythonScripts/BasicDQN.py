@@ -1,5 +1,6 @@
 import argparse
 import collections
+import json
 
 import numpy as np
 import torch
@@ -61,7 +62,7 @@ class Agent:
         self.Reset()
 
     def Reset(self):
-        # self.state = self.env.reset() uncomment if new env has Reset()
+        # self.state = self.env.reset() # uncomment if new env has Reset()
         self.total_reward = 0.0
 
     def PlayStep(self, net, epsilon = 0.0, device = "GPU"):
@@ -130,6 +131,7 @@ class Program:
         self.device = torch.device("cuda" if args.cuda else "cpu")
 
         # def SetEnv()?
+        # def StepEnv()?
 
         env = args.env # Replace with env from C++
         #net = DQN(env.observation_space.shape, env.action_space.n).to(device) # Add ObservationSpace and ActionSpace to Env
@@ -188,3 +190,57 @@ class Program:
             loss_t = self.agent.CalcLoss(batch, self.net, self.target_net, device = self.device)
             loss_t.backward()
             self.optimizer.step()
+
+class Environment:
+    def __init__(self, villagerID, actionSpace, observationSpace):
+        self.jsonCount = 0
+        self.villagerID = villagerID
+        self.actionSpace = actionSpace
+        self.observationSpace = observationSpace
+        pass
+
+    def step(self, action):
+        # do stuff
+
+        pyJson = PyToJSON()
+        data = NNData(60, 0, 20, 30, action) # Get Move and Rotation too
+        pyJson.convertToJSON(str(self.villagerID), str(self.jsonCount), data)
+        pass
+
+class RewardData:
+    pass
+
+class SensorData:
+    pass
+
+class StatData:
+    pass
+
+class NNData:
+    def __init__(self, moveX, moveY, rotX, rotY, action):
+        self.moveX = moveX
+        self.moveY = moveY
+        self.rotX = rotX
+        self.rotY = rotY
+        self.action = action
+
+class PyToJSON:
+    def convertToJSON(self, fileID: str, fileCount: str, nnData: NNData):
+        data = {
+            "moveX": str(nnData.moveX),
+            "moveY": str(nnData.moveY),
+            "rotX": str(nnData.rotX),
+            "rotY": str(nnData.rotY),
+            "action": str(nnData.action)
+        }
+
+        j = json.dumps(data)
+        fileName = fileID + "_" + fileCount + ".json"
+        file = open("JSONData/" + fileName, "w")
+        file.write(j)
+        file.close()
+
+#if (__name__ == "__main__"):
+#test = PyToJSON()
+#testData = NNData(60, 0, 20, 30, 1)
+#test.convertToJSON("2189712", "2", testData)

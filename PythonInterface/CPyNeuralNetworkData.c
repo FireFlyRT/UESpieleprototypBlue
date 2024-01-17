@@ -13,7 +13,7 @@ typedef struct
 	PyObject* Action;
 	PyObject* MovementX;
 	PyObject* MovementY;
-	PyObject* RotationX;
+	PyObject* RotationZ;
 	PyObject* RotationY;
 
 } CPyNNData;
@@ -83,7 +83,7 @@ static int PyNNData_setMovementY(CPyNNData* self, PyObject* value, void* closure
 
 static PyObject* PyNNData_getRotationX(CPyNNData* self, void* closure)
 {
-	return Py_NewRef(self->RotationX);
+	return Py_NewRef(self->RotationZ);
 }
 
 static int PyNNData_setRotationX(CPyNNData* self, PyObject* value, void* closure)
@@ -98,7 +98,7 @@ static int PyNNData_setRotationX(CPyNNData* self, PyObject* value, void* closure
 		PyErr_SetString(PyExc_TypeError, "The las attribute value must be a string");
 		return -1;
 	}
-	Py_SETREF(self->RotationX, Py_NewRef(value));
+	Py_SETREF(self->RotationZ, Py_NewRef(value));
 	return 0;
 }
 
@@ -133,7 +133,7 @@ static PyGetSetDef PyNNData_getsetters[] =
 	{"Action", (getter)PyNNData_getAction, (setter)PyNNData_setAction, "Action", NULL},
 	{"MovementX", (getter)PyNNData_getMovementX, (setter)PyNNData_setMovementX, "MovementX", NULL},
 	{"MovementY", (getter)PyNNData_getMovementY, (setter)PyNNData_setMovementY, "MovementY", NULL},
-	{"RotationX", (getter)PyNNData_getRotationX, (setter)PyNNData_setRotationX, "RotationX", NULL},
+	{"RotationZ", (getter)PyNNData_getRotationX, (setter)PyNNData_setRotationX, "RotationZ", NULL},
 	{"RotationY", (getter)PyNNData_getRotationY, (setter)PyNNData_setRotationY, "RotationY", NULL},
 	{NULL}
 };
@@ -143,7 +143,7 @@ static void PyNNData_dealloc(CPyNNData* self)
 	Py_XDECREF(self->Action);
 	Py_XDECREF(self->MovementX);
 	Py_XDECREF(self->MovementY);
-	Py_XDECREF(self->RotationX);
+	Py_XDECREF(self->RotationZ);
 	Py_XDECREF(self->RotationY);
 	Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -172,8 +172,8 @@ static PyObject* PyNNData_new(PyTypeObject* type, PyObject* args, PyObject* kwds
 			Py_DECREF(self);
 			return NULL;
 		}
-		self->RotationX = PyFloat_FromDouble(0.0);
-		if (self->RotationX == NULL)
+		self->RotationZ = PyFloat_FromDouble(0.0);
+		if (self->RotationZ == NULL)
 		{
 			Py_DECREF(self);
 			return NULL;
@@ -190,7 +190,7 @@ static PyObject* PyNNData_new(PyTypeObject* type, PyObject* args, PyObject* kwds
 
 static int PyNNData_init(CPyNNData* self, PyObject* args, PyObject* kwds)
 {
-	static char* kwlist[] = { (char*)"Action", (char*)"MovementX", (char*)"MovementY", (char*)"RotationX", (char*)"RotationY", NULL};
+	static char* kwlist[] = { (char*)"Action", (char*)"MovementX", (char*)"MovementY", (char*)"RotationZ", (char*)"RotationY", NULL};
 	PyObject* action = NULL;
 	PyObject* movementX = NULL;
 	PyObject* movementY = NULL;
@@ -207,7 +207,7 @@ static int PyNNData_init(CPyNNData* self, PyObject* args, PyObject* kwds)
 	if (movementY)
 		Py_XSETREF(self->MovementY, Py_NewRef(movementY));
 	if (rotationX)
-		Py_XSETREF(self->RotationX, Py_NewRef(rotationX));
+		Py_XSETREF(self->RotationZ, Py_NewRef(rotationX));
 	if (rotationY)
 		Py_XSETREF(self->RotationY, Py_NewRef(rotationY));
 

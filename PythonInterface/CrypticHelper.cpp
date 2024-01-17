@@ -70,10 +70,10 @@ std::string CrypticHelper::EncryptValue(NeuralNetworkData* data)
     values.append(SymbolNumberAdjustment(abs(data->MovementY), 3));
     values.append(",");
 
-    accidental = data->RotationX > 0 ? 1 : 0;
+    accidental = data->RotationZ > 0 ? 1 : 0;
     values.append(std::to_string(accidental));
     values.append(".");
-    values.append(SymbolNumberAdjustment(abs(data->RotationX), 3));
+    values.append(SymbolNumberAdjustment(abs(data->RotationZ), 3));
     values.append(",");
 
     accidental = data->RotationY > 0 ? 1 : 0;
