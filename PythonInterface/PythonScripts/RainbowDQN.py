@@ -100,6 +100,10 @@ class Agent:
         # self.state = self.env.reset() uncomment if new env has Reset()
         self.total_reward = 0.0
 
+    def OnSleep(self):
+        # Train here!
+        pass
+
     def TrainLocalNetwork(self, local_net, optimizer, loss):
         local_net.train()
         

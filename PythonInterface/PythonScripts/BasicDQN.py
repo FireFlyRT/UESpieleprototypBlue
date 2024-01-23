@@ -31,64 +31,61 @@ class DQN(nn.Module):
         super(DQN, self).__init__()
 
         self.conv = nn.Sequential(
-            nn.Conv2d(input_shape[0], 32, kernel_size = 8, stride = 4),
+            # 25 Inputs (13 Sensor / 12 Stat)
+            # Change to LinearLayer!
+            nn.Linear(input_shape[0], 25),
             nn.ReLU(),
-            nn.Conv2d(32, 64, kernel_size = 4, stride = 2),
+            nn.Linear(25, 50),
             nn.ReLU(),
-            nn.Conv2d(64, 64, kernel_size = 3, stride = 1),
-            nn.ReLU()
-            )
-
-        convOutSize = self.GetConvOut(input_shape)
-        self.fc = nn.Sequential(
-            nn.Linear(convOutSize, 512),
+            nn.Linear(50, 96),
+            nn.ReLU(),
+            nn.Linear(96, 512),
             nn.ReLU(),
             nn.Linear(512, n_actions)
-        )
-
-    def GetConvOut(self, shape):
-        tz = torch.zeros(1, *shape)
-        out = self.conv(tz)
-        return int(np.prod(out.size()))
+            )
     
     def forward(self, x):
-        convOut = self.conv(x).view(x.size()[0], -1)
-        return self.fc(convOut)
+        return self.conv(x)
     
 class Agent:
     def __init__(self, env, exp_buffer):
         self.env = env
         self.exp_buffer = exp_buffer
+        self.state = np.array([])
         self.Reset()
 
+    # Reset only for Debug purpuses!
     def Reset(self):
-        # self.state = self.env.reset() # uncomment if new env has Reset()
+        #self.state = self.env.reset()
         self.total_reward = 0.0
 
     def PlayStep(self, net, epsilon = 0.0, device = "GPU"):
-        done_reward = None
-
         if np.random.random() < epsilon:
-            action = self.env.action_space.sample()
+            action = self.env.actionSpace.sample()
+            # Random Move and Rotation
         else:
             state_a = np.array([self.state], copy = False)
             state_v = torch.tensor(state_a).to(device)
-            q_vals_v = net(state_v)
-            _, act_v = torch.max(q_vals_v, dim = 1)
+            q_vals_nnData_v = net(state_v) # Get more than one return
+            _, act_v = torch.max(q_vals_nnData_v.action, dim = 1)
             action = int(act_v.item())
 
-            new_state, reward, is_done, _ = self.env.step(action) # Step on Environment
-            self.total_reward += reward
-            new_state = new_state
+        self.env.step(action) # Step on Environment
+        # Result of the Step will be returned later by Unreal
+        
+    def ExperienceStep(self, action, new_state, reward, is_done):
+        done_reward = None
+        self.total_reward += reward
 
-            exp = Experience(self.state, action, reward, is_done, new_state)
-            self.exp_buffer.append(exp)
-            self.state = new_state
-            if is_done:
-                done_reward = self.total_reward
-                self.Reset()
+        exp = Experience(self.state, action, reward, is_done, new_state)
+        self.exp_buffer.append(exp)
+        self.state = new_state
+        if is_done:
+            done_reward = self.total_reward
+            # Reset only for Debug purpuses!
+            #self.Reset()
 
-            return done_reward
+        return done_reward
         
     def CalcLoss(batch, net, target_net, device = "GPU"):
         states, actions, rewards, dones, next_states = batch
@@ -122,99 +119,175 @@ class ExperienceBuffer:
         return np.array(states), np.array(actions), np.array(rewards, dtype = np.float32), np.array(dones, dtype = np.uint8), np.array(next_states)
 
 class Program:
-    def __init__(self):
+    def __init__(self, villagerID):
         parser = argparse.ArgumentParser()
         parser.add_argument("--cuda", default = False, action = "store_true", help = "Enable cuda")
         parser.add_argument("--env", default = DEFAULT_ENV_NAME, help = "Environment")
         parser.add_argument("--reward", type = float, default = MEAN_REWARD_BOUND, help = "Mean Reward")
-        args = parser.parse_args()
-        self.device = torch.device("cuda" if args.cuda else "cpu")
+        self.args = parser.parse_args()
+        self.device = torch.device("cuda" if self.args.cuda else "cpu")
+        self.epsilon = 0
+        actionSpace = ActionSpace()
+        observationSpace = np.array([])
+        self.env = Environment(villagerID, actionSpace, observationSpace)
 
-        # def SetEnv()?
-        # def StepEnv()?
-
-        env = args.env # Replace with env from C++
-        #net = DQN(env.observation_space.shape, env.action_space.n).to(device) # Add ObservationSpace and ActionSpace to Env
-        self.net = DQN([1, 128, 128], 8).to(self.device)
-        #target_net = DQN(env.observation_space.shape, env.action_space.n).to(device)
-        self.target_net = DQN([1, 128, 128], 8).to(self.device)
-
-        self.writer  = SummaryWriter(comment = "-" + args.env)
-        print(self.net)
-
+        self.writer  = SummaryWriter(comment = "-" + self.args.env)
         buffer = ExperienceBuffer(REPLAY_SIZE)
-        self.agent = Agent(env, buffer)
+        self.agent = Agent(self.env, buffer)
         self.epsilon = EPSILON_START
-        self.optimizer = optim.Adam(self.net.parameters(), lr = LEARNING_RATE)
         self.total_rewards = []
         self.frame_idx = 0
         self.ts_frame = 0
         self.ts = time.time()
         self.best_mean_reward = None
+        self.net = None
+        self.target_net = None
+        self.optimizer = None
 
-    def Start(self):
-        while True:
-            self.frame_idx += 1
-            epsilon = max(EPSILON_FINAL, EPSILON_START - self.frame_idx / EPSILON_DECAY_LAST_FRAME)
-            reward = self.agent.PlayStep(self.net, epsilon, device = self.device)
+    def LateInit(self):
+        self.net = DQN(self.env.observationSpace.shape, self.env.actionSpace.actions.__len__()).to(self.device)
+        self.target_net = DQN(self.env.observationSpace.shape, self.env.actionSpace.actions.__len__()).to(self.device)
+        self.optimizer = optim.Adam(self.net.parameters(), lr = LEARNING_RATE)
+        # DEBUG
+        #self.net = DQN([1, 128, 128], 8).to(self.device)
+        #self.target_net = DQN([1, 128, 128], 8).to(self.device)
 
-            if reward is not None:
-                self.total_rewards.append(reward)
-                speed = (self.frame_idx - ts_frame) / (time.time() - ts)
-                ts_frame = self.frame_idx
-                ts = time.time()
-                mean_reward = np.mean(self.total_rewards[-100:])
+    def Step(self):
+        self.frame_idx += 1
+        epsilon = max(EPSILON_FINAL, EPSILON_START - self.frame_idx / EPSILON_DECAY_LAST_FRAME)
+        self.agent.PlayStep(self.net, epsilon, device = self.device)
+        self.epsilon = epsilon
 
-                self.writer.add_scalar("epsilon", epsilon, self.frame_idx)
-                self.writer.add_scalar("speed", speed, self.frame_idx)
-                self.writer.add_scalar("reward_100", mean_reward, self.frame_idx)
-                self.writer.add_scalar("reward", reward, self.frame_idx)
+    def OnGetReward(self, reward):
+        if reward is not None:
+            self.total_rewards.append(reward)
+            if time.time() - self.ts > 0:
+                speed = (self.frame_idx - self.ts_frame) / (time.time() - self.ts)
+            else:
+                speed = (self.frame_idx - self.ts_frame)
+            self.ts_frame = self.frame_idx
+            self.ts = time.time()
+            mean_reward = np.mean(self.total_rewards[-100:])
 
-                if self.best_mean_reward is None or self.best_mean_reward < mean_reward:
-                    torch.save(self.net.state_dict(), self.args.env + "-best.dat")
-                    if self.best_mean_reward is not None:
-                        print("Best mean Reward updatet")
-                    
-                    if mean_reward > self.args.reward:
-                        print("Solved in " + self.frame_idx + " frames")
-                        break
+            self.writer.add_scalar("epsilon", self.epsilon, self.frame_idx)
+            self.writer.add_scalar("speed", speed, self.frame_idx)
+            self.writer.add_scalar("reward_100", mean_reward, self.frame_idx)
+            self.writer.add_scalar("reward", reward, self.frame_idx)
 
-                if len(self.buffer) < REPLAY_START_SIZE:
-                    continue
+            if self.best_mean_reward is None or self.best_mean_reward < mean_reward:
+                torch.save(self.net.state_dict(), self.args.env + "-best.dat")
+                if self.best_mean_reward is not None:
+                    print("Best mean Reward updatet")
+                
+                if mean_reward > self.args.reward:
+                    print("Solved in " + str(self.frame_idx) + " frames")
+                    return
 
-            if self.frame_idx % SYNC_TARGET_FRAMES == 0:
-                self.target_net.load_state_dict(self.net.state_dict())
+            if len(self.buffer) < REPLAY_START_SIZE:
+                return
 
-            self.optimizer.zero_grad()
-            batch = self.buffer.sample(BATCH_SIZE)
-            loss_t = self.agent.CalcLoss(batch, self.net, self.target_net, device = self.device)
-            loss_t.backward()
-            self.optimizer.step()
+        if self.frame_idx % SYNC_TARGET_FRAMES == 0:
+            self.target_net.load_state_dict(self.net.state_dict())
+
+        # later?
+        self.optimizer.zero_grad()
+        batch = self.buffer.sample(BATCH_SIZE)
+        loss_t = self.agent.CalcLoss(batch, self.net, self.target_net, device = self.device)
+        loss_t.backward()
+        self.optimizer.step()
 
 class Environment:
     def __init__(self, villagerID, actionSpace, observationSpace):
         self.jsonCount = 0
-        self.villagerID = villagerID
-        self.actionSpace = actionSpace
+        self.villagerID = villagerID # is int
+        self.actionSpace = actionSpace # is ActionSpace
+        self.observationSpace = observationSpace # is Array with Sensor-/StatData == state
+
+    def SetObservationSpace(self, observationSpace):
         self.observationSpace = observationSpace
+
+    def SetObservationSpace(self, sensorData, statData):
+        data = np.array([])
+
+        for s in range(0, sensorData.__len__()):
+            data.__add__(sensorData[s])
+
+        for s in range(0, statData.__len__()):
+            data.__add__(statData[s])
+
+        self.observationSpace = data
+        return data
+
+    def reset():
+        # return state
         pass
 
     def step(self, action):
         # do stuff
 
+        # Get Data From NN
+
+        # Save Data in JSON file
         pyJson = PyToJSON()
         data = NNData(60, 0, 20, 30, action) # Get Move and Rotation too
         pyJson.convertToJSON(str(self.villagerID), str(self.jsonCount), data)
-        pass
+        #self.jsonCount += 1
+
+class ActionSpace:
+    def __init__(self):
+        self.actions = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+    def __len__(self):
+        return self.actions.__len__()
+    
+    def sample(self):
+        return self.actions[np.random.randint(0, self.actions.__len__())-1]
 
 class RewardData:
-    pass
+    def __init__(self, reward):
+        self.reward = reward
+        # isdone
 
 class SensorData:
-    pass
+    def __init__(self, classCategory, tribeId, livePoints, stamina, strength, age,
+                 height, hunger, thurst, positionX, positionY, positionZ, distance):
+        self.classCategory = classCategory
+        self.tribeId = tribeId
+        self.livePoints = livePoints
+        self.stamina = stamina
+        self.strength = strength
+        self.age = age
+        self.height = height
+        self.hunger = hunger
+        self.thurst = thurst
+        self.positionX = positionX
+        self.positionY = positionY
+        self.positionZ = positionZ
+        self.distance = distance
+
+    def GetData(self):
+        data = [self.classCategory, self.tribeId, self.tribeId, self.livePoints, self.stamina, self.strength, self.age, self.height, self.hunger, self.thurst, self.positionX, self.positionY, self.positionZ, self.distance]
+        return data
 
 class StatData:
-    pass
+    def __init__(self, classCategory, tribeId, livePoints, stamina, strength, age,
+                 height, hunger, thurst, positionX, positionY, positionZ):
+        self. classCategory = classCategory
+        self.tribeId = tribeId
+        self.livePoints = livePoints
+        self.stamina = stamina
+        self.strength = strength
+        self.age = age
+        self.height = height
+        self.hunger = hunger
+        self.thurst = thurst
+        self.positionX = positionX
+        self.positionY = positionY
+        self.positionZ = positionZ
+
+    def GetData(self):
+        data = [self.classCategory, self.tribeId, self.tribeId, self.livePoints, self.stamina, self.strength, self.age, self.height, self.hunger, self.thurst, self.positionX, self.positionY, self.positionZ]
+        return data
 
 class NNData:
     def __init__(self, moveX, moveY, rotX, rotY, action):
@@ -240,7 +313,6 @@ class PyToJSON:
         file.write(j)
         file.close()
 
+# DEBUG
 #if (__name__ == "__main__"):
-#test = PyToJSON()
-#testData = NNData(60, 0, 20, 30, 1)
-#test.convertToJSON("2189712", "2", testData)
+#prog = Program()

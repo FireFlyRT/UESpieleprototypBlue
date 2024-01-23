@@ -26,21 +26,21 @@ bool CrypticHelper::DecryptValue(std::string value, SensorData* sensorData, Stat
     if (accidentalZ == 0) sensorData->PositionZ *= -1;
 
     // StatData
-    statData->ClassCategory = std::stoi(value.substr(71, 72));
-    statData->TribeID = std::stoi(value.substr(74, 76));
-    statData->LivePoints = std::stoi(value.substr(78, 80));
-    statData->Stamina = std::stoi(value.substr(82, 84));
-    statData->Strength = std::stoi(value.substr(86, 88));
-    statData->Age = std::stoi(value.substr(90, 92));
-    statData->Height = std::stoi(value.substr(94, 96));
-    statData->Hunger = std::stoi(value.substr(98, 100));
-    statData->Thurst = std::stoi(value.substr(102, 104));
-    accidentalX = std::stoi(value.substr(106, 106));
-    statData->PositionX = std::stoi(value.substr(108, 114));
-    accidentalY = std::stoi(value.substr(116, 116));
-    statData->PositionY = std::stoi(value.substr(118, 124));
-    accidentalZ = std::stoi(value.substr(126, 126));
-    statData->PositionZ = std::stoi(value.substr(128, 134));
+    statData->ClassCategory = std::stoi(value.substr(72, 73));
+    statData->TribeID = std::stoi(value.substr(75, 77));
+    statData->LivePoints = std::stoi(value.substr(79, 81));
+    statData->Stamina = std::stoi(value.substr(83, 84));
+    statData->Strength = std::stoi(value.substr(87, 89));
+    statData->Age = std::stoi(value.substr(91, 93));
+    statData->Height = std::stoi(value.substr(95, 97));
+    statData->Hunger = std::stoi(value.substr(99, 101));
+    statData->Thurst = std::stoi(value.substr(103, 105));
+    accidentalX = std::stoi(value.substr(107, 107));
+    statData->PositionX = std::stoi(value.substr(109, 115));
+    accidentalY = std::stoi(value.substr(117, 117));
+    statData->PositionY = std::stoi(value.substr(119, 125));
+    accidentalZ = std::stoi(value.substr(127, 127));
+    statData->PositionZ = std::stoi(value.substr(129, 135));
     // sensorData->Inventory = value.substr(0, 1);
 
     if (accidentalX == 0) statData->PositionX *= -1;
@@ -48,8 +48,8 @@ bool CrypticHelper::DecryptValue(std::string value, SensorData* sensorData, Stat
     if (accidentalZ == 0) statData->PositionZ *= -1;
 
     // RewardData
-    int accidentalReward = std::stoi(value.substr(136, 136));
-    rewardData->Reward = std::stoi(value.substr(138, 141));
+    int accidentalReward = std::stoi(value.substr(137, 137));
+    rewardData->Reward = std::stoi(value.substr(139, 142));
     if (accidentalReward == 0) rewardData->Reward *= -1;
 
     return true;
@@ -61,7 +61,7 @@ std::string CrypticHelper::EncryptValue(NeuralNetworkData* data)
     int accidental = data->MovementX > 0 ? 1 : 0;
     values.append(std::to_string(accidental));
     values.append(".");
-    values.append(std::to_string(abs(data->MovementX)));
+    values.append(SymbolNumberAdjustment(abs(data->MovementX), 3));
     values.append(",");
 
     accidental = data->MovementY > 0 ? 1 : 0;

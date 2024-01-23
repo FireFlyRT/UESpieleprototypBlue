@@ -35,5 +35,5 @@ void NeuralNetworkData::GetNeuralNetworkDataFromJSON(std::string jsonPath, std::
 	MovementX = std::stof(data[1]);	   
 	MovementY = std::stof(data[2]);	   
 	RotationZ = std::stof(data[3]);	   
-	RotationY = std::stof(data[4]);	   
+	RotationY = std::stof(data[4]);
 }

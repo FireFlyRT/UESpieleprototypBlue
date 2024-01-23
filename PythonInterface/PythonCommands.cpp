@@ -1,6 +1,4 @@
 #include "PythonCommands.h"
-#include <string>
-#include "CPyEnvironment.c"
 
 PyObject* PythonCommands::ImportModule(const char* moduleName)
 {
@@ -28,5 +26,23 @@ void PythonCommands::SetVar(const char* varName, const char* value)
     std::string command = varName;
     command.append(" = ");
     command.append(value);
+    PyRun_SimpleString(command.c_str());
+}
+
+void PythonCommands::CreateClass(std::string className, std::string varName, std::string** values, int count)
+{
+    std::string command = varName;
+    command.append(" = ");
+    command.append(className);
+    command.append("(");
+
+    for (int i = 0; i < count; i++)
+    {
+        command.append(values[i]->data());
+        if (i != count - 1)
+            command.append(", ");
+    }
+
+    command.append(")");
     PyRun_SimpleString(command.c_str());
 }
