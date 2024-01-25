@@ -16,8 +16,8 @@ public:
 	PythonInterface();
 	~PythonInterface();
 
-	void CreatePipeServer(FString* pipeName, NeuralNetworkData* nnData, SensorData* sensorData);
-	bool RunPipeServer();
+	FString* CreatePipeServer(FString* pipeName, NeuralNetworkData* nnData, SensorData* sensorData);
+	bool RunPipeServer(FString* villagerPipeName);
 	BOOL StopPipeServer();
 
 private:
@@ -25,4 +25,5 @@ private:
 	TCHAR* _buffer;
 	NeuralNetworkData* _nnData;
 	SensorData* _sensorData;
+	FString* _villagerPipeName;
 };

@@ -25,10 +25,15 @@ public:
 		for (;;)
 		{
 			//_pyInterface->CreatePipeServer();
-			bool invalid = _pyInterface->RunPipeServer();
-			if (invalid)
+			if (_pyInterface != nullptr)
 			{
-				break;
+				//bool invalid = _pyInterface->RunPipeServer();
+				//if (invalid)
+				//	break;
+			}
+			else
+			{
+				_pyInterface = new PythonInterface();
 			}
 		}
 		

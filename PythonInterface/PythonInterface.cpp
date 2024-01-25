@@ -15,11 +15,14 @@
 #include "PyEnvironment.h"
 #include "filesystem"
 
-HANDLE _pipeHandle;
+static HANDLE _pipeHandle = INVALID_HANDLE_VALUE;
 
 bool ClosePipeClient()
 {
-    return CloseHandle(_pipeHandle);
+    CloseHandle(_pipeHandle);
+    _pipeHandle = nullptr;
+    delete(_pipeHandle);
+    return true;
 }
 
 bool SendDataWithPipeClient(const char* data)
@@ -28,12 +31,14 @@ bool SendDataWithPipeClient(const char* data)
 
     if (_pipeHandle != INVALID_HANDLE_VALUE)
     {
-        while (WriteFile(_pipeHandle, data, sizeof(data), &written, NULL) != FALSE);
-
-        std::cout << "Data sended " << written << std::endl;
-        return true;
+        if (WriteFile(_pipeHandle, data, sizeof(data), &written, NULL))
+        {
+            std::cout << "Data sended " << written << std::endl;
+            return true;
+        }
     }
 
+    std::cout << "Data send failed " << data << std::endl;
     return false;
 }
 
@@ -49,6 +54,7 @@ std::string ReceiveDataFromPipeServer()
 
     if (_pipeHandle != INVALID_HANDLE_VALUE)
     {
+        std::cout << "Reading... " << std::endl;
         while(ReadFile(_pipeHandle, buffer, sizeof(buffer), &read, NULL) != FALSE);
         std::cout << "Data readed " << read << std::endl;
         std::ostringstream stream;
@@ -59,6 +65,7 @@ std::string ReceiveDataFromPipeServer()
     // DEBUG
     else 
     {
+        std::cout << "Fallback Input!!!" << std::endl;
         std::string b = "00,000,100,050,030,024,189,043,042,1.0000000;0.3821341;1.0421621,010205,00,000,100,050,030,024,189,043,042,1.0000000;0.3821341;1.0421621,1.2458";
         return b;
     }
@@ -89,6 +96,11 @@ int RunPythonFile(char* argv[], bool useBasicFile = false)
         PyRun_SimpleFile(nnFile, "BasicDQN.py");
         fclose(nnFile);
     }
+    else if (/*!useBasicFile && */nnFile != nullptr)
+    {
+        PyRun_SimpleFile(nnFile, "RainbowDQN.py");
+        fclose(nnFile);
+    }
 
     return 0;
 }
@@ -114,7 +126,7 @@ int main(int argc, char* argv[])
     //  - Save Objects for later use (Learning)
     //  - Create Data in Python
     //  - Insert Data in Neural Network
-    //  - Send Output back to C++  (HOW?!?!?!?)
+    //  - Send Output back to C++  (JSON)
     //  - Create NeuralNetworkData out of the Output 
     //  - Parse NeuralNetworkData with CrypticHelper  (Object to String)
     //  - Send Parsed String to Unreal Application
@@ -161,45 +173,54 @@ int main(int argc, char* argv[])
 
 
     // Connect to MainPipe
-    //bool isConnected = false;
+    bool isConnected = false;
+    int connectionCount = 0;
     int jsonCount = 0;
-    //while (!isConnected)
-    //{
-    //    _pipeHandle = CreateFile(
-    //        TEXT("\\\\.\\pipe\\MainPipe"),
-    //        GENERIC_READ | GENERIC_WRITE,
-    //        0,
-    //        NULL,
-    //        OPEN_EXISTING,
-    //        0,
-    //        NULL);
-    //
-    //    if (_pipeHandle == INVALID_HANDLE_VALUE)
-    //    {
-    //        std::cout << "MainPipe Invalid!!!" << std::endl;
-    //        ClosePipeClient();
-    //        continue;
-    //    }
-    //
-    //    if (ConnectNamedPipe(_pipeHandle, NULL) != FALSE)
-    //    {
-    //        SendDataWithPipeClient("Empty"); 
-    //        // Maybe with random unic uint ID
-    //        // Or Connect to One VillagerPipe befor the next one
-    //        //  - Save IDs in Queue/List
-    //        //  - create InterfaceProgram and conntect to VPipe befor creating next one
-    //    }
-    //
-    //    std::cout << "Connected to MainPipe" << std::endl;
+    std::string villagerID;
+    while (!isConnected)
+    {
+        _pipeHandle = CreateFile(
+            TEXT("\\\\.\\pipe\\MainPipe"),
+            GENERIC_READ | GENERIC_WRITE,
+            0,
+            NULL,
+            OPEN_EXISTING,
+            0,
+            NULL);
+    
+        if (_pipeHandle == INVALID_HANDLE_VALUE)
+        {
+            std::cout << "MainPipe Invalid!!!" << std::endl;
+            ClosePipeClient();
+            connectionCount++;
+            if (connectionCount > 100)
+                break;
+            continue;
+        }
+        std::cout << "Connected to MainPipe" << std::endl;
+    
+        //while (ConnectNamedPipe(_pipeHandle, NULL) == FALSE);
+        for (int i = 0; i < 100000; i++)
+            SendDataWithPipeClient("Empty");
+        // Maybe with random unic uint ID
+        // Or Connect to One VillagerPipe befor the next one
+        //  - Save IDs in Queue/List
+        //  - create InterfaceProgram and conntect to VPipe befor creating next one
+
     
         //Wait for new ID
-        //std::string villagerID = ReceiveDataFromPipeServer();
-        std::string villagerID = "2189712";
+        villagerID = ReceiveDataFromPipeServer();
+        //if (villagerID == std::string())
+        //std::string pyVillagerID = "'";
+        //pyVillagerID.append("Villager");
+        //pyVillagerID.append(villagerID);
+        //pyVillagerID.append("'");
+        std::string pyVillagerID = "'Villager001'"; // Fallback
         std::string newHandle = "\\\\.\\pipe\\";
         newHandle.append(villagerID);
         std::string** progValues = new std::string*[1]
         {
-            new std::string(villagerID),
+            new std::string(pyVillagerID),
         };
         PythonCommands::CreateClass("Program", program, progValues, 1);
     
@@ -216,31 +237,31 @@ int main(int argc, char* argv[])
             0,
             NULL);
     
-        //if (_pipeHandle == INVALID_HANDLE_VALUE)
-        //{
-        //    std::cout << "VillagerPipe Invalid!!!" << std::endl;
-        //    ClosePipeClient();
-        //    //continue;
-        //}
-        //else
-        //{
-        //    //isConnected = true;
-        //}
-    //}
+        if (_pipeHandle == INVALID_HANDLE_VALUE)
+        {
+            std::cout << "VillagerPipe Invalid!!!" << std::endl;
+            ClosePipeClient();
+            continue;
+        }
+        else
+        {
+            isConnected = true;
+        }
+    }
     
     int connectionAttemps = 0;
-    //while (true)
-    //{
-        //if (ConnectNamedPipe(_pipeHandle, NULL) == FALSE)
-        //{
-        //    connectionAttemps++;
-        //    if (connectionAttemps > 100)
-        //    {
-        //        std::cout << "VillagerPipe Closed!" << std::endl;
-        //        break;
-        //    }
-        //    continue;
-        //}
+    while (true)
+    {
+        if (ConnectNamedPipe(_pipeHandle, NULL) == FALSE)
+        {
+            connectionAttemps++;
+            if (connectionAttemps > 100)
+            {
+                std::cout << "VillagerPipe Closed!" << std::endl;
+                break;
+            }
+            continue;
+        }
 
         // Wait for Sensor-/Reward-Data
         std::string sArData = ReceiveDataFromPipeServer();
@@ -253,7 +274,7 @@ int main(int argc, char* argv[])
         if (CrypticHelper::DecryptValue(sArData, sensorData, statData, rewardData))
         {
             std::string command = std::string();
-            // Save Objects for later use (Learning) TODO
+            // Save Objects for later use (Learning) TODO (No Prio)
             // ExperienceBuffer!
 
             // Create Data in Python
@@ -340,7 +361,7 @@ int main(int argc, char* argv[])
             SendDataWithPipeClient(nnValues.c_str());
             // Wait for new Sensor-/Reward-Data
         }
-    //}    
+    }    
     
     return 0;
 }

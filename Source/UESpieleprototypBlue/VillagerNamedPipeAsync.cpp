@@ -22,8 +22,8 @@ bool VillagerNamedPipeAsync::Init()
 uint32 VillagerNamedPipeAsync::Run()
 {
 	PythonInterface* pyInterface = new PythonInterface();
-	pyInterface->CreatePipeServer(_pipeName, _nnData, _sensorData);
-	pyInterface->RunPipeServer();
+	FString* pipeName = pyInterface->CreatePipeServer(_pipeName, _nnData, _sensorData);
+	pyInterface->RunPipeServer(pipeName);
 
 	return 1;
 }

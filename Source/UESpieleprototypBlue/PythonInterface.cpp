@@ -15,7 +15,7 @@ PythonInterface::~PythonInterface()
 }
 
 // TODO (MAJOR): Pipe needs to be closed when Application closes
-void PythonInterface::CreatePipeServer(FString* pipeName, NeuralNetworkData* nnData, SensorData* sensorData)
+FString* PythonInterface::CreatePipeServer(FString* pipeName, NeuralNetworkData* nnData, SensorData* sensorData)
 {
 	_nnData = nnData;
 	_sensorData = sensorData;
@@ -24,30 +24,32 @@ void PythonInterface::CreatePipeServer(FString* pipeName, NeuralNetworkData* nnD
 	char name[256] = { 0 };
 	//TCHAR* name = namePrefix + *pipeName->GetCharArray().GetData();
 	snprintf(name, sizeof(namePrefix) + pipeName->GetAllocatedSize(), "\\\\.\\pipe\\%ls", **pipeName);
-	FString villagerPipeName = FString(name);
+	_villagerPipeName = new FString(name);
+	FString vPipeName = FString(*_villagerPipeName);
 
 	_pipeHandle = new HANDLE(CreateNamedPipe(
-		(LPCWSTR)*villagerPipeName,
+		(LPCWSTR)*vPipeName,
 		PIPE_ACCESS_DUPLEX,
-		PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT, // | FILE_FLAG_FIRST_PIPE_INSTANCE is not needed but forces CreateNamedPipe(..) to fail if the pipe already exists
+		PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT,
 		PIPE_UNLIMITED_INSTANCES,
 		BUFFER_SIZE,
 		BUFFER_SIZE,
 		NMPWAIT_USE_DEFAULT_WAIT,
 		NULL));
-	UE_LOG(LogTemp, Warning, TEXT("Villager Server Created! Name: %ls"), *villagerPipeName);
+	UE_LOG(LogTemp, Warning, TEXT("Villager Server Created! Name: %ls"), *vPipeName);
 
 	if (_pipeHandle == INVALID_HANDLE_VALUE)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Pipe invalid after Creation"));
 	}
 
+	return _villagerPipeName;
 }
 
 /// <summary>
 /// Starts the named Pipe Server
 /// </summary>
-bool PythonInterface::RunPipeServer()
+bool PythonInterface::RunPipeServer(FString* villagerPipeName)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Pipe Interface running"));
 
@@ -67,23 +69,43 @@ bool PythonInterface::RunPipeServer()
 
 	DWORD read;
 	DWORD written;
+	FString vPipeName = FString(*villagerPipeName);
 
-	while (1)
+	while (true)
 	{
+		UE_LOG(LogTemp, Error, TEXT("while true"));
 		if (*_pipeHandle == INVALID_HANDLE_VALUE)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Pipe invalid before Connecting"));
+			_pipeHandle = new HANDLE(CreateNamedPipe(
+				(LPCWSTR)*vPipeName,
+				PIPE_ACCESS_DUPLEX,
+				PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT,
+				PIPE_UNLIMITED_INSTANCES,
+				BUFFER_SIZE,
+				BUFFER_SIZE,
+				NMPWAIT_USE_DEFAULT_WAIT,
+				NULL));
+			UE_LOG(LogTemp, Warning, TEXT("Pipe recreated! Name: %ls"), *vPipeName);
+		}
+		UE_LOG(LogTemp, Error, TEXT("pipe handle recreation Name: %ls"), *vPipeName);
+
+		if (*_pipeHandle == INVALID_HANDLE_VALUE)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Pipe invalid before Connecting! Name: %ls"), *vPipeName);
 			return true;
 		}
+		UE_LOG(LogTemp, Error, TEXT("pipe handle check Name: %ls"), *vPipeName);
 
-		//if (ConnectNamedPipe(*_pipeHandle, NULL) == FALSE) // if noone connects to the pipe, stop and try again
-		//{
-		//	UE_LOG(LogTemp, Warning, TEXT("Client disconnected!"));
-		//	StopPipeServer();
-		//	return false;
-		//}
-
-		UE_LOG(LogTemp, Warning, TEXT("Connection esteblished with client"));
+		if (ConnectNamedPipe(*_pipeHandle, NULL) == FALSE) // if noone connects to the pipe, stop and try again
+		{
+			UE_LOG(LogTemp, Error, TEXT("Client disconnected!"));
+			StopPipeServer();
+			continue;
+		}
+		else
+			UE_LOG(LogTemp, Warning, TEXT("Connection esteblished with client"));
+		UE_LOG(LogTemp, Error, TEXT("connection check"));
+		
 		// Write data to namedPipe
 		// SensorData, StatData, RewardData
 		while (true)
@@ -91,10 +113,10 @@ bool PythonInterface::RunPipeServer()
 			std::string data1 = CrypticHelper::EncryptValue(/*_sensorData*/);
 			const char* data = "00,000,100,050,030,024,189,043,042,1.0000000;0.3821341;1.0421621,010205,00,000,100,050,030,024,189,043,042,1.0000000;0.3821341;1.0421621,1.2458"; // TEMP TEST
 			bool success = WriteFile(*_pipeHandle, data, sizeof(data), &written, NULL);
-			//UE_LOG(LogTemp, Warning, TEXT("Writing Data..."));
+			UE_LOG(LogTemp, Warning, TEXT("Writing Data...!!! -> %s"), written);
 			if (!success)
 			{
-				//UE_LOG(LogTemp, Error, TEXT("Writing Data failed"));
+				UE_LOG(LogTemp, Error, TEXT("Writing Data failed"));
 				break;
 			}
 		}
@@ -111,7 +133,7 @@ bool PythonInterface::RunPipeServer()
 				break;
 			}
 		}
-		//UE_LOG(LogTemp, Warning, TEXT("DATA WAS READED!!! -> %s"), read);
+		UE_LOG(LogTemp, Warning, TEXT("DATA WAS READED!!! -> %s"), read);
 
 		//UE_LOG(LogTemp, Warning, TEXT("Last Error: %s"), GetLastError());
 		
@@ -124,8 +146,10 @@ bool PythonInterface::RunPipeServer()
 
 		// TEST BREAK
 		// TODO (Major): Loop verhindert beenden des Programms!!!
+		UE_LOG(LogTemp, Error, TEXT("break"));
 		break;
 	}
+	UE_LOG(LogTemp, Error, TEXT("return"));
 	
 	return true;
 }

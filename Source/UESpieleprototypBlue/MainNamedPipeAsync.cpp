@@ -21,29 +21,31 @@ bool MainNamedPipeAsync::Init()
 }
 uint32 MainNamedPipeAsync::Run()
 {
-	_pipeHandle = CreateNamedPipe(
-		(LPCWSTR)*_mainPipeName,
-		PIPE_ACCESS_DUPLEX,
-		PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT | FILE_FLAG_FIRST_PIPE_INSTANCE, // is not needed but forces CreateNamedPipe(..) to fail if the pipe already exists
-		PIPE_UNLIMITED_INSTANCES,
-		BUFFER_SIZE,
-		BUFFER_SIZE,
-		NMPWAIT_USE_DEFAULT_WAIT,
-		NULL);
-
+	int connectionCount = 0;
 	for (;;)
 	{
+		_pipeHandle = CreateNamedPipe(
+			(LPCWSTR)*_mainPipeName,
+			PIPE_ACCESS_DUPLEX,
+			PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT, // | FILE_FLAG_FIRST_PIPE_INSTANCE, // is not needed but forces CreateNamedPipe(..) to fail if the pipe already exists
+			PIPE_UNLIMITED_INSTANCES,
+			BUFFER_SIZE,
+			BUFFER_SIZE,
+			NMPWAIT_USE_DEFAULT_WAIT,
+			NULL);
+
+
 		if (_pipeHandle == INVALID_HANDLE_VALUE)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("MainPipe creation failed!!!"));
-			return -1;
-		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("MainPipe-Server Created! Name: %s"), *_mainPipeName);
+			UE_LOG(LogTemp, Warning, TEXT("MainPipe creation failed!!! Name: %s"), *_mainPipeName);
+			connectionCount++;
+			if (connectionCount > 100)
+				return -1;
+			continue;
 		}
 
-		if (ConnectNamedPipe(_pipeHandle, NULL) != FALSE)
+		while (ConnectNamedPipe(_pipeHandle, NULL) == FALSE);
+		if (_pipeHandle != INVALID_HANDLE_VALUE)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Connection esteblished with a client"));
 
@@ -58,28 +60,34 @@ uint32 MainNamedPipeAsync::Run()
 
 			// Get VillagerID from VillagerPipe
 			wchar_t* villagerID = new wchar_t;
+			bool isEmptySended = false;
+			DWORD read = DWORD();
+			UE_LOG(LogTemp, Warning, TEXT("Before while"));
 			while (1)
 			{
-				DWORD read;
-
 				bool success = ReadFile(_pipeHandle, _buffer, BUFFER_SIZE * sizeof(TCHAR), &read, NULL);
-				UE_LOG(LogTemp, Warning, TEXT("Reading Data..."));
-				if (!success)
+				UE_LOG(LogTemp, Warning, TEXT("Reading Data... -> %s, %b"), read, success);
+				if (!success && read == DWORD())
 				{
 					UE_LOG(LogTemp, Error, TEXT("Reading Data failed"));
-					break;
+					continue;
 				}
-				villagerID = (wchar_t*)read;
+				const size_t size = strlen("Empty") + 1;
+				wchar_t* message = new wchar_t[size];
+				if (read == mbstowcs(message, "Empty", size))
+					isEmptySended = true;
+				else
+					villagerID = (wchar_t*)read;
+				break;
 			}
-			UE_LOG(LogTemp, Warning, TEXT("DATA WAS READED!!! -> %s"), _buffer);
+			UE_LOG(LogTemp, Warning, TEXT("DATA WAS READED!!! -> %s"), read);
 
-			// Wait for Empty Call
-			bool isEmptySended = false;
 			while (!isEmptySended)
 			{
-				DWORD read;
+				read = DWORD();
 
-				bool success = ReadFile(_pipeHandle, _buffer, BUFFER_SIZE * sizeof(TCHAR), &read, NULL);
+				while (ReadFile(_pipeHandle, _buffer, BUFFER_SIZE * sizeof(TCHAR), &read, NULL) == FALSE);
+				bool success = true;
 				UE_LOG(LogTemp, Warning, TEXT("Reading Data..."));
 				if (!success)
 				{
@@ -96,11 +104,15 @@ uint32 MainNamedPipeAsync::Run()
 					}
 				}
 			}
-			UE_LOG(LogTemp, Warning, TEXT("DATA WAS READED!!! -> %s"), _buffer);
+			UE_LOG(LogTemp, Warning, TEXT("DATA WAS READED!!! -> %s"), read);
 
 			// Send VillagerID to extern PyInterface
-			DWORD written;
-			WriteFile(_pipeHandle, villagerID, sizeof(villagerID), &written, NULL);
+			if (isEmptySended)
+			{
+				DWORD written;
+				WriteFile(_pipeHandle, villagerID, sizeof(villagerID), &written, NULL);
+				isEmptySended = false;
+			}
 		}
 		else
 		{

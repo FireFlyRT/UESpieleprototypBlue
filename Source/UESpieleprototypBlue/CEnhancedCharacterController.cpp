@@ -3,6 +3,8 @@
 
 #include "CEnhancedCharacterController.h"
 
+static FRunnableThread* vThread;
+
 UCEnhancedCharacterController::UCEnhancedCharacterController()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
@@ -23,10 +25,8 @@ void UCEnhancedCharacterController::SetVillagerId(FString* villagerId)
 	const TCHAR* threadName = **pipeName;
 
 	VillagerNamedPipeAsync* runnable = new VillagerNamedPipeAsync(pipeName, &NnData, &SensData);
-	if (runnable != nullptr && threadName != NULL)
-	{
-		_thread = FRunnableThread::Create(runnable, threadName);
-	}
+	if (runnable != nullptr && threadName != nullptr)
+		vThread = FRunnableThread::Create(runnable, threadName);
 }
 
 // Called every frame
@@ -85,17 +85,13 @@ void UCEnhancedCharacterController::TickComponent(float DeltaTime, ELevelTick Ti
 		UCSensorController* sensorController = Villager->GetComponentByClass<UCSensorController>();
 		SensData = *sensorController->GetSensorData();
 		if (&SensData != NULL)
-		{
 			SensData.IsUpdated = true;
-		}
 	}
 }
 
 void UCEnhancedCharacterController::DestroyComponent(bool bPromoteChildren)
 {
-	if (_thread != nullptr)
-	{
-		_thread->Kill();
-	}
+	if (vThread != nullptr)
+		vThread->Kill();
 	Super::DestroyComponent(bPromoteChildren);
 }

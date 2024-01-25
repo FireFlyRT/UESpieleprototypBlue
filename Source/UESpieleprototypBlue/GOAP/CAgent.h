@@ -27,12 +27,12 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 public:
-	TList<UCAction*> Actions;
+	TList<UCAction*>* Actions;
 	TMap<CSubGoal*, int> Goals;
 
 private:
 //	CPlanner _planner;
-	TQueue<UCAction*> _actionQueue;
+	TQueue<UCAction*>* _actionQueue;
 	UCAction* _currentAction;
 	CSubGoal* _currentGoal;
 	bool _actionInvoked;

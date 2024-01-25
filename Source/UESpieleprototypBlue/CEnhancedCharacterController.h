@@ -29,7 +29,7 @@ public:
 	void SetVillagerId(FString* villagerId);
 
 public:
-	FRunnableThread* _thread;
+	FRunnableThread* VillagerThread;
 	ACVillager* Villager;
 	NeuralNetworkData NnData = NeuralNetworkData();
 	SensorData SensData = SensorData();
