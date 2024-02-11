@@ -3,6 +3,11 @@
 
 #include "MainNamedPipeAsync.h"
 #include <iostream>
+#include <fstream>
+#include <sstream>
+#include <Json.h>
+#include <string>
+#include <filesystem>
 #include "VillagerNamedPipeAsync.h"
 
 #define BUFFER_SIZE 512
@@ -21,19 +26,31 @@ bool MainNamedPipeAsync::Init()
 }
 uint32 MainNamedPipeAsync::Run()
 {
+	std::string jsonEmptyPath = std::string("/JSONData/Empty.json");
 	int connectionCount = 0;
 	for (;;)
 	{
-		_pipeHandle = CreateNamedPipe(
-			(LPCWSTR)*_mainPipeName,
-			PIPE_ACCESS_DUPLEX,
-			PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT, // | FILE_FLAG_FIRST_PIPE_INSTANCE, // is not needed but forces CreateNamedPipe(..) to fail if the pipe already exists
-			PIPE_UNLIMITED_INSTANCES,
-			BUFFER_SIZE,
-			BUFFER_SIZE,
-			NMPWAIT_USE_DEFAULT_WAIT,
-			NULL);
-
+		if (std::filesystem::exists(jsonEmptyPath))
+		{
+			FString* result = new FString();
+			char* r;
+			std::ifstream file(jsonEmptyPath);
+			file.read(r, file.gcount());
+			FString* s = new FString(r);
+			auto jsonData = FJsonStringReader::Create(*s);
+			bool isReaded = false;
+			EJsonNotation jsonNot;
+			while (!isReaded)
+			{
+				if (jsonData->ReadNext(jsonNot))
+				{
+					FString value = jsonData->GetValueAsString();
+					result->Append(value);
+				}
+				else
+					isReaded = true;
+			}
+		}
 
 		if (_pipeHandle == INVALID_HANDLE_VALUE)
 		{

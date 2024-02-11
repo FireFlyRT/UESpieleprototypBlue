@@ -25,7 +25,7 @@ bool ClosePipeClient()
     return true;
 }
 
-bool SendDataWithPipeClient(const char* data)
+bool SendDataWithPipeClient(const wchar_t* data)
 {
     DWORD written;
 
@@ -38,7 +38,7 @@ bool SendDataWithPipeClient(const char* data)
         }
     }
 
-    std::cout << "Data send failed " << data << std::endl;
+    //std::cout << "Data send failed " << data << std::endl;
     return false;
 }
 
@@ -200,8 +200,11 @@ int main(int argc, char* argv[])
         std::cout << "Connected to MainPipe" << std::endl;
     
         //while (ConnectNamedPipe(_pipeHandle, NULL) == FALSE);
+        const size_t size = strlen("Empty") + 1;
+        wchar_t* empty = new wchar_t[size];
+        size_t s = mbstowcs(empty, "Empty", size);
         for (int i = 0; i < 100000; i++)
-            SendDataWithPipeClient("Empty");
+            SendDataWithPipeClient(empty);
         // Maybe with random unic uint ID
         // Or Connect to One VillagerPipe befor the next one
         //  - Save IDs in Queue/List
@@ -358,7 +361,10 @@ int main(int argc, char* argv[])
             // Parse NeuralNetworkData with CrypticHelper  (Object to String)
             std::string nnValues = CrypticHelper::EncryptValue(nnData);
             // Send Parsed String to Unreal Application
-            SendDataWithPipeClient(nnValues.c_str());
+            const size_t size = strlen(nnValues.c_str()) + 1;
+            wchar_t* values = new wchar_t[size];
+            mbstowcs(values, nnValues.c_str(), size);
+            SendDataWithPipeClient(values);
             // Wait for new Sensor-/Reward-Data
         }
     }    
