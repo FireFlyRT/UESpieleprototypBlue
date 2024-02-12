@@ -15,13 +15,7 @@ public:
 	MainNamedPipeAsync();
 	~MainNamedPipeAsync();
 
-	BOOL StopPipeServer();
-
 private:
-	HANDLE _pipeHandle = INVALID_HANDLE_VALUE;
-	BOOL _connected = FALSE;
-	TCHAR* _buffer;
-	FString _mainPipeName = TEXT("\\\\.\\pipe\\MainPipe");
 	DWORD _threadID = 0;
 
 public:

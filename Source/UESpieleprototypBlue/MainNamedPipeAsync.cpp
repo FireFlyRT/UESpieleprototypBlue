@@ -3,8 +3,6 @@
 
 #include "MainNamedPipeAsync.h"
 #include <iostream>
-#include <fstream>
-#include <sstream>
 #include <Json.h>
 #include <string>
 #include <filesystem>
@@ -27,142 +25,53 @@ bool MainNamedPipeAsync::Init()
 uint32 MainNamedPipeAsync::Run()
 {
 	std::string jsonEmptyPath = std::string("/JSONData/Empty.json");
-	int connectionCount = 0;
+	std::string jsonVillagerPath = std::string("/JSONData/VillagerIDs.json");
 	for (;;)
 	{
-		if (std::filesystem::exists(jsonEmptyPath))
+		if (!std::filesystem::exists(jsonEmptyPath))
 		{
-			FString* result = new FString();
-			char* r;
-			std::ifstream file(jsonEmptyPath);
-			file.read(r, file.gcount());
-			FString* s = new FString(r);
-			auto jsonData = FJsonStringReader::Create(*s);
-			bool isReaded = false;
-			EJsonNotation jsonNot;
-			while (!isReaded)
-			{
-				if (jsonData->ReadNext(jsonNot))
-				{
-					FString value = jsonData->GetValueAsString();
-					result->Append(value);
-				}
-				else
-					isReaded = true;
-			}
+			return -1;
 		}
 
-		if (_pipeHandle == INVALID_HANDLE_VALUE)
+		UE_LOG(LogTemp, Warning, TEXT("Connection esteblished with a client"));
+		// From VillagerPipe:
+		// TODO (Major): In Queue (Or one Client at a Time), 
+
+		//Start extern PyInterface
+		// TODO (MAJOR): Copy .dll's in Build Folder!!!
+		//system("..\\UESpieleprototypBlue\\x64\\Release\\PythonInterface.exe");
+		//system("..\\UESpieleprototypBlue\\x64\\Debug\\PythonInterface.exe");
+		UE_LOG(LogTemp, Warning, TEXT("PythonInterfaceProgram open"));
+
+		FILE* emptyFile = nullptr;
+		char emptyBuffer[255];
+		size_t count = 0;
+		fopen_s(&emptyFile, jsonEmptyPath.c_str(), "r");
+		fread(emptyBuffer, sizeof(emptyBuffer) * sizeof(char), count, emptyFile);
+		UE_LOG(LogTemp, Warning, TEXT("Value from json: %s"), emptyBuffer);
+		std::string empty = std::string(emptyBuffer);
+		if (empty.compare("Empty")) 
 		{
-			UE_LOG(LogTemp, Warning, TEXT("MainPipe creation failed!!! Name: %s"), *_mainPipeName);
-			connectionCount++;
-			if (connectionCount > 100)
+			FILE* villagerFile = nullptr;
+			char villagerBuffer[255];
+			if (!std::filesystem::exists(jsonVillagerPath))
+			{
 				return -1;
-			continue;
-		}
-
-		while (ConnectNamedPipe(_pipeHandle, NULL) == FALSE);
-		if (_pipeHandle != INVALID_HANDLE_VALUE)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Connection esteblished with a client"));
-
-			// From VillagerPipe:
-			// TODO (Major): In Queue (Or one Client at a Time), 
-
-			//Start extern PyInterface
-			// TODO (MAJOR): Copy .dll's in Build Folder!!!
-			//system("..\\UESpieleprototypBlue\\x64\\Release\\PythonInterface.exe");
-			//system("..\\UESpieleprototypBlue\\x64\\Debug\\PythonInterface.exe");
-			UE_LOG(LogTemp, Warning, TEXT("PythonInterfaceProgram open"));
-
+			}
 			// Get VillagerID from VillagerPipe
-			wchar_t* villagerID = new wchar_t;
-			bool isEmptySended = false;
-			DWORD read = DWORD();
-			UE_LOG(LogTemp, Warning, TEXT("Before while"));
-			while (1)
-			{
-				bool success = ReadFile(_pipeHandle, _buffer, BUFFER_SIZE * sizeof(TCHAR), &read, NULL);
-				UE_LOG(LogTemp, Warning, TEXT("Reading Data... -> %s, %b"), read, success);
-				if (!success && read == DWORD())
-				{
-					UE_LOG(LogTemp, Error, TEXT("Reading Data failed"));
-					continue;
-				}
-				const size_t size = strlen("Empty") + 1;
-				wchar_t* message = new wchar_t[size];
-				if (read == mbstowcs(message, "Empty", size))
-					isEmptySended = true;
-				else
-					villagerID = (wchar_t*)read;
-				break;
-			}
-			UE_LOG(LogTemp, Warning, TEXT("DATA WAS READED!!! -> %s"), read);
-
-			while (!isEmptySended)
-			{
-				read = DWORD();
-
-				while (ReadFile(_pipeHandle, _buffer, BUFFER_SIZE * sizeof(TCHAR), &read, NULL) == FALSE);
-				bool success = true;
-				UE_LOG(LogTemp, Warning, TEXT("Reading Data..."));
-				if (!success)
-				{
-					UE_LOG(LogTemp, Error, TEXT("Reading Data failed"));
-					break;
-				}
-				else
-				{
-					const size_t size = strlen("Empty") + 1;
-					wchar_t* message = new wchar_t[size];
-					if (read == mbstowcs(message, "Empty", size))
-					{
-						isEmptySended = true;
-					}
-				}
-			}
-			UE_LOG(LogTemp, Warning, TEXT("DATA WAS READED!!! -> %s"), read);
-
+			count = 0;
+			fopen_s(&villagerFile, jsonVillagerPath.c_str(), "r");
+			fread(villagerBuffer, sizeof(villagerBuffer) * sizeof(char), count, villagerFile);
+			UE_LOG(LogTemp, Warning, TEXT("Value from json: %s"), villagerBuffer);
+			
 			// Send VillagerID to extern PyInterface
-			if (isEmptySended)
-			{
-				DWORD written;
-				WriteFile(_pipeHandle, villagerID, sizeof(villagerID), &written, NULL);
-				isEmptySended = false;
-			}
+			fopen_s(&villagerFile, jsonVillagerPath.c_str(), "w");
+			fwrite(villagerBuffer, sizeof(villagerBuffer) * sizeof(char), count, villagerFile);
 		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Client disconnected!"));
-			CloseHandle(_pipeHandle);
-			return 0;
-		}		
+
+		fclose(emptyFile);
+		std::filesystem::remove();
 	}
 
 	return 0;
-}
-void MainNamedPipeAsync::Exit()
-{
-	StopPipeServer();
-}
-void MainNamedPipeAsync::Stop()
-{
-	StopPipeServer();
-}
-
-DWORD WINAPI InitialPyInterface(FString pipeName)
-{
-	return false;
-}
-
-/// <summary>
-/// Stop the running named Pipe Server
-/// </summary>
-/// <returns>true: If server was closed | false: Closing failed</returns>
-BOOL MainNamedPipeAsync::StopPipeServer()
-{
-	UE_LOG(LogTemp, Warning, TEXT("Server Stopped"));
-	FlushFileBuffers(_pipeHandle);
-	DisconnectNamedPipe(_pipeHandle);
-	return CloseHandle(_pipeHandle);
 }

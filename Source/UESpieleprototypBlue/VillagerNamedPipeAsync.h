@@ -22,7 +22,7 @@ public:
 	virtual void Stop() override;
 
 private:
-	FString* _pipeName;
+	FString* _villagerName;
 	NeuralNetworkData* _nnData;
 	SensorData* _sensorData;
 };

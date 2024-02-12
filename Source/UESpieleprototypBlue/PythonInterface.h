@@ -8,6 +8,7 @@
 #include <Windows.h>
 #include <stdio.h>
 #include <tchar.h>
+#include <string>
 #include <strsafe.h>
 
 class UESPIELEPROTOTYPBLUE_API PythonInterface
@@ -16,14 +17,11 @@ public:
 	PythonInterface();
 	~PythonInterface();
 
-	FString* CreatePipeServer(FString* pipeName, NeuralNetworkData* nnData, SensorData* sensorData);
+	void CreatePipeServer(FString* pipeName, NeuralNetworkData* nnData, SensorData* sensorData);
 	bool RunPipeServer(FString* villagerPipeName);
-	BOOL StopPipeServer();
 
 private:
-	HANDLE* _pipeHandle = new HANDLE(INVALID_HANDLE_VALUE);
-	TCHAR* _buffer;
+	std::string _jsonVillagerPath;
 	NeuralNetworkData* _nnData;
 	SensorData* _sensorData;
-	FString* _villagerPipeName;
 };
