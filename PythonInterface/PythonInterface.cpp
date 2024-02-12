@@ -25,7 +25,7 @@ bool ClosePipeClient()
     return true;
 }
 
-bool SendDataWithPipeClient(const wchar_t* data)
+bool SendDataWithPipeClient(const wchar_t* data, std::string jsonPath)
 {
     DWORD written;
 
