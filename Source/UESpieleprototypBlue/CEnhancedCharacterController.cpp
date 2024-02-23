@@ -20,11 +20,16 @@ void UCEnhancedCharacterController::BeginPlay()
 
 void UCEnhancedCharacterController::SetVillagerId(FString* villagerId)
 {
-	FString* pipeName = new FString(TEXT("Villager"));
-	*pipeName = pipeName->Append(*villagerId);
-	const TCHAR* threadName = **pipeName;
+	StatsData->ClassCategory = 0;
+	FString tribeID = villagerId->Mid(1, 1);
+	StatsData->TribeID = FCString::Atoi(*tribeID);
+	UE_LOG(LogTemp, Warning, TEXT("TribeID: %s"), *tribeID)
+	FString villager = FString("Villager");
+	std::wstring pipeName = std::wstring(*villager);
+	pipeName.append(**villagerId);
+	const TCHAR* threadName = pipeName.c_str();
 
-	VillagerNamedPipeAsync* runnable = new VillagerNamedPipeAsync(pipeName, &NnData, &SensData);
+	VillagerNamedPipeAsync* runnable = new VillagerNamedPipeAsync(new FString(pipeName.c_str()), &NnData, SensData, StatsData, RewData);
 	if (runnable != nullptr && threadName != nullptr)
 		vThread = FRunnableThread::Create(runnable, threadName);
 }
@@ -43,7 +48,7 @@ void UCEnhancedCharacterController::TickComponent(float DeltaTime, ELevelTick Ti
 		{
 			case 1:
 			{
-				// OnPunch
+				OnPunchDelegate.Broadcast();
 				break;
 			}
 			case 2:
@@ -83,9 +88,54 @@ void UCEnhancedCharacterController::TickComponent(float DeltaTime, ELevelTick Ti
 
 		// Get new SensorData
 		UCSensorController* sensorController = Villager->GetComponentByClass<UCSensorController>();
-		SensData = *sensorController->GetSensorData();
+		SensData = sensorController->GetSensorData();
 		if (&SensData != NULL)
-			SensData.IsUpdated = true;
+			SensData->IsUpdated = true;
+	}
+}
+
+void UCEnhancedCharacterController::SetSensorData(int classCategory, int tribeID, int livePoints, int stamina, int strength, 
+	int age, int height, int hunger, int thurst, int positionX, int positionY, int positionZ, int distance)
+{
+	SensData->ClassCategory = classCategory;
+	SensData->TribeID = tribeID;
+	SensData->LivePoints = livePoints;
+	SensData->Stamina = stamina;
+	SensData->Strength = strength;
+	SensData->Age = age;
+	SensData->Height = height;
+	SensData->Hunger = hunger;
+	SensData->Thurst = thurst;
+	SensData->PositionX = positionX;
+	SensData->PositionY = positionY;
+	SensData->PositionZ = positionZ;
+	SensData->Distance = distance;
+}
+
+void UCEnhancedCharacterController::SetStatData(int livePoints, int stamina, int strength, 
+	int age, int height, int hunger, int thurst, int positionX, int positionY, int positionZ)
+{
+	StatsData->LivePoints = livePoints;
+	StatsData->Stamina = stamina;
+	StatsData->Strength = strength;
+	StatsData->Age = age;
+	StatsData->Height = height;
+	StatsData->Hunger = hunger;
+	StatsData->Thurst = thurst;
+	StatsData->PositionX = positionX;
+	StatsData->PositionY = positionY;
+	StatsData->PositionZ = positionZ;
+}
+
+void UCEnhancedCharacterController::SetRewardData(int reward, bool addition)
+{
+	if (addition)
+	{
+		RewData->Reward += reward;
+	}
+	else 
+	{
+		RewData->Reward = reward;
 	}
 }
 

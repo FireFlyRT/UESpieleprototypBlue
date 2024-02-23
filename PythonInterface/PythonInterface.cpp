@@ -10,67 +10,16 @@
 #include <tchar.h>
 #include <strsafe.h>
 #include <sstream>
+#include <ostream>
 #include "CrypticHelper.h"
 #include "PythonCommands.h"
 #include "PyEnvironment.h"
 #include "filesystem"
 
-static HANDLE _pipeHandle = INVALID_HANDLE_VALUE;
-
-bool ClosePipeClient()
-{
-    CloseHandle(_pipeHandle);
-    _pipeHandle = nullptr;
-    delete(_pipeHandle);
-    return true;
-}
-
-bool SendDataWithPipeClient(const wchar_t* data, std::string jsonPath)
-{
-    DWORD written;
-
-    if (_pipeHandle != INVALID_HANDLE_VALUE)
-    {
-        if (WriteFile(_pipeHandle, data, sizeof(data), &written, NULL))
-        {
-            std::cout << "Data sended " << written << std::endl;
-            return true;
-        }
-    }
-
-    //std::cout << "Data send failed " << data << std::endl;
-    return false;
-}
-
-bool StartPipeClient()
-{
-    return true;
-}
-
 std::string ReceiveDataFromPipeServer()
 {
-    DWORD read;
-    char buffer[1028];
-
-    if (_pipeHandle != INVALID_HANDLE_VALUE)
-    {
-        std::cout << "Reading... " << std::endl;
-        while(ReadFile(_pipeHandle, buffer, sizeof(buffer), &read, NULL) != FALSE);
-        std::cout << "Data readed " << read << std::endl;
-        std::ostringstream stream;
-        stream << read;
-        std::string result = stream.str();
-        return result;
-    }
-    // DEBUG
-    else 
-    {
-        std::cout << "Fallback Input!!!" << std::endl;
-        std::string b = "00,000,100,050,030,024,189,043,042,1.0000000;0.3821341;1.0421621,010205,00,000,100,050,030,024,189,043,042,1.0000000;0.3821341;1.0421621,1.2458";
-        return b;
-    }
-
-    return NULL;
+    std::string b = "00,000,100,050,030,024,189,043,042,1.0000000;0.3821341;1.0421621,010205,00,000,100,050,030,024,189,043,042,1.0000000;0.3821341;1.0421621,1.2458";
+    return b;
 }
 
 
@@ -162,8 +111,8 @@ int main(int argc, char* argv[])
 
     // Add Folder Structure
     std::string projPath = GetProjectPath(argv);
-    std::string jsonPath = projPath;
-    jsonPath.append("/JSONData");
+    std::string jsonPath = std::string(projPath);
+    jsonPath.append("JSONData");
     if (!std::filesystem::exists(jsonPath.c_str()))
         std::filesystem::create_directories(jsonPath.c_str());
 
@@ -171,110 +120,77 @@ int main(int argc, char* argv[])
     RunPythonFile(argv, true);
     // Configure DQN for right usage
 
-
     // Connect to MainPipe
     bool isConnected = false;
-    int connectionCount = 0;
     int jsonCount = 0;
     std::string villagerID;
-    while (!isConnected)
-    {
-        _pipeHandle = CreateFile(
-            TEXT("\\\\.\\pipe\\MainPipe"),
-            GENERIC_READ | GENERIC_WRITE,
-            0,
-            NULL,
-            OPEN_EXISTING,
-            0,
-            NULL);
-    
-        if (_pipeHandle == INVALID_HANDLE_VALUE)
-        {
-            std::cout << "MainPipe Invalid!!!" << std::endl;
-            ClosePipeClient();
-            connectionCount++;
-            if (connectionCount > 100)
-                break;
-            continue;
-        }
-        std::cout << "Connected to MainPipe" << std::endl;
-    
-        //while (ConnectNamedPipe(_pipeHandle, NULL) == FALSE);
-        const size_t size = strlen("Empty") + 1;
-        wchar_t* empty = new wchar_t[size];
-        size_t s = mbstowcs(empty, "Empty", size);
-        for (int i = 0; i < 100000; i++)
-            SendDataWithPipeClient(empty);
-        // Maybe with random unic uint ID
-        // Or Connect to One VillagerPipe befor the next one
-        //  - Save IDs in Queue/List
-        //  - create InterfaceProgram and conntect to VPipe befor creating next one
+    villagerID = std::string("Villager100"); // DEBUG
+    std::string pyVillagerID = "'";
+    pyVillagerID.append(villagerID);
+    pyVillagerID.append("'");
 
-    
+    std::string emptyfile = std::string(jsonPath);
+    emptyfile.append("/Empty.json");
+
+    while (!isConnected)
+    {    
+        if (!std::filesystem::exists(emptyfile)) 
+        {
+            nlohmann::json json;
+            json["Empty"] = "Empty";
+            std::cout << json << std::endl;
+            std::ostringstream stream;
+            stream << json;
+            std::string jsonData = stream.str();
+            CrypticHelper::WriteFileWithJSON(jsonData, emptyfile);
+            // Maybe with random unic uint ID
+        }
+        
         //Wait for new ID
-        villagerID = ReceiveDataFromPipeServer();
-        //if (villagerID == std::string())
-        //std::string pyVillagerID = "'";
-        //pyVillagerID.append("Villager");
-        //pyVillagerID.append(villagerID);
-        //pyVillagerID.append("'");
-        std::string pyVillagerID = "'Villager001'"; // Fallback
-        std::string newHandle = "\\\\.\\pipe\\";
-        newHandle.append(villagerID);
+        for (auto const& entry : std::filesystem::directory_iterator(jsonPath)) 
+        {
+            if (std::filesystem::path(entry.path()).filename().string().find(std::string("Villager")) != std::string::npos)
+            {
+                auto villagerPath = entry.path();
+                std::ifstream stream(villagerPath.string());
+                std::string result((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
+                stream.close();
+                if (result.substr(0, 3) != std::string("New"))
+                    continue;
+                villagerID = std::string(result.substr(4));
+                std::cout << "Readed: " << result << std::endl;
+                isConnected = true;
+                // delete Empty File
+                while(std::remove(emptyfile.c_str()) != 0);
+                std::cout << "Removed Empty" << std::endl;
+                break;
+            }
+        }
+        if (!isConnected) continue;
+
+        if (villagerID.empty())
+            villagerID = "'Villager001'"; // Fallback
+
         std::string** progValues = new std::string*[1]
         {
             new std::string(pyVillagerID),
         };
         PythonCommands::CreateClass("Program", program, progValues, 1);
-    
-        std::cout << "New Handle Address: " << newHandle << std::endl;
-    
-        // On ID Received:
-        // Connect to VillagerPipe using the ID
-        _pipeHandle = CreateFile(
-            (LPCWSTR)newHandle.c_str(),
-            GENERIC_READ | GENERIC_WRITE,
-            0,
-            NULL,
-            OPEN_EXISTING,
-            0,
-            NULL);
-    
-        if (_pipeHandle == INVALID_HANDLE_VALUE)
-        {
-            std::cout << "VillagerPipe Invalid!!!" << std::endl;
-            ClosePipeClient();
-            continue;
-        }
-        else
-        {
-            isConnected = true;
-        }
     }
     
-    int connectionAttemps = 0;
     while (true)
     {
-        if (ConnectNamedPipe(_pipeHandle, NULL) == FALSE)
-        {
-            connectionAttemps++;
-            if (connectionAttemps > 100)
-            {
-                std::cout << "VillagerPipe Closed!" << std::endl;
-                break;
-            }
-            continue;
-        }
-
-        // Wait for Sensor-/Reward-Data
-        std::string sArData = ReceiveDataFromPipeServer();
-    
+        // Wait for Sensor-/Reward-Data    
         // On Data Received:
         // Parse Data with CrypticHelper (String to Objects)
+        std::string dataPath = std::string(jsonPath);
+        dataPath.append("\\");
+        dataPath.append(villagerID);
+        dataPath.append(".json");
         SensorData* sensorData = new SensorData();
         StatData* statData = new StatData();
         RewardData* rewardData = new RewardData();
-        if (CrypticHelper::DecryptValue(sArData, sensorData, statData, rewardData))
+        if (CrypticHelper::DeserializeFromJSON(dataPath, sensorData, statData, rewardData))
         {
             std::string command = std::string();
             // Save Objects for later use (Learning) TODO (No Prio)
@@ -323,6 +239,11 @@ int main(int argc, char* argv[])
             PythonCommands::CreateClass("RewardData", "rewardData", rewardValues, 1);
 
             // Init Environment in Python
+            std::string** programValues = new std::string*[1]
+            {
+                new std::string(pyVillagerID)
+            };
+            PythonCommands::CreateClass("Program", "prog", programValues, 1);
             PyRun_SimpleString("prog.env.SetObservationSpace(sensorData.GetData(), statData.GetData())");
             PyRun_SimpleString("prog.LateInit()");
 
@@ -351,21 +272,6 @@ int main(int argc, char* argv[])
             // Step
             PyRun_SimpleString("prog.Step()");
             // Send Output back to C++ (JSON)
-
-            // Create NeuralNetworkData out of the Output 
-            NeuralNetworkData* nnData = new NeuralNetworkData();
-            nnData->GetNeuralNetworkDataFromJSON(jsonPath, villagerID, std::to_string(jsonCount));
-            lastAction = nnData->Action;
-            jsonCount++;
-
-            // Parse NeuralNetworkData with CrypticHelper  (Object to String)
-            std::string nnValues = CrypticHelper::EncryptValue(nnData);
-            // Send Parsed String to Unreal Application
-            const size_t size = strlen(nnValues.c_str()) + 1;
-            wchar_t* values = new wchar_t[size];
-            mbstowcs(values, nnValues.c_str(), size);
-            SendDataWithPipeClient(values);
-            // Wait for new Sensor-/Reward-Data
         }
     }    
     

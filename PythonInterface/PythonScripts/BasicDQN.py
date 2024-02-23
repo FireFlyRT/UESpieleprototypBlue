@@ -132,8 +132,8 @@ class Program:
         self.env = Environment(villagerID, actionSpace, observationSpace)
 
         self.writer  = SummaryWriter(comment = "-" + self.args.env)
-        buffer = ExperienceBuffer(REPLAY_SIZE)
-        self.agent = Agent(self.env, buffer)
+        self.buffer = ExperienceBuffer(REPLAY_SIZE)
+        self.agent = Agent(self.env, self.buffer)
         self.epsilon = EPSILON_START
         self.total_rewards = []
         self.frame_idx = 0
@@ -180,7 +180,7 @@ class Program:
                     print("Best mean Reward updatet")
                 
                 if mean_reward > self.args.reward:
-                    print("Solved in " + str(self.frame_idx) + " frames")
+                    #print("Solved in " + str(self.frame_idx) + " frames")
                     return
 
             if len(self.buffer) < REPLAY_START_SIZE:
@@ -234,8 +234,8 @@ class Environment:
         #self.jsonCount += 1
 
 class ActionSpace:
-    def __init__(self):
-        self.actions = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    def __init__(self): # 0 = Nothing, 1 = Punch, 2 = Jump
+        self.actions = [0, 1, 2] #, 3, 4] #, 5, 6, 7, 8, 9]
 
     def __len__(self):
         return self.actions.__len__()

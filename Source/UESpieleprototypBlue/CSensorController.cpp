@@ -2,6 +2,7 @@
 
 
 #include "CSensorController.h"
+#include "CEnhancedCharacterController.h"
 
 // Sets default values for this component's properties
 UCSensorController::UCSensorController()
@@ -68,8 +69,47 @@ void UCSensorController::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 			if (allHitResults[i][j].bBlockingHit && IsValid(allHitResults[i][j].GetActor()))
 			{
 				// Get all Data from Actor
+				UCEnhancedCharacterController* eCharController = allHitResults[i][j].GetActor()->GetComponentByClass<UCEnhancedCharacterController>();
+				if (!eCharController)
+					continue;
+
+				_sensorData->ClassCategory = eCharController->StatsData->ClassCategory;
+				_sensorData->TribeID = eCharController->StatsData->TribeID;
+				_sensorData->LivePoints = eCharController->StatsData->LivePoints;
+				_sensorData->Stamina = eCharController->StatsData->Stamina;
+				_sensorData->Strength = eCharController->StatsData->Strength;
+				_sensorData->Age = eCharController->StatsData->Age;
+				_sensorData->Height = eCharController->StatsData->Height;
+				_sensorData->Hunger = eCharController->StatsData->Hunger;
+				_sensorData->Thurst = eCharController->StatsData->Thurst;
+				_sensorData->PositionX = eCharController->StatsData->PositionX;
+				_sensorData->PositionY = eCharController->StatsData->PositionY;
+				_sensorData->PositionZ = eCharController->StatsData->PositionZ;
+				_sensorData->Distance = FVector::Dist(GetOwner()->GetActorLocation(), FVector(
+					eCharController->StatsData->PositionX,
+					eCharController->StatsData->PositionY,
+					eCharController->StatsData->PositionZ));
+
+				return;
 			}
 		}
+	}
+
+	if (allHitResults.Num() == 0)
+	{
+		_sensorData->ClassCategory = 0;
+		_sensorData->TribeID = 0;
+		_sensorData->LivePoints = 0;
+		_sensorData->Stamina = 0;
+		_sensorData->Strength = 0;
+		_sensorData->Age = 0;
+		_sensorData->Height = 0;
+		_sensorData->Hunger = 0;
+		_sensorData->Thurst = 0;
+		_sensorData->PositionX = 0;
+		_sensorData->PositionY = 0;
+		_sensorData->PositionZ = 0;
+		_sensorData->Distance = 0;
 	}
 }
 

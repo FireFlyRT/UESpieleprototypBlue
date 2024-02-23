@@ -9,6 +9,6 @@ public:
 	static PyObject* CreateVarFromCClass(PyObject* module, const char* pyObjName);
 	static void SetVarFromClass(const char* classVarName, const char* varName, const char* value);
 	static void SetVar(const char* varName, const char* value);
-	static void CreateClass(std::string className, std::string varName, std::string** values, int count);
+	static void CreateClass(std::string className, std::string varName, std::string** values = nullptr, int count = 0);
 };
 

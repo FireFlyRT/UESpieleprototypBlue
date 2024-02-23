@@ -4,7 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "NeuralNetworkData.h"
+#include "Serialization/JsonSerializer.h"
+#include "JsonObjectConverter.h"
 #include <string>
+#include "SensorData.h"
+#include "StatData.h"
+#include "RewardData.h"
 
 /**
  * 
@@ -15,7 +20,10 @@ public:
 	CrypticHelper();
 	~CrypticHelper();
 
-	static NeuralNetworkData* DecryptValue(std::string value);
-	static std::string EncryptValue();
+	static NeuralNetworkData* DecryptValue(FString* filePath);
+	static std::string EncryptValue(SensorData* sensorData, StatData* statData, RewardData* rewardData);
+	static void WriteJsonToFile(std::string json, std::string filename, bool isAsync);
+
+	static TArray<FActionToken> Actions;
 };
  

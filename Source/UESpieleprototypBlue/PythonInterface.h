@@ -10,6 +10,8 @@
 #include <tchar.h>
 #include <string>
 #include <strsafe.h>
+#include "StatData.h"
+#include "RewardData.h"
 
 class UESPIELEPROTOTYPBLUE_API PythonInterface
 {
@@ -17,11 +19,14 @@ public:
 	PythonInterface();
 	~PythonInterface();
 
-	void CreatePipeServer(FString* pipeName, NeuralNetworkData* nnData, SensorData* sensorData);
+	void CreatePipeServer(FString* pipeName, NeuralNetworkData* nnData, SensorData* sensorData, StatData* statData, RewardData* rewardData);
 	bool RunPipeServer(FString* villagerPipeName);
 
 private:
 	std::string _jsonVillagerPath;
+	std::string _jsonNnDataPath;
 	NeuralNetworkData* _nnData;
 	SensorData* _sensorData;
+	StatData* _statData;
+	RewardData* _rewardData;
 };

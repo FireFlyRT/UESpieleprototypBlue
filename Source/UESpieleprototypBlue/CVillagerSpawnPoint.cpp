@@ -31,9 +31,8 @@ void ACVillagerSpawnPoint::SpawnVillager(FString* tribeId)
 
 	for (int i = 0; i < StartAmount; i++)
 	{
-		FString* villagerId = new FString();
-		*villagerId = *tribeId;
-		villagerId->AppendInt(i + 1); // VillagerId
+		FString* villagerId = new FString(*tribeId);
+		villagerId->AppendInt(i); // VillagerId
 		rng->GenerateNewSeed();
 		AActor* actor = GetWorld()->SpawnActor(SpawnableVillagers[rng->FRandRange(0, SpawnableVillagers.Num())]);
 

@@ -12,7 +12,7 @@
 class UESPIELEPROTOTYPBLUE_API VillagerNamedPipeAsync : public FRunnable
 {
 public:
-	VillagerNamedPipeAsync(FString* pipeName, NeuralNetworkData* nnData, SensorData* sensorData);
+	VillagerNamedPipeAsync(FString* pipeName, NeuralNetworkData* nnData, SensorData* sensorData, StatData* statData, RewardData* rewardData);
 	~VillagerNamedPipeAsync();
 
 public:
@@ -25,4 +25,6 @@ private:
 	FString* _villagerName;
 	NeuralNetworkData* _nnData;
 	SensorData* _sensorData;
+	StatData* _statData;
+	RewardData* _rewardData;
 };

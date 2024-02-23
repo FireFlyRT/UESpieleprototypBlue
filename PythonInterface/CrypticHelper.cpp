@@ -1,4 +1,7 @@
 #include "CrypticHelper.h"
+#include <filesystem>
+#include <nlohmann/json.hpp>
+#include <iostream>
 
 bool CrypticHelper::DecryptValue(std::string value, SensorData* sensorData, StatData* statData, RewardData* rewardData)
 {
@@ -55,6 +58,63 @@ bool CrypticHelper::DecryptValue(std::string value, SensorData* sensorData, Stat
     return true;
 }
 
+bool CrypticHelper::DeserializeFromJSON(std::string jsonPath, SensorData* sensorData, StatData* statData, RewardData* rewardData)
+{
+    std::string fileName = std::string(jsonPath);
+    std::ifstream file(fileName);
+    if (!file)
+        return false;
+    std::string result((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+    file.close();
+    if (result.substr(0, 3) == std::string("New"))
+        return false;
+    if (result.empty())
+        return false;
+    nlohmann::json jsonData;
+    std::istringstream jfile(result);
+    jfile >> jsonData;
+
+    nlohmann::json sensDataJson = jsonData["SensorData"];
+    nlohmann::json statDataJson = jsonData["StatData"];
+    nlohmann::json rewDataJson = jsonData["RewardData"];
+
+    //SensorData
+    sensorData->ClassCategory = std::stoi(std::string(sensDataJson[0]));
+    sensorData->TribeID = std::stoi(std::string(sensDataJson[1]));
+    sensorData->LivePoints = std::stoi(std::string(sensDataJson[2]));
+    sensorData->Stamina = std::stoi(std::string(sensDataJson[3]));
+    sensorData->Strength = std::stoi(std::string(sensDataJson[4]));
+    sensorData->Age = std::stoi(std::string(sensDataJson[5]));
+    sensorData->Height = std::stoi(std::string(sensDataJson[6]));
+    sensorData->Hunger = std::stoi(std::string(sensDataJson[7]));
+    sensorData->Thurst = std::stoi(std::string(sensDataJson[8]));
+    sensorData->PositionX = std::stoi(std::string(sensDataJson[9]));
+    sensorData->PositionY = std::stoi(std::string(sensDataJson[10]));
+    sensorData->PositionZ = std::stoi(std::string(sensDataJson[11]));
+    sensorData->Distance = std::stoi(std::string(sensDataJson[12]));
+    // sensorData->Inventory = value.substr(0, 1);
+    
+    // StatData
+    statData->ClassCategory = std::stoi(std::string(statDataJson[0]));
+    statData->TribeID = std::stoi(std::string(statDataJson[1]));
+    statData->LivePoints = std::stoi(std::string(statDataJson[2]));
+    statData->Stamina = std::stoi(std::string(statDataJson[3]));
+    statData->Strength = std::stoi(std::string(statDataJson[4]));
+    statData->Age = std::stoi(std::string(statDataJson[5]));
+    statData->Height = std::stoi(std::string(statDataJson[6]));
+    statData->Hunger = std::stoi(std::string(statDataJson[7]));
+    statData->Thurst = std::stoi(std::string(statDataJson[8]));
+    statData->PositionX = std::stoi(std::string(statDataJson[9]));
+    statData->PositionY = std::stoi(std::string(statDataJson[10]));
+    statData->PositionZ = std::stoi(std::string(statDataJson[11]));
+    // sensorData->Inventory = value.substr(0, 1);
+    
+    // RewardData
+    rewardData->Reward = std::stoi(std::string(rewDataJson[0]));
+
+    return true;
+}
+
 std::string CrypticHelper::EncryptValue(NeuralNetworkData* data)
 {
     std::string values = std::string();
@@ -85,6 +145,35 @@ std::string CrypticHelper::EncryptValue(NeuralNetworkData* data)
     values.append(SymbolNumberAdjustment(data->Action, 3));
 
     return values;
+}
+
+std::string CrypticHelper::SerializeToJSON(NeuralNetworkData* data)
+{
+    nlohmann::json jsonData = nlohmann::json();
+
+    jsonData["MovementX"] = std::to_string(data->MovementX);
+    jsonData["MovementY"] = std::to_string(data->MovementY);
+    jsonData["RotationZ"] = std::to_string(data->RotationZ);
+    jsonData["RotationY"] = std::to_string(data->RotationY);
+    jsonData["Action"] = std::to_string(data->Action);
+
+    return jsonData;
+}
+
+bool CrypticHelper::WriteFileWithJSON(std::string jsonData, std::string filePath)
+{
+    if (!filePath.empty())
+    {
+        // Send VillagerID to extern PyInterface
+        std::ofstream writeStream(filePath);
+        if (writeStream)
+        {
+            writeStream << jsonData;
+            writeStream.close();
+            return true;
+        }
+    }
+    return false;
 }
 
 std::string CrypticHelper::SymbolNumberAdjustment(int value, int symbolNum)

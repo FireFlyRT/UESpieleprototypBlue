@@ -6,16 +6,17 @@
 #include "CSensorController.h"
 #include "VillagerNamedPipeAsync.h"
 #include "CVillager.h"
-#include "SensorData.h"
 #include "CoreMinimal.h"
 #include "CCharacterController.h"
+#include "Delegates/Delegate.h"
 #include "CEnhancedCharacterController.generated.h"
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnPunch);
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class UESPIELEPROTOTYPBLUE_API UCEnhancedCharacterController : public UCCharacterController
 {
 	GENERATED_BODY()
-
 
 protected:
 	// Called when the game starts
@@ -26,11 +27,24 @@ public:
 	UCEnhancedCharacterController();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	virtual void DestroyComponent(bool bPromoteChildren) override;
-	void SetVillagerId(FString* villagerId);
+	void SetVillagerId(FString* villagerId); 
+	UFUNCTION(BlueprintCallable)
+	void SetSensorData(int classCategory, int tribeID, int livePoints, int stamina, int strength, int age, 
+		int height, int hunger, int thurst, int positionX, int positionY, int positionZ, int distance);
+	UFUNCTION(BlueprintCallable)
+	void SetStatData(int livePoints, int stamina, int strength, int age,
+		int height, int hunger, int thurst, int positionX, int positionY, int positionZ);
+	UFUNCTION(BlueprintCallable)
+	void SetRewardData(int reward, bool addition = true);
 
 public:
 	FRunnableThread* VillagerThread;
 	ACVillager* Villager;
 	NeuralNetworkData NnData = NeuralNetworkData();
-	SensorData SensData = SensorData();
+	SensorData* SensData = new SensorData();
+	StatData* StatsData = new StatData();
+	RewardData* RewData = new RewardData();	
+
+	UPROPERTY(BlueprintAssignable)
+	FOnPunch OnPunchDelegate;
 };

@@ -3,9 +3,10 @@
 
 #include "MainNamedPipeAsync.h"
 #include <iostream>
-#include <Json.h>
+#include <fstream>
 #include <string>
 #include <filesystem>
+#include <stdio.h>
 #include "VillagerNamedPipeAsync.h"
 
 #define BUFFER_SIZE 512
@@ -24,18 +25,27 @@ bool MainNamedPipeAsync::Init()
 }
 uint32 MainNamedPipeAsync::Run()
 {
-	std::string jsonEmptyPath = std::string("/JSONData/Empty.json");
-	std::string jsonVillagerPath = std::string("/JSONData/VillagerIDs.json");
+	FString projectFilePath = FPaths::GetProjectFilePath();
+	FString projectPath = FPaths::GetPath(projectFilePath);
+	UE_LOG(LogTemp, Warning, TEXT("Project Path: %s"), *projectPath);
+
+	std::string jsonEmptyFile = TCHAR_TO_UTF8(*projectPath);
+	std::string jsonEmptyPath = std::string("/PythonInterface/JSONData/Empty.json");
+	jsonEmptyFile.append(jsonEmptyPath.c_str());
+
+	bool emptyCommandFullfilled = false;
 	for (;;)
 	{
-		if (!std::filesystem::exists(jsonEmptyPath))
+		if (!std::filesystem::exists(jsonEmptyFile))
 		{
-			return -1;
+			emptyCommandFullfilled = false;
+			continue;
 		}
 
-		UE_LOG(LogTemp, Warning, TEXT("Connection esteblished with a client"));
-		// From VillagerPipe:
-		// TODO (Major): In Queue (Or one Client at a Time), 
+		if (emptyCommandFullfilled)
+		{
+			break;
+		}
 
 		//Start extern PyInterface
 		// TODO (MAJOR): Copy .dll's in Build Folder!!!
@@ -43,34 +53,16 @@ uint32 MainNamedPipeAsync::Run()
 		//system("..\\UESpieleprototypBlue\\x64\\Debug\\PythonInterface.exe");
 		UE_LOG(LogTemp, Warning, TEXT("PythonInterfaceProgram open"));
 
-		FILE* emptyFile = nullptr;
-		char emptyBuffer[255];
-		size_t count = 0;
-		fopen_s(&emptyFile, jsonEmptyPath.c_str(), "r");
-		fread(emptyBuffer, sizeof(emptyBuffer) * sizeof(char), count, emptyFile);
-		UE_LOG(LogTemp, Warning, TEXT("Value from json: %s"), emptyBuffer);
-		std::string empty = std::string(emptyBuffer);
-		if (empty.compare("Empty")) 
-		{
-			FILE* villagerFile = nullptr;
-			char villagerBuffer[255];
-			if (!std::filesystem::exists(jsonVillagerPath))
-			{
-				return -1;
-			}
-			// Get VillagerID from VillagerPipe
-			count = 0;
-			fopen_s(&villagerFile, jsonVillagerPath.c_str(), "r");
-			fread(villagerBuffer, sizeof(villagerBuffer) * sizeof(char), count, villagerFile);
-			UE_LOG(LogTemp, Warning, TEXT("Value from json: %s"), villagerBuffer);
-			
-			// Send VillagerID to extern PyInterface
-			fopen_s(&villagerFile, jsonVillagerPath.c_str(), "w");
-			fwrite(villagerBuffer, sizeof(villagerBuffer) * sizeof(char), count, villagerFile);
-		}
+		UE_LOG(LogTemp, Warning, TEXT("Connection esteblished with a client"));
 
-		fclose(emptyFile);
-		std::filesystem::remove();
+		std::ifstream emptyStream(jsonEmptyFile);
+		std::string emptyResult((std::istreambuf_iterator<char>(emptyStream)), std::istreambuf_iterator<char>());
+		UE_LOG(LogTemp, Warning, TEXT("From Path: %s | Value from json: %s"), jsonEmptyFile.c_str(), emptyResult.c_str());
+		if (emptyResult.find(std::string("Empty")))
+		{
+			emptyCommandFullfilled = true;
+		}
+		emptyStream.close();
 	}
 
 	return 0;

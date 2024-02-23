@@ -26,7 +26,7 @@ void ACUniverse::BeginPlay()
 	for (int i = 0; i < Planets.Num(); i++)
 	{
 		FString* planetID = new FString();
-		planetID->AppendInt(i);
+		planetID->AppendInt(i + 1);
 		Planets[i]->SpawnVillagers(planetID);
 	}
 }

@@ -21,6 +21,6 @@ private:
 public:
 	virtual bool Init() override;
 	virtual uint32 Run() override;
-	virtual void Exit() override;
-	virtual void Stop() override;
+	//virtual void Exit() override;
+	//virtual void Stop() override;
 };
