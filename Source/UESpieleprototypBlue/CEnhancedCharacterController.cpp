@@ -29,7 +29,7 @@ void UCEnhancedCharacterController::SetVillagerId(FString* villagerId)
 	pipeName.append(**villagerId);
 	const TCHAR* threadName = pipeName.c_str();
 
-	VillagerNamedPipeAsync* runnable = new VillagerNamedPipeAsync(new FString(pipeName.c_str()), &NnData, SensData, StatsData, RewData);
+	VillagerNamedPipeAsync* runnable = new VillagerNamedPipeAsync(new FString(pipeName.c_str()), NnData, SensData, StatsData, RewData);
 	if (runnable != nullptr && threadName != nullptr)
 		vThread = FRunnableThread::Create(runnable, threadName);
 }
@@ -39,12 +39,14 @@ void UCEnhancedCharacterController::TickComponent(float DeltaTime, ELevelTick Ti
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (NnData.IsUpdated && Villager != nullptr)
-	{
-		NnData.IsUpdated = false;
-		OnMove(NnData.Movement.X, NnData.Movement.Y);
-		OnLook(NnData.Rotation);
-		switch (NnData.Action)
+	//if (NnData.IsUpdated && Villager != nullptr)
+	//{
+		NnData->IsUpdated = false;
+		OnMove(NnData->Movement.X, NnData->Movement.Y);
+		OnLook(NnData->Rotation);
+		FString moveX = FString::FromInt(NnData->Movement.X);
+		UE_LOG(LogTemp, Warning, TEXT("MovementX: %s"), *moveX)
+		switch (NnData->Action)
 		{
 			case 1:
 			{
@@ -87,11 +89,13 @@ void UCEnhancedCharacterController::TickComponent(float DeltaTime, ELevelTick Ti
 		//		ObjectRotation
 
 		// Get new SensorData
-		UCSensorController* sensorController = Villager->GetComponentByClass<UCSensorController>();
-		SensData = sensorController->GetSensorData();
-		if (&SensData != NULL)
-			SensData->IsUpdated = true;
-	}
+		//UCSensorController* sensorController = Villager->GetComponentByClass<UCSensorController>();
+		//SensData = sensorController->GetSensorData();
+		//if (&SensData != NULL)
+		//	SensData->IsUpdated = true;
+	//}
+	//else
+	//	UE_LOG(LogTemp, Error, TEXT("ICH WILL MICH NICHT BEWEGEN WEIL WEGEN BAUM!!! Update: %s"), NnData.IsUpdated);
 }
 
 void UCEnhancedCharacterController::SetSensorData(int classCategory, int tribeID, int livePoints, int stamina, int strength, 

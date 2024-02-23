@@ -299,12 +299,20 @@ class NNData:
 
 class PyToJSON:
     def convertToJSON(self, fileID: str, fileCount: str, nnData: NNData):
+        # data = {
+        #     "moveX": str(nnData.moveX),
+        #     "moveY": str(nnData.moveY),
+        #     "rotX": str(nnData.rotX),
+        #     "rotY": str(nnData.rotY),
+        #     "action": str(nnData.action)
+        # }
+
         data = {
-            "moveX": str(nnData.moveX),
-            "moveY": str(nnData.moveY),
-            "rotX": str(nnData.rotX),
-            "rotY": str(nnData.rotY),
-            "action": str(nnData.action)
+            "moveX": 3.2,
+            "moveY": 0.0,
+            "rotX": 0.1,
+            "rotY": 0.0,
+            "action": nnData.action
         }
 
         j = json.dumps(data)

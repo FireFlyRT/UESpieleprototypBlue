@@ -32,7 +32,7 @@ void PythonInterface::CreatePipeServer(FString* villagerName, NeuralNetworkData*
 	_jsonVillagerPath = std::string(jsonVillagerFile);
 
 	std::string jsonNnDataFile = TCHAR_TO_UTF8(*projectPath);
-	std::string jsonNnDataPath = std::string("/PythonInterface/PythonScripts/JSONData/");
+	std::string jsonNnDataPath = std::string("/PythonInterface/JSONData/");
 
 	std::string NnDataBuffer = TCHAR_TO_UTF8(**villagerName);
 	jsonNnDataFile.append(jsonNnDataPath);
@@ -44,6 +44,7 @@ void PythonInterface::CreatePipeServer(FString* villagerName, NeuralNetworkData*
 	send.append(villagerBuffer);
 	jsonVillagerFile.append(".json");
 	CrypticHelper::WriteJsonToFile(send, jsonVillagerFile, true);
+	UE_LOG(LogTemp, Warning, TEXT("Pipe Interface running"));
 }
 
 /// <summary>
@@ -51,8 +52,6 @@ void PythonInterface::CreatePipeServer(FString* villagerName, NeuralNetworkData*
 /// </summary>
 bool PythonInterface::RunPipeServer(FString* villagerPipeName)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Pipe Interface running"));
-
 	//	TODO (Major): Workflow UnrealInterface (multiline)
 	//	On Run:
 	//		- Connect to MainPipe
@@ -95,7 +94,7 @@ bool PythonInterface::RunPipeServer(FString* villagerPipeName)
 		std::string data = CrypticHelper::EncryptValue(_sensorData, _statData, _rewardData); // returns json
 		if (data.empty())
 			// Fallback
-			data = std::string("{'SensorDat': ['2016','0','0','0','0','0','0','101','0','0','0','0','0'],'StatData': ['0','0','0','0','0','0','0','101','0','0','0','0'],'RewardData': ['474806688']}");
+			data = std::string("{'SensorDat': ['2016','0','0','0','0','0','0','101','0','0','0','0','0'],'StatData': ['0','0','0','0','0','0','0','101','0','0','0','0'],'RewardData': ['0']}");
 		
 		//UE_LOG(LogTemp, Warning, TEXT("Write Data: %s"), data.c_str());
 		std::string filePath = std::string(_jsonVillagerPath);
@@ -107,7 +106,9 @@ bool PythonInterface::RunPipeServer(FString* villagerPipeName)
 		jsonNnDataFile.append(std::string("_"));
 		jsonNnDataFile.append(std::to_string(jsonCount));
 		jsonNnDataFile.append(".json");
-		while (!FPaths::FileExists(FString(jsonNnDataFile.c_str())));
+		FString fp = FString(jsonNnDataFile.c_str());
+		//UE_LOG(LogTemp, Error, TEXT("nnData from: %s"), *fp);
+		while (!FPaths::FileExists(fp));
 		//jsonCount += 1;
 		// Data per Pointer to EnhancedCharacterController
 		_nnData = CrypticHelper::DecryptValue(new FString(jsonNnDataFile.c_str()));
@@ -119,9 +120,9 @@ bool PythonInterface::RunPipeServer(FString* villagerPipeName)
 		// TEST BREAK
 		// TODO (Major): Loop verhindert beenden des Programms!!!
 		//UE_LOG(LogTemp, Error, TEXT("TEST break"));
-		//break;
+		break;
 	}
-	UE_LOG(LogTemp, Error, TEXT("return"));
+	//UE_LOG(LogTemp, Error, TEXT("return"));
 	
 	return true;
 }

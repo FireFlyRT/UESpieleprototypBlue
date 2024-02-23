@@ -39,12 +39,13 @@ public:
 
 public:
 	FRunnableThread* VillagerThread;
-	ACVillager* Villager;
-	NeuralNetworkData NnData = NeuralNetworkData();
+	NeuralNetworkData* NnData = new NeuralNetworkData();
 	SensorData* SensData = new SensorData();
 	StatData* StatsData = new StatData();
 	RewardData* RewData = new RewardData();	
 
+	UPROPERTY(BlueprintReadWrite)
+	ACVillager* Villager;
 	UPROPERTY(BlueprintAssignable)
 	FOnPunch OnPunchDelegate;
 };

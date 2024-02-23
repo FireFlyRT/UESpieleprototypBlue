@@ -18,7 +18,7 @@ public:
 public:
 	int Null;
 	bool IsUpdated;
-	int Action;
+	int32 Action;
 	FVector Movement;
 	FVector Rotation;
 

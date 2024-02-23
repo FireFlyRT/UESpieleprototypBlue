@@ -25,11 +25,19 @@ NeuralNetworkData* CrypticHelper::DecryptValue(FString* filePath)
 
 			if (FJsonSerializer::Deserialize(TJsonReaderFactory<>::Create(data), jsonObject))
 			{
-				const FString valueName = "Action";
-				int jsonValue = jsonObject->GetIntegerField(valueName);
-				FString s = FString::FromInt(jsonValue);
-				UE_LOG(LogTemp, Warning, TEXT("Json Object: %s"), *s);
-				nnData->Action = jsonValue;
+				const FString valueActionName = "action";
+				int32 jsonActionValue = jsonObject->GetIntegerField(valueActionName);
+
+				const FString valueMovementXName = "moveX";
+				double jsonMovementXValue = jsonObject->GetNumberField(valueMovementXName);
+				const FString valueMovementYName = "moveY";
+				double jsonMovementYValue = jsonObject->GetNumberField(valueMovementYName);
+
+				const FString valueRotationName = "rotX";
+				double jsonRotationValue = jsonObject->GetIntegerField(valueRotationName);
+				nnData->Action = jsonActionValue;
+				nnData->Movement = FVector(jsonMovementXValue, jsonMovementYValue, 0);
+				nnData->Rotation = FVector(0, 0, jsonRotationValue);
 				nnData->IsUpdated = true;
 			}
 		}

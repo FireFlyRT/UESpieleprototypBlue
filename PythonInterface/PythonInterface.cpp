@@ -16,12 +16,6 @@
 #include "PyEnvironment.h"
 #include "filesystem"
 
-std::string ReceiveDataFromPipeServer()
-{
-    std::string b = "00,000,100,050,030,024,189,043,042,1.0000000;0.3821341;1.0421621,010205,00,000,100,050,030,024,189,043,042,1.0000000;0.3821341;1.0421621,1.2458";
-    return b;
-}
-
 
 std::string GetProjectPath(char* argv[])
 {
@@ -195,7 +189,7 @@ int main(int argc, char* argv[])
             std::string command = std::string();
             // Save Objects for later use (Learning) TODO (No Prio)
             // ExperienceBuffer!
-
+    
             // Create Data in Python
             std::string** statValues = new std::string*[12]
             {
@@ -213,7 +207,7 @@ int main(int argc, char* argv[])
                 new std::string(std::to_string(statData->PositionZ)),
             };
             PythonCommands::CreateClass("StatData", "statData", statValues, 12);
-
+    
             std::string** sensorValues = new std::string*[13]
             {
                 new std::string(std::to_string(sensorData->ClassCategory)),
@@ -231,13 +225,13 @@ int main(int argc, char* argv[])
                 new std::string(std::to_string(sensorData->Distance)),
             };
             PythonCommands::CreateClass("SensorData", "sensorData", sensorValues, 13);
-
+    
             std::string** rewardValues = new std::string*[1]
             {
                     new std::string(std::to_string(rewardData->Reward))
             };
             PythonCommands::CreateClass("RewardData", "rewardData", rewardValues, 1);
-
+    
             // Init Environment in Python
             std::string** programValues = new std::string*[1]
             {
@@ -246,10 +240,10 @@ int main(int argc, char* argv[])
             PythonCommands::CreateClass("Program", "prog", programValues, 1);
             PyRun_SimpleString("prog.env.SetObservationSpace(sensorData.GetData(), statData.GetData())");
             PyRun_SimpleString("prog.LateInit()");
-
+    
             // Build state in Python as new_state
             PyRun_SimpleString("new_state = statData.GetData()");
-
+    
             // INFO: Program.agent.ExperienceStep(action, state, reward, isDone)
             command = program;
             command.append(".agent.ExperienceStep(");
@@ -266,9 +260,9 @@ int main(int argc, char* argv[])
             command.append(std::to_string(rewardData->Reward));
             command.append(")");
             PyRun_SimpleString(command.c_str());
-
+    
             // Insert Data in Neural Network
-
+    
             // Step
             PyRun_SimpleString("prog.Step()");
             // Send Output back to C++ (JSON)

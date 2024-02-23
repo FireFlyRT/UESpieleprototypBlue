@@ -25,7 +25,12 @@ uint32 VillagerNamedPipeAsync::Run()
 {
 	PythonInterface* pyInterface = new PythonInterface();
 	pyInterface->CreatePipeServer(_villagerName, _nnData, _sensorData, _statData, _rewardData);
-	pyInterface->RunPipeServer(_villagerName);
+	while (true)
+	{
+		pyInterface->RunPipeServer(_villagerName);
+	}
+
+	UE_LOG(LogTemp, Error, TEXT("LOOOPOP BEEEENDENT"));
 
 	return 1;
 }

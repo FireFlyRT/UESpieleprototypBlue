@@ -76,3 +76,5 @@ DerivedDataCache/*
 x64/*
 PythonInterface/runs/*
 PythonInterface/x64/*
+PythonInterface/DLLs/*
+*.pyd

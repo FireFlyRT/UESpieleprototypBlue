@@ -35,7 +35,7 @@ void UCCharacterController::TickComponent(float DeltaTime, ELevelTick TickType, 
 
 void UCCharacterController::OnMove(float moveX, float moveY)
 {
-	Villager->AddMovementInput(Villager->GetMesh()->GetRelativeRotation().Vector().ForwardVector, -moveX);
+	Villager->AddMovementInput(Villager->GetMesh()->GetRelativeRotation().Vector().ForwardVector, moveX);
 	Villager->AddMovementInput(Villager->GetMesh()->GetRelativeRotation().Vector().RightVector, moveY);
 }
 
