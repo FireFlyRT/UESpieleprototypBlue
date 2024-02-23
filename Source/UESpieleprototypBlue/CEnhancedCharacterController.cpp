@@ -44,8 +44,7 @@ void UCEnhancedCharacterController::TickComponent(float DeltaTime, ELevelTick Ti
 		NnData->IsUpdated = false;
 		OnMove(NnData->Movement.X, NnData->Movement.Y);
 		OnLook(NnData->Rotation);
-		FString moveX = FString::FromInt(NnData->Movement.X);
-		UE_LOG(LogTemp, Warning, TEXT("MovementX: %s"), *moveX)
+		UE_LOG(LogTemp, Warning, TEXT("MovementX: %d"), NnData->Movement.X)
 		switch (NnData->Action)
 		{
 			case 1:

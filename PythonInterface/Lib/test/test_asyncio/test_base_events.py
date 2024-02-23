@@ -273,7 +273,7 @@ class BaseEventLoopTests(test_utils.TestCase):
             self.loop.stop()
 
         self.loop._process_events = mock.Mock()
-        delay = 0.1
+        delay = 0.100
 
         when = self.loop.time() + delay
         self.loop.call_at(when, cb)
@@ -282,10 +282,7 @@ class BaseEventLoopTests(test_utils.TestCase):
         dt = self.loop.time() - t0
 
         # 50 ms: maximum granularity of the event loop
-        self.assertGreaterEqual(dt, delay - 0.050, dt)
-        # tolerate a difference of +800 ms because some Python buildbots
-        # are really slow
-        self.assertLessEqual(dt, 0.9, dt)
+        self.assertGreaterEqual(dt, delay - test_utils.CLOCK_RES)
         with self.assertRaises(TypeError, msg="when cannot be None"):
             self.loop.call_at(None, cb)
 
@@ -1194,7 +1191,7 @@ class BaseEventLoopWithSelectorTests(test_utils.TestCase):
         with sock:
             coro = self.loop.create_datagram_endpoint(MyProto, sock=sock)
             with self.assertRaisesRegex(ValueError,
-                                        'A UDP Socket was expected'):
+                                        'A datagram socket was expected'):
                 self.loop.run_until_complete(coro)
 
     def test_create_connection_no_host_port_sock(self):

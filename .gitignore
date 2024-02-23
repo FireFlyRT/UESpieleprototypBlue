@@ -77,4 +77,5 @@ x64/*
 PythonInterface/runs/*
 PythonInterface/x64/*
 PythonInterface/DLLs/*
+PythonInterface/Doc/*
 *.pyd

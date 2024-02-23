@@ -1827,6 +1827,17 @@ Invalid bytes literals:
         ^^^^^^^^^^^
    SyntaxError: bytes can only contain ASCII literal characters
 
+   >>> f(**x, *y)
+   Traceback (most recent call last):
+   SyntaxError: iterable argument unpacking follows keyword argument unpacking
+
+   >>> f(**x, *)
+   Traceback (most recent call last):
+   SyntaxError: iterable argument unpacking follows keyword argument unpacking
+
+   >>> f(x, *:)
+   Traceback (most recent call last):
+   SyntaxError: invalid syntax
 """
 
 import re
@@ -2132,6 +2143,12 @@ func(
 """
         self._check_error(code, "parenthesis '\\)' does not match opening parenthesis '\\['")
 
+        self._check_error("match y:\n case e(e=v,v,", " was never closed")
+
+        # Examples with dencodings
+        s = b'# coding=latin\n(aaaaaaaaaaaaaaaaa\naaaaaaaaaaa\xb5'
+        self._check_error(s, r"'\(' was never closed")
+
     def test_error_string_literal(self):
 
         self._check_error("'blech", "unterminated string literal")
@@ -2141,6 +2158,7 @@ func(
 
     def test_invisible_characters(self):
         self._check_error('print\x17("Hello")', "invalid non-printable character")
+        self._check_error(b"with(0,,):\n\x01", "invalid non-printable character")
 
     def test_match_call_does_not_raise_syntax_error(self):
         code = """
