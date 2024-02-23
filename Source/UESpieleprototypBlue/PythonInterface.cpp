@@ -120,7 +120,7 @@ bool PythonInterface::RunPipeServer(FString* villagerPipeName)
 		// TEST BREAK
 		// TODO (Major): Loop verhindert beenden des Programms!!!
 		//UE_LOG(LogTemp, Error, TEXT("TEST break"));
-		break;
+		//break;
 	}
 	//UE_LOG(LogTemp, Error, TEXT("return"));
 	

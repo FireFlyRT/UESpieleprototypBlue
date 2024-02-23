@@ -25,15 +25,15 @@ NeuralNetworkData* CrypticHelper::DecryptValue(FString* filePath)
 
 			if (FJsonSerializer::Deserialize(TJsonReaderFactory<>::Create(data), jsonObject))
 			{
-				const FString valueActionName = "action";
+				const FString valueActionName = L"action";
 				int32 jsonActionValue = jsonObject->GetIntegerField(valueActionName);
 
-				const FString valueMovementXName = "moveX";
+				const FString valueMovementXName = L"moveX";
 				double jsonMovementXValue = jsonObject->GetNumberField(valueMovementXName);
-				const FString valueMovementYName = "moveY";
+				const FString valueMovementYName = L"moveY";
 				double jsonMovementYValue = jsonObject->GetNumberField(valueMovementYName);
 
-				const FString valueRotationName = "rotX";
+				const FString valueRotationName = L"rotX";
 				double jsonRotationValue = jsonObject->GetIntegerField(valueRotationName);
 				nnData->Action = jsonActionValue;
 				nnData->Movement = FVector(jsonMovementXValue, jsonMovementYValue, 0);
