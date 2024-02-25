@@ -5,6 +5,7 @@
 
 RewardData::RewardData()
 {
+	Reward = 0;
 }
 
 RewardData::~RewardData()

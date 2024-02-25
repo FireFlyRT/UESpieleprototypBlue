@@ -94,7 +94,8 @@ bool PythonInterface::RunPipeServer(FString* villagerPipeName)
 		std::string data = CrypticHelper::EncryptValue(_sensorData, _statData, _rewardData); // returns json
 		if (data.empty())
 			// Fallback
-			data = std::string("{'SensorDat': ['2016','0','0','0','0','0','0','101','0','0','0','0','0'],'StatData': ['0','0','0','0','0','0','0','101','0','0','0','0'],'RewardData': ['0']}");
+			//data = std::string("{'SensorDat': ['2016','0','0','0','0','0','0','101','0','0','0','0','0'],'StatData': ['0','0','0','0','0','0','0','101','0','0','0','0'],'RewardData': ['0']}");
+			continue;
 		
 		//UE_LOG(LogTemp, Warning, TEXT("Write Data: %s"), data.c_str());
 		std::string filePath = std::string(_jsonVillagerPath);
@@ -112,7 +113,7 @@ bool PythonInterface::RunPipeServer(FString* villagerPipeName)
 		//jsonCount += 1;
 		// Data per Pointer to EnhancedCharacterController
 		_nnData = CrypticHelper::DecryptValue(new FString(jsonNnDataFile.c_str()));
-		if (_nnData->Null != NULL)
+		if (_nnData != nullptr)
 		{
 			_nnData->IsUpdated = true;
 		}

@@ -57,7 +57,7 @@ uint32 MainNamedPipeAsync::Run()
 
 		std::ifstream emptyStream(jsonEmptyFile);
 		std::string emptyResult((std::istreambuf_iterator<char>(emptyStream)), std::istreambuf_iterator<char>());
-		UE_LOG(LogTemp, Warning, TEXT("From Path: %s | Value from json: %s"), jsonEmptyFile.c_str(), emptyResult.c_str());
+		UE_LOG(LogTemp, Warning, TEXT("From Path: %s | Value from json: %s"), UTF8_TO_TCHAR(jsonEmptyFile.c_str()), UTF8_TO_TCHAR(emptyResult.c_str()));
 		if (emptyResult.find(std::string("Empty")))
 		{
 			emptyCommandFullfilled = true;

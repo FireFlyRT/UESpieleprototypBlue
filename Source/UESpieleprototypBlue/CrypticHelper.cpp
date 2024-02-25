@@ -25,15 +25,15 @@ NeuralNetworkData* CrypticHelper::DecryptValue(FString* filePath)
 
 			if (FJsonSerializer::Deserialize(TJsonReaderFactory<>::Create(data), jsonObject))
 			{
-				const FString valueActionName = L"action";
+				FString valueActionName = "action";
 				int32 jsonActionValue = jsonObject->GetIntegerField(valueActionName);
 
-				const FString valueMovementXName = L"moveX";
+				FString valueMovementXName = "moveX";
 				double jsonMovementXValue = jsonObject->GetNumberField(valueMovementXName);
-				const FString valueMovementYName = L"moveY";
+				FString valueMovementYName = "moveY";
 				double jsonMovementYValue = jsonObject->GetNumberField(valueMovementYName);
 
-				const FString valueRotationName = L"rotX";
+				FString valueRotationName = "rotX";
 				double jsonRotationValue = jsonObject->GetIntegerField(valueRotationName);
 				nnData->Action = jsonActionValue;
 				nnData->Movement = FVector(jsonMovementXValue, jsonMovementYValue, 0);
@@ -44,39 +44,6 @@ NeuralNetworkData* CrypticHelper::DecryptValue(FString* filePath)
 	}
 
 	return nnData;
-
-	///*try 
-	//{*/
-	//	NeuralNetworkData* nnData = new NeuralNetworkData();
-	//	int accidentalX = std::stoi(value.substr(0, 0));
-	//	int moveSpeedX = std::stoi(value.substr(2, 4));
-	//	int accidentalY = std::stoi(value.substr(6, 6));
-	//	int moveSpeedY = std::stoi(value.substr(8, 10));
-
-	//	if (accidentalX == 0) moveSpeedX *= -1;
-	//	if (accidentalY == 0) moveSpeedY *= -1;
-
-	//	accidentalX = std::stoi(value.substr(12, 12));
-	//	int rotateSpeedX = std::stoi(value.substr(14, 16));
-	//	accidentalY = std::stoi(value.substr(18, 18));
-	//	int rotateSpeedY = std::stoi(value.substr(20, 22));
-
-	//	if (accidentalX == 0) rotateSpeedX *= -1;
-	//	if (accidentalY == 0) rotateSpeedY *= -1;
-
-	//	int action = std::stoi(value.substr(24, 26));
-
-	//	nnData->Movement = FVector(moveSpeedX, moveSpeedY, 0);
-	//	nnData->Rotation = FVector(rotateSpeedX, rotateSpeedY, 0);
-	//	nnData->Action = action;
-
-	//	return nnData;
-	///*}
-	//catch (const std::exception& ex)
-	//{
-	//	UE_LOG(LogTemp, Warning, TEXT("NeuralNetwork Data Failed!!!"));
-	//	return NeuralNetworkData(NULL);
-	//}*/
 }
 
 std::string CrypticHelper::EncryptValue(SensorData* sensorData, StatData* statData, RewardData* rewardData)
@@ -133,7 +100,6 @@ void CrypticHelper::WriteJsonToFile(std::string json, std::string filename, bool
 			{
 				AsyncTask(ENamedThreads::GameThread, [json, filename]()
 					{
-						UE_LOG(LogTemp, Warning, TEXT("ASYNC"));
 						std::ofstream writeStream(filename);
 						writeStream << json;
 						writeStream.close();
