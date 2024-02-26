@@ -11,10 +11,8 @@ CrypticHelper::~CrypticHelper()
 {
 }
 
-NeuralNetworkData* CrypticHelper::DecryptValue(FString* filePath)
+void CrypticHelper::DecryptValue(FString* filePath, NeuralNetworkData* nnData)
 {
-	NeuralNetworkData* nnData = new NeuralNetworkData();
-
 	if (FPlatformFileManager::Get().GetPlatformFile().FileExists(**filePath))
 	{
 		FString data;
@@ -42,8 +40,6 @@ NeuralNetworkData* CrypticHelper::DecryptValue(FString* filePath)
 			}
 		}
 	}
-
-	return nnData;
 }
 
 std::string CrypticHelper::EncryptValue(SensorData* sensorData, StatData* statData, RewardData* rewardData)

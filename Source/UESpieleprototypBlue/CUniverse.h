@@ -25,6 +25,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	virtual void BeginDestroy() override;
+	static UWorld* GetTheWorld();
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

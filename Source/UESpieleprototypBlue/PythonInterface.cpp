@@ -45,6 +45,33 @@ void PythonInterface::CreatePipeServer(FString* villagerName, NeuralNetworkData*
 	jsonVillagerFile.append(".json");
 	CrypticHelper::WriteJsonToFile(send, jsonVillagerFile, true);
 	UE_LOG(LogTemp, Warning, TEXT("Pipe Interface running"));
+
+
+	bool emptyFileExisted = false;
+	std::string jsonEmptyFile = TCHAR_TO_UTF8(*projectPath);
+	std::string jsonEmptyPath = std::string("/PythonInterface/JSONData/");
+	jsonEmptyFile.append(jsonEmptyPath);
+	jsonEmptyFile.append("Empty.json");
+
+	while (true)
+	{
+		// Check if ExternInterface is ready
+		if (!emptyFileExisted)
+		{
+			if (FPaths::FileExists(FString(jsonEmptyFile.c_str())))
+			{
+				emptyFileExisted = true;
+				while (std::remove(jsonEmptyFile.c_str()) != 0);
+			}
+			continue;
+		}
+	
+		if (FPaths::FileExists(FString(jsonEmptyFile.c_str())))
+			continue;
+	
+		break;
+	}
+	UE_LOG(LogTemp, Warning, TEXT("Pipe Interface ready"));
 }
 
 /// <summary>
@@ -67,63 +94,31 @@ bool PythonInterface::RunPipeServer(FString* villagerPipeName)
 	//	
 
 	int jsonCount = 0;
-	bool emptyFileExisted = false;
 
-	FString projectFilePath = FPaths::GetProjectFilePath();
-	FString projectPath = FPaths::GetPath(projectFilePath);
-	std::string jsonEmptyFile = TCHAR_TO_UTF8(*projectPath);
-	std::string jsonEmptyPath = std::string("/PythonInterface/JSONData/");
-	jsonEmptyFile.append(jsonEmptyPath);
-	jsonEmptyFile.append("Empty.json");
-
-	while (true)
-	{
-		// Check if ExternInterface is ready
-		if (!emptyFileExisted)
-		{
-			if (FPaths::FileExists(FString(jsonEmptyFile.c_str())))
-				emptyFileExisted = true;
-			continue;
-		}
-			
-		if (FPaths::FileExists(FString(jsonEmptyFile.c_str())))
-			continue;
-
-		// Write data to json
-		// SensorData, StatData, RewardData
-		std::string data = CrypticHelper::EncryptValue(_sensorData, _statData, _rewardData); // returns json
-		if (data.empty())
-			// Fallback
-			//data = std::string("{'SensorDat': ['2016','0','0','0','0','0','0','101','0','0','0','0','0'],'StatData': ['0','0','0','0','0','0','0','101','0','0','0','0'],'RewardData': ['0']}");
-			continue;
+	// Write data to json
+	// SensorData, StatData, RewardData
+	std::string data = CrypticHelper::EncryptValue(_sensorData, _statData, _rewardData); // returns json
+	if (data.empty())
+		// Fallback
+		data = std::string("{'SensorDat': ['2016','0','0','0','0','0','0','101','0','0','0','0','0'],'StatData': ['0','0','0','0','0','0','0','101','0','0','0','0'],'RewardData': ['0']}");
+		//continue;
 		
-		//UE_LOG(LogTemp, Warning, TEXT("Write Data: %s"), data.c_str());
-		std::string filePath = std::string(_jsonVillagerPath);
-		filePath.append(".json");
-		CrypticHelper::WriteJsonToFile(data, filePath, true);
+	//UE_LOG(LogTemp, Warning, TEXT("Write Data: %s"), data.c_str());
+	std::string filePath = std::string(_jsonVillagerPath);
+	filePath.append(".json");
+	CrypticHelper::WriteJsonToFile(data, filePath, true);
 
-		// Read data from json Action, Movement, Rotation
-		std::string jsonNnDataFile = std::string(_jsonNnDataPath);
-		jsonNnDataFile.append(std::string("_"));
-		jsonNnDataFile.append(std::to_string(jsonCount));
-		jsonNnDataFile.append(".json");
-		FString fp = FString(jsonNnDataFile.c_str());
-		//UE_LOG(LogTemp, Error, TEXT("nnData from: %s"), *fp);
-		while (!FPaths::FileExists(fp));
-		//jsonCount += 1;
-		// Data per Pointer to EnhancedCharacterController
-		_nnData = CrypticHelper::DecryptValue(new FString(jsonNnDataFile.c_str()));
-		if (_nnData != nullptr)
-		{
-			_nnData->IsUpdated = true;
-		}
+	// Read data from json Action, Movement, Rotation
+	std::string jsonNnDataFile = std::string(_jsonNnDataPath);
+	jsonNnDataFile.append(std::string("_"));
+	jsonNnDataFile.append(std::to_string(jsonCount));
+	jsonNnDataFile.append(".json");
+	FString fp = FString(jsonNnDataFile.c_str());
+	//while (!FPaths::FileExists(fp));
+	//jsonCount += 1;
+	// Data per Pointer to EnhancedCharacterController
+	CrypticHelper::DecryptValue(new FString(fp), _nnData);
 
-		// TEST BREAK
-		// TODO (Major): Loop verhindert beenden des Programms!!!
-		//UE_LOG(LogTemp, Error, TEXT("TEST break"));
-		//break;
-	}
-	//UE_LOG(LogTemp, Error, TEXT("return"));
-	
+	// TODO (Major): Loop verhindert beenden des Programms!!!
 	return true;
 }

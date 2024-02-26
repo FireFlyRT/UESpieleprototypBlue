@@ -20,7 +20,7 @@ public:
 	CrypticHelper();
 	~CrypticHelper();
 
-	static NeuralNetworkData* DecryptValue(FString* filePath);
+	static void DecryptValue(FString* filePath, NeuralNetworkData* nnData);
 	static std::string EncryptValue(SensorData* sensorData, StatData* statData, RewardData* rewardData);
 	static void WriteJsonToFile(std::string json, std::string filename, bool isAsync);
 

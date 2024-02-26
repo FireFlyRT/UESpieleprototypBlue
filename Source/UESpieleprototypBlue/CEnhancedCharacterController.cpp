@@ -44,12 +44,11 @@ void UCEnhancedCharacterController::TickComponent(float DeltaTime, ELevelTick Ti
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	//if (NnData->IsUpdated && Villager != nullptr)
-	//{
-		NnData->IsUpdated = false;
+	if (NnData->IsUpdated)// && Villager != nullptr)
+	{
+		//NnData->IsUpdated = false;
 		OnMove(NnData->Movement.X, NnData->Movement.Y);
 		OnLook(NnData->Rotation);
-		//UE_LOG(LogTemp, Warning, TEXT("MovementX: %f"), NnData->Movement.X)
 		switch (NnData->Action)
 		{
 			case 1:
@@ -97,7 +96,7 @@ void UCEnhancedCharacterController::TickComponent(float DeltaTime, ELevelTick Ti
 		//SensData = sensorController->GetSensorData();
 		//if (&SensData != NULL)
 		//	SensData->IsUpdated = true;
-	//}
+	}
 	//else
 	//	UE_LOG(LogTemp, Error, TEXT("ICH WILL MICH NICHT BEWEGEN WEIL WEGEN BAUM!!! Update: %s"), NnData.IsUpdated);
 }

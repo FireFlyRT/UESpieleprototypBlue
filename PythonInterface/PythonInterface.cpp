@@ -155,7 +155,7 @@ int main(int argc, char* argv[])
                 std::cout << "Readed: " << result << std::endl;
                 isConnected = true;
                 // delete Empty File
-                while(std::remove(emptyfile.c_str()) != 0);
+                //while(std::remove(emptyfile.c_str()) != 0);
                 std::cout << "Removed Empty" << std::endl;
                 break;
             }

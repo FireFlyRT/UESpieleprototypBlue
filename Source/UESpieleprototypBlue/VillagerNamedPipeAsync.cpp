@@ -2,6 +2,7 @@
 
 
 #include "VillagerNamedPipeAsync.h"
+#include "CUniverse.h"
 
 VillagerNamedPipeAsync::VillagerNamedPipeAsync(FString* villagerName, NeuralNetworkData* nnData, SensorData* sensorData, StatData* statData, RewardData* rewardData)
 {
@@ -28,6 +29,7 @@ uint32 VillagerNamedPipeAsync::Run()
 	while (true)
 	{
 		pyInterface->RunPipeServer(_villagerName);
+		Sleep(1);
 	}
 
 	UE_LOG(LogTemp, Error, TEXT("LOOOPOP BEEEENDENT"));
