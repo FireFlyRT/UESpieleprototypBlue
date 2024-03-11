@@ -71,7 +71,7 @@ class Agent:
         #self.state = self.env.reset()
         self.total_reward = 0.0
 
-    def PlayStep(self, net, epsilon = 0.0, device = "GPU"):
+    def PlayStep(self, net, epsilon = 0.0, device = torch.device("cuda")):
         if np.random.random() < epsilon:
             action, moveX, moveY, rotZ = self.env.actionSpace.sample()
             # Random Move and Rotation
@@ -106,7 +106,7 @@ class Agent:
 
         return done_reward
         
-    def CalcLoss(batch, net, target_net, device = "GPU"):
+    def CalcLoss(batch, net, target_net, device = torch.device("cuda")):
         states, actions, rewards, dones, next_states = batch
         states_v = torch.tensor(states).to(device)
         next_states_v = torch.tensor(next_states).to(device)
@@ -144,7 +144,8 @@ class Program:
         parser.add_argument("--env", default = DEFAULT_ENV_NAME, help = "Environment")
         parser.add_argument("--reward", type = float, default = MEAN_REWARD_BOUND, help = "Mean Reward")
         self.args = parser.parse_args()
-        self.device = torch.device("cuda" if self.args.cuda else "cpu")
+        #self.device = torch.device("cuda" if self.args.cuda else "cpu")
+        self.device = torch.device("cuda")
         self.epsilon = 0
         actionSpace = ActionSpace()
         observationSpace = np.array([])
