@@ -5,6 +5,7 @@ import json
 import numpy as np
 import torch
 import torch.nn as nn
+import torch.nn.functional as f
 import torch.optim as optim
 import time
 
@@ -29,23 +30,34 @@ Experience = collections.namedtuple('Experience', field_names = ['state', 'actio
 class DQN(nn.Module):
     def __init__(self, input_shape, n_actions):
         super(DQN, self).__init__()
+        self.n_actions = n_actions
+        self.relu = nn.ReLU()
+        self.sofsign = nn.Softsign()
 
-        self.conv = nn.Sequential(
-            # 25 Inputs (13 Sensor / 12 Stat)
-            # Change to LinearLayer!
-            nn.Linear(input_shape[0], 25),
-            nn.ReLU(),
-            nn.Linear(25, 50),
-            nn.ReLU(),
-            nn.Linear(50, 96),
-            nn.ReLU(),
-            nn.Linear(96, 512),
-            nn.ReLU(),
-            nn.Linear(512, n_actions)
-            )
+        # 25 Inputs (13 Sensor / 12 Stat)
+        self.linear1 = nn.Linear(input_shape[0], 25)
+        self.linear2 = nn.Linear(25, 50)
+        self.linear3 = nn.Linear(50, 96)
+        self.linear4 = nn.Linear(96, 512)
+        self.linearAction = nn.Linear(512, self.n_actions)
+        self.linear5 = nn.Linear(512, 64)
+        self.linearMovementX = nn.Linear(64, 1)
+        self.linearMovementY = nn.Linear(64, 1)
+        self.linearRotationZ = nn.Linear(64, 1)
     
     def forward(self, x):
-        return self.conv(x)
+        x = self.relu(self.linear1(x))
+        x = self.relu(self.linear2(x))
+        x = self.relu(self.linear3(x))
+        x = self.linear4(x)
+        x = self.relu(x)
+        actionVals = self.relu(self.linearAction(x))
+        x = self.sofsign(self.linear5(x))
+        moveXVals = self.sofsign(self.linearMovementX(x))
+        moveYVals = self.sofsign(self.linearMovementY(x))
+        rotationZVals = self.sofsign(self.linearRotationZ(x))
+
+        return actionVals, moveXVals, moveYVals, rotationZVals
     
 class Agent:
     def __init__(self, env, exp_buffer):
@@ -61,16 +73,23 @@ class Agent:
 
     def PlayStep(self, net, epsilon = 0.0, device = "GPU"):
         if np.random.random() < epsilon:
-            action = self.env.actionSpace.sample()
+            action, moveX, moveY, rotZ = self.env.actionSpace.sample()
             # Random Move and Rotation
         else:
-            state_a = np.array([self.state], copy = False)
+            self.state = self.env.observationSpace
+            state_a = np.array(self.state, copy = False)
             state_v = torch.tensor(state_a).to(device)
-            q_vals_nnData_v = net(state_v) # Get more than one return
-            _, act_v = torch.max(q_vals_nnData_v.action, dim = 1)
+            q_vals_action_v, moveX, moveY, rotZ = net(state_v)
+            _, act_v = torch.max(q_vals_action_v, dim = 0)
             action = int(act_v.item())
+            moveX = moveX.item()
+            moveY = moveY.item()
+            rotZ = rotZ.item()
+            #moveX = torch.clamp(moveX, -1, 1)
+            #moveY = torch.clamp(moveY, -1, 1)
+            #rotZ = torch.clamp(rotZ, -1, 1)
 
-        self.env.step(action) # Step on Environment
+        self.env.step(moveX, moveY, rotZ, action) # Step on Environment
         # Result of the Step will be returned later by Unreal
         
     def ExperienceStep(self, action, new_state, reward, is_done):
@@ -119,7 +138,7 @@ class ExperienceBuffer:
         return np.array(states), np.array(actions), np.array(rewards, dtype = np.float32), np.array(dones, dtype = np.uint8), np.array(next_states)
 
 class Program:
-    def __init__(self, villagerID):
+    def __init__(self, villagerID, jsonPath):
         parser = argparse.ArgumentParser()
         parser.add_argument("--cuda", default = False, action = "store_true", help = "Enable cuda")
         parser.add_argument("--env", default = DEFAULT_ENV_NAME, help = "Environment")
@@ -129,7 +148,7 @@ class Program:
         self.epsilon = 0
         actionSpace = ActionSpace()
         observationSpace = np.array([])
-        self.env = Environment(villagerID, actionSpace, observationSpace)
+        self.env = Environment(villagerID, actionSpace, observationSpace, jsonPath)
 
         self.writer  = SummaryWriter(comment = "-" + self.args.env)
         self.buffer = ExperienceBuffer(REPLAY_SIZE)
@@ -142,7 +161,7 @@ class Program:
         self.best_mean_reward = None
         self.net = None
         self.target_net = None
-        self.optimizer = None
+        self.jsonPath = None
 
     def LateInit(self):
         self.net = DQN(self.env.observationSpace.shape, self.env.actionSpace.actions.__len__()).to(self.device)
@@ -197,51 +216,55 @@ class Program:
         self.optimizer.step()
 
 class Environment:
-    def __init__(self, villagerID, actionSpace, observationSpace):
+    def __init__(self, villagerID, actionSpace, observationSpace, jsonPath):
         self.jsonCount = 0
-        self.villagerID = villagerID # is int
-        self.actionSpace = actionSpace # is ActionSpace
-        self.observationSpace = observationSpace # is Array with Sensor-/StatData == state
+        self.villagerID = villagerID
+        self.jsonPath = jsonPath
+        self.actionSpace = actionSpace
+        self.observationSpace = observationSpace
 
     def SetObservationSpace(self, observationSpace):
         self.observationSpace = observationSpace
 
     def SetObservationSpace(self, sensorData, statData):
-        data = np.array([])
+        data = torch.tensor([])
 
         for s in range(0, sensorData.__len__()):
-            data.__add__(sensorData[s])
+            data.add(sensorData[s])
 
         for s in range(0, statData.__len__()):
-            data.__add__(statData[s])
+            data.add(statData[s])
 
         self.observationSpace = data
-        return data
+        return data.float()
 
     def reset():
         # return state
         pass
 
-    def step(self, action):
-        # do stuff
-
+    def step(self, moveX, moveY, rotZ, action):
         # Get Data From NN
-
         # Save Data in JSON file
         pyJson = PyToJSON()
-        data = NNData(60, 0, 20, 30, action) # Get Move and Rotation too
-        pyJson.convertToJSON(str(self.villagerID), str(self.jsonCount), data)
+        data = NNData(moveX, moveY, rotZ, action) # Get Move and Rotation too
+        pyJson.convertToJSON(str(self.jsonPath), str(self.villagerID), str(self.jsonCount), data)
         #self.jsonCount += 1
 
 class ActionSpace:
     def __init__(self): # 0 = Nothing, 1 = Punch, 2 = Jump
         self.actions = [0, 1, 2] #, 3, 4] #, 5, 6, 7, 8, 9]
+        self.move = [-1, 1]
+        self.rotation = [-1, 1]
 
     def __len__(self):
         return self.actions.__len__()
     
     def sample(self):
-        return self.actions[np.random.randint(0, self.actions.__len__())-1]
+        action = self.actions[np.random.randint(0, self.actions.__len__())-1]
+        moveX = self.move[np.random.randint(self.move[0], self.move[1])]
+        moveY = self.move[np.random.randint(self.move[0], self.move[1])]
+        rotZ = self.rotation[np.random.randint(self.rotation[0], self.rotation[1])]
+        return action, moveX, moveY, rotZ 
 
 class RewardData:
     def __init__(self, reward):
@@ -266,7 +289,7 @@ class SensorData:
         self.distance = distance
 
     def GetData(self):
-        data = [self.classCategory, self.tribeId, self.tribeId, self.livePoints, self.stamina, self.strength, self.age, self.height, self.hunger, self.thurst, self.positionX, self.positionY, self.positionZ, self.distance]
+        data = torch.tensor([self.classCategory, self.tribeId, self.tribeId, self.livePoints, self.stamina, self.strength, self.age, self.height, self.hunger, self.thurst, self.positionX, self.positionY, self.positionZ, self.distance])
         return data
 
 class StatData:
@@ -286,40 +309,33 @@ class StatData:
         self.positionZ = positionZ
 
     def GetData(self):
-        data = [self.classCategory, self.tribeId, self.tribeId, self.livePoints, self.stamina, self.strength, self.age, self.height, self.hunger, self.thurst, self.positionX, self.positionY, self.positionZ]
+        data = torch.tensor([self.classCategory, self.tribeId, self.tribeId, self.livePoints, self.stamina, self.strength, self.age, self.height, self.hunger, self.thurst, self.positionX, self.positionY, self.positionZ])
         return data
 
 class NNData:
-    def __init__(self, moveX, moveY, rotX, rotY, action):
+    def __init__(self, moveX, moveY, rotZ, action):
         self.moveX = moveX
         self.moveY = moveY
-        self.rotX = rotX
-        self.rotY = rotY
+        self.rotZ = rotZ
         self.action = action
 
 class PyToJSON:
-    def convertToJSON(self, fileID: str, fileCount: str, nnData: NNData):
-        # data = {
-        #     "moveX": str(nnData.moveX),
-        #     "moveY": str(nnData.moveY),
-        #     "rotX": str(nnData.rotX),
-        #     "rotY": str(nnData.rotY),
-        #     "action": str(nnData.action)
-        # }
-
+    def convertToJSON(self, jsonPath: str, fileID: str, fileCount: str, nnData: NNData):
         data = {
-            "moveX": 3.2,
-            "moveY": 0.0,
-            "rotX": 0.1,
-            "rotY": 0.0,
+            "moveX": nnData.moveX,
+            "moveY": nnData.moveY,
+            "rotZ": nnData.rotZ,
             "action": nnData.action
         }
 
         j = json.dumps(data)
         fileName = fileID + "_" + fileCount + ".json"
-        file = open("JSONData/" + fileName, "w")
-        file.write(j)
-        file.close()
+        try: # If the File is in use, just wait for the next time
+            file = open(jsonPath + "/" + fileName, "w")
+            file.write(j)
+            file.close()
+        finally:
+            _ = 0
 
 # DEBUG
 #if (__name__ == "__main__"):

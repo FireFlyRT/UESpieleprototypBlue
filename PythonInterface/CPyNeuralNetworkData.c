@@ -14,7 +14,6 @@ typedef struct
 	PyObject* MovementX;
 	PyObject* MovementY;
 	PyObject* RotationZ;
-	PyObject* RotationY;
 
 } CPyNNData;
 
@@ -102,27 +101,6 @@ static int PyNNData_setRotationX(CPyNNData* self, PyObject* value, void* closure
 	return 0;
 }
 
-static PyObject* PyNNData_getRotationY(CPyNNData* self, void* closure)
-{
-	return Py_NewRef(self->RotationY);
-}
-
-static int PyNNData_setRotationY(CPyNNData* self, PyObject* value, void* closure)
-{
-	if (value == NULL)
-	{
-		PyErr_SetString(PyExc_TypeError, "Cannot delete the last attribute");
-		return -1;
-	}
-	if (!PyUnicode_Check(value))
-	{
-		PyErr_SetString(PyExc_TypeError, "The last attribute value must be a string");
-		return -1;
-	}
-	Py_SETREF(self->RotationY, Py_NewRef(value));
-	return 0;
-}
-
 static PyMethodDef PyNNData_methods[] =
 {
 	{NULL}
@@ -134,7 +112,6 @@ static PyGetSetDef PyNNData_getsetters[] =
 	{"MovementX", (getter)PyNNData_getMovementX, (setter)PyNNData_setMovementX, "MovementX", NULL},
 	{"MovementY", (getter)PyNNData_getMovementY, (setter)PyNNData_setMovementY, "MovementY", NULL},
 	{"RotationZ", (getter)PyNNData_getRotationX, (setter)PyNNData_setRotationX, "RotationZ", NULL},
-	{"RotationY", (getter)PyNNData_getRotationY, (setter)PyNNData_setRotationY, "RotationY", NULL},
 	{NULL}
 };
 
@@ -144,7 +121,6 @@ static void PyNNData_dealloc(CPyNNData* self)
 	Py_XDECREF(self->MovementX);
 	Py_XDECREF(self->MovementY);
 	Py_XDECREF(self->RotationZ);
-	Py_XDECREF(self->RotationY);
 	Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -178,12 +154,6 @@ static PyObject* PyNNData_new(PyTypeObject* type, PyObject* args, PyObject* kwds
 			Py_DECREF(self);
 			return NULL;
 		}
-		self->RotationY = PyFloat_FromDouble(0.0);
-		if (self->RotationY == NULL)
-		{
-			Py_DECREF(self);
-			return NULL;
-		}
 	}
 	return (PyObject*)self;
 }
@@ -208,8 +178,6 @@ static int PyNNData_init(CPyNNData* self, PyObject* args, PyObject* kwds)
 		Py_XSETREF(self->MovementY, Py_NewRef(movementY));
 	if (rotationX)
 		Py_XSETREF(self->RotationZ, Py_NewRef(rotationX));
-	if (rotationY)
-		Py_XSETREF(self->RotationY, Py_NewRef(rotationY));
 
 	return 0;
 }

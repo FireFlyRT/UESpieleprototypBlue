@@ -62,35 +62,45 @@ void UCSensorController::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 		allHitResults.Add(hitResults);
 	}
 
-	for (int i = 0; i < allHitResults.Num(); i++)
+	for (int i = 0; i < allHitResults.Num() - 1; i++)
 	{
-		for (int j = 0; j < allHitResults[i].Num(); i++)
+		for (int j = 0; j < allHitResults[i].Num() - 1; i++)
 		{
 			if (allHitResults[i][j].bBlockingHit && IsValid(allHitResults[i][j].GetActor()))
 			{
 				// Get all Data from Actor
 				UCEnhancedCharacterController* eCharController = allHitResults[i][j].GetActor()->GetComponentByClass<UCEnhancedCharacterController>();
-				if (!eCharController)
-					continue;
+				if (eCharController) 
+				{
+					_sensorData->ClassCategory = eCharController->StatsData->ClassCategory;
+					_sensorData->TribeID = eCharController->StatsData->TribeID;
+					_sensorData->LivePoints = eCharController->StatsData->LivePoints;
+					_sensorData->Stamina = eCharController->StatsData->Stamina;
+					_sensorData->Strength = eCharController->StatsData->Strength;
+					_sensorData->Age = eCharController->StatsData->Age;
+					_sensorData->Height = eCharController->StatsData->Height;
+					_sensorData->Hunger = eCharController->StatsData->Hunger;
+					_sensorData->Thurst = eCharController->StatsData->Thurst;
+					_sensorData->PositionX = eCharController->StatsData->PositionX;
+					_sensorData->PositionY = eCharController->StatsData->PositionY;
+					_sensorData->PositionZ = eCharController->StatsData->PositionZ;
+					_sensorData->Distance = FVector::Dist(GetOwner()->GetActorLocation(), FVector(
+						eCharController->StatsData->PositionX,
+						eCharController->StatsData->PositionY,
+						eCharController->StatsData->PositionZ));
 
-				_sensorData->ClassCategory = eCharController->StatsData->ClassCategory;
-				_sensorData->TribeID = eCharController->StatsData->TribeID;
-				_sensorData->LivePoints = eCharController->StatsData->LivePoints;
-				_sensorData->Stamina = eCharController->StatsData->Stamina;
-				_sensorData->Strength = eCharController->StatsData->Strength;
-				_sensorData->Age = eCharController->StatsData->Age;
-				_sensorData->Height = eCharController->StatsData->Height;
-				_sensorData->Hunger = eCharController->StatsData->Hunger;
-				_sensorData->Thurst = eCharController->StatsData->Thurst;
-				_sensorData->PositionX = eCharController->StatsData->PositionX;
-				_sensorData->PositionY = eCharController->StatsData->PositionY;
-				_sensorData->PositionZ = eCharController->StatsData->PositionZ;
-				_sensorData->Distance = FVector::Dist(GetOwner()->GetActorLocation(), FVector(
-					eCharController->StatsData->PositionX,
-					eCharController->StatsData->PositionY,
-					eCharController->StatsData->PositionZ));
+					return;
+				}
 
-				return;
+				if (allHitResults[i][j].GetActor()->ActorHasTag("BerrieBush"))
+				{
+					AActor* otherActor = allHitResults[i][j].GetActor();
+					if (otherActor)
+					{
+						OtherActor = otherActor;
+						OnOtherActorFoundDelegate.Broadcast();
+					}
+				}
 			}
 		}
 	}

@@ -31,7 +31,7 @@ void CrypticHelper::DecryptValue(FString* filePath, NeuralNetworkData* nnData)
 				FString valueMovementYName = "moveY";
 				double jsonMovementYValue = jsonObject->GetNumberField(valueMovementYName);
 
-				FString valueRotationName = "rotX";
+				FString valueRotationName = "rotZ";
 				double jsonRotationValue = jsonObject->GetIntegerField(valueRotationName);
 				nnData->Action = jsonActionValue;
 				nnData->Movement = FVector(jsonMovementXValue, jsonMovementYValue, 0);

@@ -118,17 +118,15 @@ int main(int argc, char* argv[])
     bool isConnected = false;
     int jsonCount = 0;
     std::string villagerID;
-    villagerID = std::string("Villager100"); // DEBUG
     std::string pyVillagerID = "'";
-    pyVillagerID.append(villagerID);
-    pyVillagerID.append("'");
 
     std::string emptyfile = std::string(jsonPath);
     emptyfile.append("/Empty.json");
 
+    bool emptyCreated = false;
     while (!isConnected)
     {    
-        if (!std::filesystem::exists(emptyfile)) 
+        if (!std::filesystem::exists(emptyfile) && !emptyCreated) 
         {
             nlohmann::json json;
             json["Empty"] = "Empty";
@@ -137,6 +135,7 @@ int main(int argc, char* argv[])
             stream << json;
             std::string jsonData = stream.str();
             CrypticHelper::WriteFileWithJSON(jsonData, emptyfile);
+            emptyCreated = true;
             // Maybe with random unic uint ID
         }
         
@@ -152,26 +151,89 @@ int main(int argc, char* argv[])
                 if (result.substr(0, 3) != std::string("New"))
                     continue;
                 villagerID = std::string(result.substr(4));
+                pyVillagerID.append(villagerID);
+                pyVillagerID.append("'");
                 std::cout << "Readed: " << result << std::endl;
                 isConnected = true;
-                // delete Empty File
-                //while(std::remove(emptyfile.c_str()) != 0);
-                std::cout << "Removed Empty" << std::endl;
                 break;
             }
         }
         if (!isConnected) continue;
-
-        if (villagerID.empty())
-            villagerID = "'Villager001'"; // Fallback
-
-        std::string** progValues = new std::string*[1]
-        {
-            new std::string(pyVillagerID),
-        };
-        PythonCommands::CreateClass("Program", program, progValues, 1);
-    }
+        //isConnected = true; //DEBUG
     
+        if (villagerID.empty())
+        {
+            // Fallbacks
+            pyVillagerID = "'Villager100'"; 
+            villagerID = "Villager100";
+        }
+    
+        std::string pyJsonPath = std::string("'");
+        pyJsonPath.append(jsonPath);
+        pyJsonPath.append("'");
+        while (true)
+        {
+            size_t index = pyJsonPath.find('\\');
+            if (index == std::string::npos)
+                break;
+            pyJsonPath.replace(index, 1, "/");
+        }
+
+        // Init Environment in Python
+        std::string** programValues = new std::string*[2]
+            {
+                new std::string(pyVillagerID),
+                    new std::string(pyJsonPath),
+            };
+        PythonCommands::CreateClass("Program", "prog", programValues, 2);
+
+        std::string command = std::string();
+
+        std::string** statValues = new std::string*[12]
+            {
+                new std::string("0"),
+                new std::string("0"),
+                new std::string("0"),
+                new std::string("0"),
+                new std::string("0"),
+                new std::string("0"),
+                new std::string("0"),
+                new std::string("0"),
+                new std::string("0"),
+                new std::string("0"),
+                new std::string("0"),
+                new std::string("0"),
+            };
+        PythonCommands::CreateClass("StatData", "statData", statValues, 12);
+
+        std::string** sensorValues = new std::string*[13]
+            {
+                new std::string("0"),
+                new std::string("0"),
+                new std::string("0"),
+                new std::string("0"),
+                new std::string("0"),
+                new std::string("0"),
+                new std::string("0"),
+                new std::string("0"),
+                new std::string("0"),
+                new std::string("0"),
+                new std::string("0"),
+                new std::string("0"),
+                new std::string("0"),
+            };
+        PythonCommands::CreateClass("SensorData", "sensorData", sensorValues, 13);
+
+        std::string** rewardValues = new std::string*[1]
+            {
+                new std::string("0")
+            };
+        PythonCommands::CreateClass("RewardData", "rewardData", rewardValues, 1);
+
+        PyRun_SimpleString("prog.env.SetObservationSpace(sensorData.GetData(), statData.GetData())");
+        PyRun_SimpleString("prog.LateInit()");
+    }
+
     while (true)
     {
         // Wait for Sensor-/Reward-Data    
@@ -231,16 +293,9 @@ int main(int argc, char* argv[])
                     new std::string(std::to_string(rewardData->Reward))
             };
             PythonCommands::CreateClass("RewardData", "rewardData", rewardValues, 1);
-    
-            // Init Environment in Python
-            std::string** programValues = new std::string*[1]
-            {
-                new std::string(pyVillagerID)
-            };
-            PythonCommands::CreateClass("Program", "prog", programValues, 1);
+
             PyRun_SimpleString("prog.env.SetObservationSpace(sensorData.GetData(), statData.GetData())");
-            PyRun_SimpleString("prog.LateInit()");
-    
+
             // Build state in Python as new_state
             PyRun_SimpleString("new_state = statData.GetData()");
     

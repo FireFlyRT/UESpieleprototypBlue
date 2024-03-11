@@ -136,12 +136,6 @@ std::string CrypticHelper::EncryptValue(NeuralNetworkData* data)
     values.append(SymbolNumberAdjustment(abs(data->RotationZ), 3));
     values.append(",");
 
-    accidental = data->RotationY > 0 ? 1 : 0;
-    values.append(std::to_string(accidental));
-    values.append(".");
-    values.append(SymbolNumberAdjustment(abs(data->RotationY), 3));
-    values.append(",");
-
     values.append(SymbolNumberAdjustment(data->Action, 3));
 
     return values;
@@ -154,7 +148,6 @@ std::string CrypticHelper::SerializeToJSON(NeuralNetworkData* data)
     jsonData["MovementX"] = std::to_string(data->MovementX);
     jsonData["MovementY"] = std::to_string(data->MovementY);
     jsonData["RotationZ"] = std::to_string(data->RotationZ);
-    jsonData["RotationY"] = std::to_string(data->RotationY);
     jsonData["Action"] = std::to_string(data->Action);
 
     return jsonData;

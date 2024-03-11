@@ -9,7 +9,6 @@ public:
 	float MovementX;
 	float MovementY;
 	float RotationZ;
-	float RotationY;
 	int Action;
 
 public:

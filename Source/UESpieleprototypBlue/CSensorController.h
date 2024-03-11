@@ -7,6 +7,7 @@
 #include "Components/ActorComponent.h"
 #include "CSensorController.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnOtherActorFound);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class UESPIELEPROTOTYPBLUE_API UCSensorController : public UActorComponent
@@ -34,5 +35,8 @@ public:
 
 	SensorData* GetSensorData();
 
-	
+	UPROPERTY(BlueprintAssignable)
+	FOnOtherActorFound OnOtherActorFoundDelegate; 
+	UPROPERTY(BlueprintReadWrite)
+	AActor* OtherActor;
 };

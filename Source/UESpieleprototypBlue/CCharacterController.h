@@ -55,4 +55,8 @@ public:
 	TArray<ACGameObject*> ItemsLeftHand;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	ACMagicZone* MagicZone;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float MoveSpeed;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float RotationSpeed;
 };

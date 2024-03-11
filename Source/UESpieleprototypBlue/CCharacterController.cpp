@@ -35,8 +35,8 @@ void UCCharacterController::TickComponent(float DeltaTime, ELevelTick TickType, 
 
 void UCCharacterController::OnMove(float moveX, float moveY)
 {
-	Villager->AddMovementInput(Villager->GetMesh()->GetRelativeRotation().Vector().ForwardVector, moveX);
-	Villager->AddMovementInput(Villager->GetMesh()->GetRelativeRotation().Vector().RightVector, moveY);
+	Villager->AddMovementInput(Villager->GetMesh()->GetRelativeRotation().Vector().ForwardVector, moveX * MoveSpeed);
+	Villager->AddMovementInput(Villager->GetMesh()->GetRelativeRotation().Vector().RightVector, moveY * MoveSpeed);
 }
 
 void UCCharacterController::SetVillager(ACVillager* villager)
@@ -46,8 +46,9 @@ void UCCharacterController::SetVillager(ACVillager* villager)
 
 void UCCharacterController::OnLook(FVector rotation)
 {
-	Villager->AddControllerPitchInput(-rotation.Y);
-	Villager->AddControllerYawInput(rotation.X);
+	Villager->AddControllerPitchInput(-rotation.Y * RotationSpeed);
+	Villager->AddControllerYawInput(rotation.Z * RotationSpeed);
+	Villager->AddControllerRollInput(rotation.X * RotationSpeed);
 }
 
 void UCCharacterController::OnPickUp(ACGameObject* object)
