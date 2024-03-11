@@ -126,40 +126,40 @@ int main(int argc, char* argv[])
     bool emptyCreated = false;
     while (!isConnected)
     {    
-        if (!std::filesystem::exists(emptyfile) && !emptyCreated) 
-        {
-            nlohmann::json json;
-            json["Empty"] = "Empty";
-            std::cout << json << std::endl;
-            std::ostringstream stream;
-            stream << json;
-            std::string jsonData = stream.str();
-            CrypticHelper::WriteFileWithJSON(jsonData, emptyfile);
-            emptyCreated = true;
-            // Maybe with random unic uint ID
-        }
-        
-        //Wait for new ID
-        for (auto const& entry : std::filesystem::directory_iterator(jsonPath)) 
-        {
-            if (std::filesystem::path(entry.path()).filename().string().find(std::string("Villager")) != std::string::npos)
-            {
-                auto villagerPath = entry.path();
-                std::ifstream stream(villagerPath.string());
-                std::string result((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
-                stream.close();
-                if (result.substr(0, 3) != std::string("New"))
-                    continue;
-                villagerID = std::string(result.substr(4));
-                pyVillagerID.append(villagerID);
-                pyVillagerID.append("'");
-                std::cout << "Readed: " << result << std::endl;
-                isConnected = true;
-                break;
-            }
-        }
-        if (!isConnected) continue;
-        //isConnected = true; //DEBUG
+        //if (!std::filesystem::exists(emptyfile) && !emptyCreated) 
+        //{
+        //    nlohmann::json json;
+        //    json["Empty"] = "Empty";
+        //    std::cout << json << std::endl;
+        //    std::ostringstream stream;
+        //    stream << json;
+        //    std::string jsonData = stream.str();
+        //    CrypticHelper::WriteFileWithJSON(jsonData, emptyfile);
+        //    emptyCreated = true;
+        //    // Maybe with random unic uint ID
+        //}
+        //
+        ////Wait for new ID
+        //for (auto const& entry : std::filesystem::directory_iterator(jsonPath)) 
+        //{
+        //    if (std::filesystem::path(entry.path()).filename().string().find(std::string("Villager")) != std::string::npos)
+        //    {
+        //        auto villagerPath = entry.path();
+        //        std::ifstream stream(villagerPath.string());
+        //        std::string result((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
+        //        stream.close();
+        //        if (result.substr(0, 3) != std::string("New"))
+        //            continue;
+        //        villagerID = std::string(result.substr(4));
+        //        pyVillagerID.append(villagerID);
+        //        pyVillagerID.append("'");
+        //        std::cout << "Readed: " << result << std::endl;
+        //        isConnected = true;
+        //        break;
+        //    }
+        //}
+        //if (!isConnected) continue;
+        isConnected = true; //DEBUG
     
         if (villagerID.empty())
         {

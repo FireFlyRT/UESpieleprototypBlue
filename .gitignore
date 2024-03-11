@@ -79,3 +79,5 @@ PythonInterface/x64/*
 PythonInterface/DLLs/*
 PythonInterface/Doc/*
 *.pyd
+*.json
+*.pyc

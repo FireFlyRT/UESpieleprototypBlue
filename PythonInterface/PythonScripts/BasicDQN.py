@@ -76,7 +76,7 @@ class Agent:
             action, moveX, moveY, rotZ = self.env.actionSpace.sample()
             # Random Move and Rotation
         else:
-            self.state = self.env.observationSpace
+            self.state = torch.tensor.floor(self.env.observationSpace)
             state_a = np.array(self.state, copy = False)
             state_v = torch.tensor(state_a).to(device)
             q_vals_action_v, moveX, moveY, rotZ = net(state_v)
