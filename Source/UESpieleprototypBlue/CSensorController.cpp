@@ -89,6 +89,7 @@ void UCSensorController::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 						eCharController->StatsData->PositionY,
 						eCharController->StatsData->PositionZ));
 
+					allHitResults.Empty();
 					return;
 				}
 
@@ -99,6 +100,9 @@ void UCSensorController::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 					{
 						OtherActor = otherActor;
 						OnOtherActorFoundDelegate.Broadcast();
+
+						allHitResults.Empty();
+						return;
 					}
 				}
 			}
@@ -121,6 +125,8 @@ void UCSensorController::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 		_sensorData->PositionZ = 0;
 		_sensorData->Distance = 0;
 	}
+
+	allHitResults.Empty();
 }
 
 SensorData* UCSensorController::GetSensorData()
